@@ -1,0 +1,2882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#05060c" />
+<meta name="color-scheme" content="dark" />
+<title>HEX Emoji Fusion Lab — 2.5D</title>
+<meta name="description" content="Fuse animated Noto emoji. Tap to copy, add any emoji, watch results auto-detect." />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<style>
+/* ============================================================
+   2.5D DARK DESIGN TOKENS
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  color-scheme: dark;
+  --bg: #05060c;
+  --surface: #161a29;
+  --surface-hi: #1e2334;
+  --card: #1a1f30;
+  --card-hi: #232940;
+  --border: rgba(255,255,255,.07);
+  --border-hi: rgba(255,255,255,.12);
+  --edge-light: rgba(255,255,255,.10);
+  --edge-dark: rgba(0,0,0,.55);
+  --txt: #eef1f8;
+  --txt-2: #b4bad0;
+  --muted: #7e869e;
+  --acc: #7c5cff;
+  --acc-2: #ff4d8d;
+  --ok: #2ee6a8;
+  --warn: #ffb84d;
+  --btn-depth: #070910;
+  --btn-depth-primary: #5c1a4a;
+  --glow-1: rgba(124,92,255,.28);
+  --glow-2: rgba(255,77,141,.20);
+  --glow-3: rgba(46,230,168,.12);
+}
+
+html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+
+body{
+  margin:0;
+  padding:0 14px calc(96px + env(safe-area-inset-bottom));
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+               Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  color:var(--txt);
+  background:var(--bg);
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+
+body::before{
+  content:'';
+  position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:
+    radial-gradient(52vw 52vw at 8% 2%, var(--glow-1), transparent 62%),
+    radial-gradient(48vw 48vw at 92% 6%, var(--glow-2), transparent 62%),
+    radial-gradient(64vw 64vw at 50% 112%, var(--glow-3), transparent 62%),
+    var(--bg);
+}
+
+body::after{
+  content:'';
+  position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(124,92,255,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,92,255,.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(ellipse 85% 60% at 50% 42%, #000 0%, transparent 78%);
+          mask-image: radial-gradient(ellipse 85% 60% at 50% 42%, #000 0%, transparent 78%);
+}
+
+button{ touch-action:manipulation; font-family:inherit; }
+a{ color:var(--acc); text-decoration:none; }
+a:hover{ text-decoration:underline; }
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+header{ max-width:900px; margin:0 auto; padding:34px 0 4px; text-align:center; }
+h1{ margin:0; font-size:clamp(23px,5.6vw,40px); line-height:1.12; letter-spacing:-.025em; font-weight:800; }
+h1 .grad{
+  background:linear-gradient(92deg,#ff9a3c,#ff4d8d 45%,#7c5cff 92%);
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.sub{
+  margin:10px auto 0; max-width:540px;
+  color:var(--muted); font-size:clamp(13px,2.6vw,15px); line-height:1.55;
+}
+.sub b{ color:var(--txt-2); }
+
+.stats{
+  margin-top:16px;
+  display:inline-flex; align-items:center; gap:10px;
+  padding:8px 10px 8px 16px;
+  border-radius:999px;
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  border:1px solid var(--border);
+  box-shadow:
+    inset 0 1px 0 var(--edge-light),
+    inset 0 -1px 0 var(--edge-dark),
+    0 2px 0 rgba(0,0,0,.4),
+    0 6px 16px -6px rgba(0,0,0,.6);
+  font-size:13px; color:var(--muted);
+}
+.stats b{ color:var(--txt); font-variant-numeric:tabular-nums; }
+.stat-icon{ color:var(--warn); font-size:13px; }
+
+.icon-mini{
+  border:1px solid var(--border-hi);
+  background:linear-gradient(180deg, #2a3048, #1a1f30);
+  color:var(--txt);
+  width:32px; height:32px; border-radius:50%;
+  cursor:pointer; display:grid; place-items:center;
+  font-size:13px; line-height:1;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 2px 0 var(--btn-depth);
+  transition:transform .1s ease, box-shadow .1s ease;
+}
+.icon-mini:active{
+  transform:translateY(2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 0 0 var(--btn-depth);
+}
+
+/* progress bar */
+.progress{
+  margin:14px auto 0; max-width:340px; height:6px;
+  border-radius:999px; overflow:hidden;
+  background:rgba(255,255,255,.07);
+  border:1px solid var(--border);
+}
+.progress-fill{
+  height:100%; width:0; border-radius:999px;
+  background:linear-gradient(90deg,#2ee6a8,#5cc8ff,#7c5cff);
+  transition:width .55s cubic-bezier(.2,1,.3,1);
+  will-change:width;
+}
+
+main{ max-width:900px; margin:0 auto; }
+
+/* ============================================================
+   REACTOR
+   ============================================================ */
+.reactor{
+  position:relative;
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
+  gap:clamp(4px,1.6vw,16px);
+  padding:clamp(20px,4.5vw,34px) clamp(10px,2.6vw,22px);
+  margin-top:22px;
+  border-radius:28px;
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(124,92,255,.15), transparent 62%),
+    linear-gradient(180deg, #0d101b, #07090f);
+  border:1px solid rgba(255,255,255,.05);
+  box-shadow:
+    inset 0 2px 10px rgba(0,0,0,.72),
+    inset 0 -1px 0 rgba(255,255,255,.04),
+    0 1px 0 rgba(255,255,255,.05),
+    0 40px 70px -40px rgba(0,0,0,.95);
+  overflow:hidden;
+  isolation:isolate;
+  contain: layout style;
+}
+
+.cell{
+  width:clamp(58px,15.2vw,104px);
+  aspect-ratio:1;
+  border-radius:20px;
+  display:grid; place-items:center;
+  position:relative;
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  border:1px solid var(--border);
+  box-shadow:
+    inset 0 1px 0 var(--edge-light),
+    inset 0 -1px 0 var(--edge-dark),
+    0 4px 0 rgba(0,0,0,.45),
+    0 10px 20px -8px rgba(0,0,0,.65);
+  cursor:pointer;
+  user-select:none; -webkit-user-select:none;
+  transition: transform .3s cubic-bezier(.3,1.3,.4,1),
+              box-shadow .3s ease, border-color .3s ease;
+  contain: layout style;
+}
+.cell > *{ position:relative; z-index:1; }
+
+.cell.next::before{
+  content:'';
+  position:absolute; inset:-1px; border-radius:inherit;
+  border:1.5px solid var(--acc);
+  box-shadow:0 0 18px 2px rgba(124,92,255,.45);
+  pointer-events:none;
+  animation:slotPulse 2s ease-in-out infinite;
+}
+@keyframes slotPulse{
+  0%,100%{ opacity:.32; transform:scale(1); }
+  50%    { opacity:1;   transform:scale(1.025); }
+}
+
+.cell.filled{
+  border-color:rgba(124,92,255,.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.15),
+    inset 0 -1px 0 var(--edge-dark),
+    0 4px 0 rgba(40,20,80,.7),
+    0 0 24px rgba(124,92,255,.3),
+    0 10px 24px -8px rgba(124,92,255,.4);
+}
+
+.cell.result{
+  width:clamp(74px,19.5vw,138px);
+  border-color:rgba(255,77,141,.35);
+  background:radial-gradient(circle at 50% 40%, rgba(255,77,141,.10), var(--card));
+}
+.cell.result.filled{
+  border-color:rgba(255,77,141,.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.2),
+    inset 0 -1px 0 rgba(0,0,0,.5),
+    0 4px 0 rgba(80,10,40,.65),
+    0 0 40px rgba(255,77,141,.45),
+    0 12px 28px -8px rgba(255,77,141,.4);
+}
+.cell.result.filled .emoji{ animation: floaty 3s ease-in-out infinite; }
+@keyframes floaty{
+  0%,100%{ transform:translate3d(0,0,0); }
+  50%    { transform:translate3d(0,-4px,0); }
+}
+
+@media (hover:hover){
+  .cell:hover{
+    transform:perspective(700px) rotateX(6deg) rotateY(-4deg) translateZ(6px) translateY(-2px);
+    border-color:rgba(124,92,255,.5);
+  }
+  .cell.result:hover{ border-color:rgba(255,77,141,.75); }
+  .cell:active{
+    transform:perspective(700px) translateZ(0) translateY(2px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.10),
+      0 0 0 rgba(0,0,0,.45),
+      0 2px 6px rgba(0,0,0,.4);
+  }
+}
+
+.cell.reveal .emoji{ animation: pop .62s cubic-bezier(.2,1.5,.4,1) both; }
+.cell.reveal::after{
+  content:'';
+  position:absolute; inset:-26%; border-radius:50%; z-index:0;
+  background:radial-gradient(circle, rgba(255,77,141,.55), transparent 66%);
+  animation:ring .95s ease-out forwards;
+  pointer-events:none;
+}
+.cell.shake{ animation:shake .42s ease-in-out; }
+@keyframes pop{
+  0%  { transform:scale(.2) rotate(-25deg); opacity:0; }
+  55% { transform:scale(1.18) rotate(6deg); opacity:1; }
+  100%{ transform:scale(1) rotate(0); }
+}
+@keyframes ring{ 0%{opacity:.95; transform:scale(.5);} 100%{opacity:0; transform:scale(1.25);} }
+@keyframes shake{
+  0%,100%{ transform:translateX(0); }
+  20%{ transform:translateX(-9px) rotate(-3deg); }
+  45%{ transform:translateX(8px) rotate(3deg); }
+  70%{ transform:translateX(-5px); }
+}
+
+.ph{ font-size:clamp(16px,4.6vw,26px); font-weight:800; color:rgba(255,255,255,.16); }
+
+.op{
+  font-size:clamp(14px,3.8vw,26px); font-weight:800;
+  color:rgba(255,255,255,.22);
+  text-shadow:0 1px 0 rgba(0,0,0,.5), 0 0 12px rgba(124,92,255,.3);
+  flex-shrink:0;
+}
+
+.reactor.fusing .cell[data-slot="0"]{ transform:translateX(26%) rotate(-20deg) scale(.7); opacity:.15; }
+.reactor.fusing .cell[data-slot="1"]{ transform:translateX(-26%) rotate(20deg) scale(.7); opacity:.15; }
+.reactor.fusing .cell.result{ transform:scale(.92); opacity:.55; }
+
+.flash{
+  position:absolute; inset:0; pointer-events:none; opacity:0; z-index:5;
+  will-change:opacity;
+  background:radial-gradient(circle at 50% 50%,
+    rgba(255,255,255,.95), rgba(255,77,141,.5) 35%, transparent 70%);
+}
+
+.slot-x{
+  position:absolute !important;
+  top:-8px; right:-8px; z-index:4 !important;
+  width:26px; height:26px; border-radius:50%;
+  cursor:pointer; padding:0;
+  border:1px solid var(--border-hi);
+  background:linear-gradient(180deg, #2a3048, #1a1f30);
+  color:var(--txt); font-size:11px;
+  display:grid; place-items:center;
+  box-shadow:0 2px 0 var(--btn-depth), 0 4px 8px rgba(0,0,0,.5);
+  transition:transform .1s ease, box-shadow .1s ease;
+}
+.slot-x:active{
+  transform:translateY(2px) scale(.95);
+  box-shadow:0 0 0 var(--btn-depth);
+}
+.copy-hint{
+  position:absolute !important;
+  bottom:4px; right:6px; z-index:3 !important;
+  font-size:10px; color:var(--muted); opacity:.5;
+  pointer-events:none;
+}
+.cell.result .copy-hint{ font-size:12px; opacity:.7; }
+
+/* ============================================================
+   STATUS + ACTIONS
+   ============================================================ */
+.status{
+  text-align:center; margin:16px auto 0;
+  min-height:22px; font-size:clamp(12.5px,2.7vw,15px);
+  line-height:1.55; color:var(--muted);
+  padding:0 6px; transition:color .25s ease;
+}
+.status.ok{ color:var(--ok); }
+
+.result-actions{
+  display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
+  margin:12px auto 0; max-width:calc(100vw - 28px);
+}
+
+.copy-eq{
+  display:inline-flex; align-items:center; gap:7px;
+  padding:10px 20px; border-radius:999px;
+  border:1px solid rgba(46,230,168,.4);
+  background:linear-gradient(180deg, rgba(46,230,168,.15), rgba(46,230,168,.06));
+  color:var(--ok);
+  font-size:13px; font-weight:700;
+  cursor:pointer; font-family:inherit;
+  max-width:100%;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  box-shadow:0 2px 0 rgba(0,40,30,.6), 0 6px 14px -4px rgba(46,230,168,.3);
+  transition:transform .1s ease, box-shadow .1s ease;
+}
+.copy-eq:active{
+  transform:translateY(2px);
+  box-shadow:0 0 0 rgba(0,40,30,.6);
+}
+.copy-eq[hidden]{ display:none; }
+
+.copy-eq.chain{
+  border-color:rgba(124,92,255,.45);
+  color:#b9a6ff;
+  background:linear-gradient(180deg, rgba(124,92,255,.18), rgba(124,92,255,.06));
+  box-shadow:0 2px 0 rgba(40,20,90,.6), 0 6px 14px -4px rgba(124,92,255,.3);
+}
+
+.action-bar{
+  display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
+  margin-top:18px;
+}
+
+.btn{
+  font-weight:700; font-size:14px;
+  padding:12px 22px; border-radius:14px;
+  border:1px solid var(--border-hi);
+  background:linear-gradient(180deg, #2a3048, #1a1f30);
+  color:var(--txt);
+  cursor:pointer;
+  display:inline-flex; align-items:center; gap:8px;
+  min-height:48px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    inset 0 -1px 0 rgba(0,0,0,.4),
+    0 4px 0 var(--btn-depth),
+    0 8px 16px -6px rgba(0,0,0,.7);
+  transition: transform .1s ease, box-shadow .1s ease, background .2s ease;
+  -webkit-user-select:none; user-select:none;
+}
+.btn:hover{ background:linear-gradient(180deg, #343b58, #1f2538); }
+.btn:active{
+  transform:translateY(4px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 0 0 var(--btn-depth),
+    0 2px 6px rgba(0,0,0,.4);
+}
+
+.btn.primary{
+  border-color:rgba(255,255,255,.2);
+  background:linear-gradient(180deg, #ff7a3c, #ff4d8d 55%, #b83fff);
+  color:#fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.35),
+    inset 0 -2px 0 rgba(0,0,0,.25),
+    0 4px 0 var(--btn-depth-primary),
+    0 10px 24px -6px rgba(255,77,141,.5);
+}
+.btn.primary:hover{ background:linear-gradient(180deg, #ff8a4c, #ff5d9d 55%, #c84fff); }
+.btn.primary:active{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.3),
+    0 0 0 var(--btn-depth-primary),
+    0 2px 8px rgba(255,77,141,.35);
+}
+
+.btn.small{ padding:12px 16px; flex:0 0 auto; }
+.btn.wide{ width:100%; justify-content:center; margin-top:10px; }
+
+/* ============================================================
+   PANELS
+   ============================================================ */
+.panel{
+  margin-top:26px;
+  padding:18px 16px 20px;
+  border-radius:22px;
+  background:linear-gradient(180deg, var(--surface-hi), var(--surface));
+  border:1px solid var(--border);
+  box-shadow:
+    inset 0 1px 0 var(--edge-light),
+    inset 0 -1px 0 var(--edge-dark),
+    0 2px 0 rgba(0,0,0,.4),
+    0 20px 40px -24px rgba(0,0,0,.9);
+  contain: layout style;
+}
+.panel[hidden]{ display:none; }
+
+.panel h2{
+  margin:0 0 14px;
+  font-size:12.5px; font-weight:800;
+  letter-spacing:.13em; text-transform:uppercase;
+  color:var(--muted);
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+
+.badge{
+  font-size:11px; letter-spacing:.03em;
+  padding:3px 9px; border-radius:999px;
+  background:rgba(46,230,168,.14); color:var(--ok);
+  border:1px solid rgba(46,230,168,.32);
+  font-weight:700; text-transform:none;
+}
+.badge.purple{
+  background:rgba(124,92,255,.16); color:var(--acc);
+  border-color:rgba(124,92,255,.34);
+}
+
+.mini-btn{
+  font:inherit;font-size:11px;font-weight:800;letter-spacing:.02em;
+  padding:5px 11px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--border-hi);
+  background:linear-gradient(180deg,#2a3048,#1a1f30);
+  color:var(--txt-2);
+  box-shadow:0 2px 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08);
+  transition:transform .1s ease,box-shadow .1s ease,color .2s ease;
+}
+.mini-btn:active{transform:translateY(2px);box-shadow:0 0 0 rgba(0,0,0,.35)}
+.mini-btn.danger{color:#ff8a97;border-color:rgba(255,92,108,.4)}
+
+/* ---------- chips ---------- */
+.chips{
+  display:flex; gap:8px;
+  overflow-x:auto; padding:2px 0 12px;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.chips::-webkit-scrollbar{ display:none; }
+
+.chip{
+  flex:0 0 auto;
+  padding:8px 14px; border-radius:999px;
+  border:1px solid var(--border-hi);
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  color:var(--txt);
+  font-size:13px; font-weight:600;
+  cursor:pointer; white-space:nowrap;
+  min-height:36px;
+  display:inline-flex; align-items:center; gap:6px;
+  box-shadow:0 2px 0 rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+  transition: transform .1s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.chip:active{ transform:translateY(2px); box-shadow:0 0 0 rgba(0,0,0,.35); }
+.chip.active{
+  background:linear-gradient(180deg, #8f6fff, #6b46ff);
+  color:#fff;
+  border-color:rgba(255,255,255,.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.3),
+    0 2px 0 #3d1a8c,
+    0 6px 14px -4px rgba(124,92,255,.5);
+}
+.chip.flash{ animation: chipFlash .8s ease; }
+@keyframes chipFlash{
+  0%,100%{ transform:scale(1); }
+  50%    { transform:scale(1.08); }
+}
+
+/* ---------- palette ---------- */
+.palette{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(56px, 1fr));
+  gap:8px;
+}
+
+.ing{
+  aspect-ratio:1;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  display:grid; place-items:center;
+  cursor:pointer;
+  padding:5px; position:relative;
+  font-size:clamp(20px,5vw,28px);
+  line-height:1;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.09),
+    inset 0 -1px 0 rgba(0,0,0,.4),
+    0 3px 0 rgba(0,0,0,.35),
+    0 6px 12px -4px rgba(0,0,0,.5);
+  transition: transform .15s cubic-bezier(.3,1.4,.4,1), border-color .2s ease;
+  -webkit-tap-highlight-color:transparent;
+  contain: layout style;
+}
+@media (hover:hover){
+  .ing:hover{ transform:translateY(-3px); border-color:rgba(124,92,255,.55); }
+}
+.ing:active{
+  transform:translateY(2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 0 0 rgba(0,0,0,.35),
+    0 2px 6px rgba(0,0,0,.4);
+}
+.ing.used{
+  border-color:rgba(255,77,141,.6);
+  background:linear-gradient(180deg, rgba(255,77,141,.18), rgba(255,77,141,.06));
+}
+
+/* ---------- add-any-emoji ---------- */
+.add-row{ display:flex; gap:8px; }
+.emoji-input{
+  flex:1 1 auto; min-width:0;
+  padding:12px 14px; border-radius:14px;
+  border:1px solid var(--border-hi);
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  color:var(--txt);
+  font-size:16px; font-family:inherit;
+  outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 2px 0 rgba(0,0,0,.35);
+  transition:border-color .2s ease, box-shadow .2s ease;
+}
+.emoji-input::placeholder{ color:var(--muted); }
+.emoji-input:focus{
+  border-color:var(--acc);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 2px 0 rgba(0,0,0,.35),
+    0 0 0 3px rgba(124,92,255,.22);
+}
+
+/* ---------- picker ---------- */
+.picker{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+.picker[hidden]{ display:none; }
+.picker-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(44px, 1fr));
+  gap:6px;
+  max-height:300px; overflow-y:auto;
+  padding:4px 2px 6px;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  contain: content;
+}
+.picker-grid::-webkit-scrollbar{ width:6px; }
+.picker-grid::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.15); border-radius:3px; }
+
+.pk{
+  aspect-ratio:1;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  display:grid; place-items:center;
+  cursor:pointer;
+  padding:3px; position:relative;
+  font-size:clamp(18px,4.5vw,24px);
+  line-height:1;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 2px 0 rgba(0,0,0,.3);
+  transition: transform .12s ease, border-color .2s ease;
+  -webkit-tap-highlight-color:transparent;
+  contain: layout style;
+}
+@media (hover:hover){
+  .pk:hover{ transform:scale(1.1); border-color:rgba(124,92,255,.55); }
+}
+.pk:active{ transform:scale(.9); }
+
+/* ---------- dex tools ---------- */
+.dex-tools{ display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+
+.dex-search{
+  width:100%; padding:10px 14px; border-radius:12px;
+  border:1px solid var(--border-hi);
+  background:linear-gradient(180deg,var(--card-hi),var(--card));
+  color:var(--txt); font-size:14px; font-family:inherit; outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 0 rgba(0,0,0,.35);
+  transition:border-color .2s ease, box-shadow .2s ease;
+}
+.dex-search::placeholder{ color:var(--muted); }
+.dex-search:focus{
+  border-color:var(--acc);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 2px 0 rgba(0,0,0,.35),
+    0 0 0 3px rgba(124,92,255,.22);
+}
+.dex-filters{ padding-bottom:0; }
+
+/* ---------- dex ---------- */
+.dex{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(96px, 1fr));
+  gap:9px;
+}
+
+.dex-item{
+  padding:11px 6px 9px;
+  border-radius:16px;
+  text-align:center;
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  border:1px solid var(--border);
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  min-height:96px; justify-content:center;
+  position:relative;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    inset 0 -1px 0 rgba(0,0,0,.4),
+    0 2px 0 rgba(0,0,0,.35);
+  transition: transform .2s ease, border-color .25s ease;
+  contain: layout style;
+}
+.dex-item.found{
+  border-color:rgba(46,230,168,.4);
+  background:linear-gradient(180deg, rgba(46,230,168,.12), var(--card));
+  cursor:pointer;
+}
+@media (hover:hover){
+  .dex-item.found:hover{ transform:translateY(-3px); border-color:rgba(46,230,168,.6); }
+}
+.dex-item.locked{ opacity:.45; cursor:default; }
+.dex-item.pop{ animation:pop .5s cubic-bezier(.2,1.5,.4,1); }
+
+.dex-name{
+  font-size:11px; font-weight:700; line-height:1.22; color:var(--txt);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;
+}
+.dex-formula{ font-size:10.5px; color:var(--muted); letter-spacing:.02em; }
+.dex-q{ font-size:24px; line-height:1; opacity:.4; }
+.dex-copy{
+  position:absolute; top:6px; right:6px;
+  font-size:10px; color:var(--muted);
+  opacity:.35; transition:opacity .2s ease;
+  pointer-events:none;
+}
+@media (hover:hover){
+  .dex-item.found:hover .dex-copy{ opacity:.9; }
+}
+.dex-empty{
+  grid-column:1/-1; padding:24px 12px; text-align:center;
+  color:var(--muted); font-size:13px;
+}
+
+/* ---------- wild fusions ---------- */
+.wild-list{ display:flex; flex-wrap:wrap; gap:8px; }
+.wild-chip{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 14px; border-radius:999px;
+  border:1px solid var(--border-hi);
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  font-size:14px; cursor:pointer; color:var(--txt); font-weight:600;
+  box-shadow:0 2px 0 rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+  transition: transform .12s ease, border-color .2s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+@media (hover:hover){
+  .wild-chip:hover{ transform:translateY(-2px); border-color:rgba(124,92,255,.5); }
+}
+.wild-chip:active{ transform:translateY(2px); box-shadow:0 0 0 rgba(0,0,0,.35); }
+
+/* ---------- history ---------- */
+.hist-list{
+  display:flex; flex-direction:column; gap:6px;
+  max-height:320px; overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding-right:2px;
+}
+.hist-list::-webkit-scrollbar{ width:6px; }
+.hist-list::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.15); border-radius:3px; }
+
+.hist-row{
+  display:flex; align-items:center; gap:8px;
+  padding:8px 10px; border-radius:12px;
+  border:1px solid var(--border);
+  background:linear-gradient(180deg,var(--card-hi),var(--card));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 0 rgba(0,0,0,.3);
+  cursor:pointer;
+}
+.hist-eq{
+  flex:1 1 auto; min-width:0;
+  font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.hist-name{ color:var(--muted); font-size:11px; margin-left:6px; }
+.hist-btn{
+  flex:0 0 auto; width:30px; height:30px; border-radius:9px; cursor:pointer;
+  border:1px solid var(--border-hi);
+  background:linear-gradient(180deg,#2a3048,#1a1f30);
+  color:var(--txt); font-size:12px;
+  display:grid; place-items:center;
+  box-shadow:0 2px 0 rgba(0,0,0,.35);
+  transition:transform .1s ease;
+}
+.hist-btn:active{ transform:translateY(2px); box-shadow:none; }
+.hist-btn.run{ color:var(--ok); border-color:rgba(46,230,168,.4); }
+
+/* ============================================================
+   EMOJI RENDERER
+   ============================================================ */
+.emoji{
+  width:var(--size, 100%);
+  height:var(--size, 100%);
+  display:grid; place-items:center;
+  pointer-events:none; flex-shrink:0;
+  line-height:1;
+  font-size:var(--emoji-fs, inherit);
+}
+.emoji img{
+  width:100%; height:100%;
+  object-fit:contain;
+  animation:emojiIn .25s ease;
+}
+@keyframes emojiIn{ from{ opacity:0; } to{ opacity:1; } }
+.emoji.loading-emoji{ opacity:.55; }
+.emoji.fallback{ animation:bob 1.5s ease-in-out infinite; }
+@keyframes bob{
+  0%,100%{ transform:translate3d(0,0,0) scale(1); }
+  50%    { transform:translate3d(0,-6%,0) scale(1.05); }
+}
+
+/* ============================================================
+   PARTICLES + TOAST
+   ============================================================ */
+.particle{
+  position:fixed; border-radius:50%;
+  pointer-events:none; z-index:80;
+  will-change:transform,opacity;
+  contain: strict;
+}
+.toast{
+  position:fixed;
+  left:50%; bottom:calc(24px + env(safe-area-inset-bottom));
+  transform:translate(-50%, 140%);
+  padding:12px 22px; border-radius:999px;
+  font-size:14px; font-weight:800;
+  z-index:90; pointer-events:none; white-space:nowrap;
+  max-width:calc(100vw - 28px);
+  overflow:hidden; text-overflow:ellipsis;
+  background:linear-gradient(100deg, var(--ok), #5cc8ff);
+  color:#04120c;
+  box-shadow:0 14px 40px rgba(46,230,168,.45);
+  transition:transform .45s cubic-bezier(.2,1.3,.4,1);
+  will-change:transform;
+}
+.toast.show{ transform:translate(-50%, 0); }
+
+footer{
+  max-width:900px; margin:34px auto 0;
+  text-align:center; font-size:11.5px;
+  color:rgba(255,255,255,.3);
+  line-height:1.7; padding:0 6px;
+}
+footer p + p{ margin-top:4px; }
+footer code{ font-size:11px; }
+footer a{ color:rgba(255,255,255,.55); }
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+@media (max-width:680px){
+  body{ padding-left:12px; padding-right:12px; }
+  header{ padding-top:24px; }
+  .reactor{ border-radius:22px; margin-top:14px; }
+
+  .action-bar{
+    position:fixed;
+    left:0; right:0; bottom:0; z-index:50;
+    margin:0;
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    background:rgba(10,12,20,.94);
+    border-top:1px solid var(--border);
+    gap:8px; flex-wrap:nowrap;
+    box-shadow:0 -10px 30px -10px rgba(0,0,0,.8);
+  }
+  .btn{ flex:1 1 0; padding:12px 6px; font-size:13.5px; justify-content:center; }
+  .btn .lbl{ display:none; }
+  .btn.wide{ flex:none; }
+  .btn.wide .lbl{ display:inline; }
+
+  .panel{ border-radius:18px; padding:15px 12px 17px; }
+  .dex{ grid-template-columns:repeat(auto-fill, minmax(84px, 1fr)); }
+  .toast{ bottom:calc(84px + env(safe-area-inset-bottom)); }
+  .result-actions{ margin-top:10px; }
+}
+
+@media (max-width:380px){
+  .cell{ width:54px; border-radius:16px; }
+  .cell.result{ width:70px; border-radius:18px; }
+  .op{ font-size:15px; }
+  .palette{ grid-template-columns:repeat(auto-fill, minmax(50px, 1fr)); gap:6px; }
+  .picker-grid{ grid-template-columns:repeat(auto-fill, minmax(40px, 1fr)); }
+  .dex{ grid-template-columns:repeat(auto-fill, minmax(74px, 1fr)); gap:7px; }
+  .dex-name{ font-size:10px; }
+  .dex-formula{ font-size:9.5px; }
+  .copy-eq{ font-size:12px; padding:9px 14px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001s !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001s !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Hex Emoji <span class="grad">Fusion Lab</span></h1>
+  <p class="sub">Tap any emoji to copy · Add <b>any</b> emoji and watch it fuse into a result.</p>
+
+  <div class="stats">
+    <i class="fa-solid fa-trophy stat-icon" aria-hidden="true"></i>
+    <span><b id="statCount">0</b> / <span id="statTotal">120</span> discovered</span>
+    <button class="icon-mini" id="btnSound" aria-label="Toggle sound">
+      <i class="fa-solid fa-volume-high"></i>
+    </button>
+  </div>
+
+  <div class="progress" aria-hidden="true">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ REACTOR ============ -->
+  <section class="reactor" id="reactor" aria-label="Fusion reactor">
+    <div class="cell next" id="cellA" data-slot="0" role="button" tabindex="0" aria-label="Ingredient A">
+      <span class="ph">?</span>
+    </div>
+    <div class="op" aria-hidden="true">+</div>
+    <div class="cell" id="cellB" data-slot="1" role="button" tabindex="0" aria-label="Ingredient B">
+      <span class="ph">?</span>
+    </div>
+    <div class="op" aria-hidden="true">=</div>
+    <div class="cell result" id="cellR" role="button" tabindex="0" aria-live="polite" title="Tap to copy emoji + name">
+      <span class="ph">?</span>
+    </div>
+    <div class="flash" id="flash"></div>
+  </section>
+
+  <p class="status" id="status" role="status" aria-live="polite">Pick two ingredients below to begin.</p>
+
+  <div class="result-actions">
+    <button class="copy-eq" id="btnCopyEq" hidden>
+      <i class="fa-solid fa-copy" aria-hidden="true"></i> Copy fusion
+    </button>
+    <button class="copy-eq chain" id="btnChain" hidden>
+      <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Chain
+    </button>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn primary" id="btnFuse">
+      <i class="fa-solid fa-bolt" aria-hidden="true"></i> <span class="lbl">Fuse</span>
+    </button>
+    <button class="btn" id="btnRandom">
+      <i class="fa-solid fa-dice" aria-hidden="true"></i> <span class="lbl">Random</span>
+    </button>
+    <button class="btn" id="btnClear">
+      <i class="fa-solid fa-broom" aria-hidden="true"></i> <span class="lbl">Clear</span>
+    </button>
+  </div>
+
+  <!-- ============ PALETTE ============ -->
+  <section class="panel" aria-label="Ingredient palette">
+    <h2>Ingredient Lab <span class="badge purple">tap = add · hold = copy</span></h2>
+    <div class="chips" id="chips"></div>
+    <div class="palette" id="palette"></div>
+  </section>
+
+  <!-- ============ ADD ANY EMOJI ============ -->
+  <section class="panel" aria-label="Add any emoji">
+    <h2>Add Any Emoji <span class="badge" id="customBadge">0 custom</span></h2>
+    <div class="add-row">
+      <input id="emojiInput" class="emoji-input" type="text" inputmode="text"
+             placeholder="Type or paste any emoji…" maxlength="24" aria-label="Type or paste any emoji" />
+      <button class="btn small" id="btnAddEmoji" aria-label="Add emoji">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      </button>
+    </div>
+    <button class="btn wide" id="btnPicker" aria-expanded="false">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <span class="lbl">Browse emoji picker</span>
+    </button>
+    <div class="picker" id="picker" hidden>
+      <div class="chips" id="pickerChips"></div>
+      <div class="picker-grid" id="pickerGrid"></div>
+    </div>
+  </section>
+
+  <!-- ============ DEX ============ -->
+  <section class="panel" aria-label="Discoveries">
+    <h2>
+      Discoveries
+      <span class="badge" id="dexBadge">0 / 120</span>
+      <button class="mini-btn" id="btnHint">💡 Hint</button>
+      <button class="mini-btn danger" id="btnResetDex">Reset</button>
+    </h2>
+
+    <div class="dex-tools">
+      <input id="dexSearch" class="dex-search" type="search"
+             placeholder="Search by name, emoji or formula…"
+             aria-label="Search fusions" autocomplete="off" />
+      <div class="chips dex-filters" id="dexFilters"></div>
+    </div>
+
+    <div class="dex" id="dex"></div>
+  </section>
+
+  <!-- ============ HISTORY ============ -->
+  <section class="panel" id="histPanel" aria-label="Fusion history" hidden>
+    <h2>
+      History
+      <span class="badge purple" id="histBadge">0</span>
+      <span class="badge purple">tap = copy · ⚡ = re-fuse</span>
+    </h2>
+    <div class="hist-list" id="histList"></div>
+  </section>
+
+  <!-- ============ WILD FUSIONS ============ -->
+  <section class="panel" id="wildPanel" aria-label="Custom fusions" hidden>
+    <h2>Custom Fusions <span class="badge purple" id="wildBadge">0</span> <span class="badge purple">tap to copy</span></h2>
+    <div class="wild-list" id="wildList"></div>
+  </section>
+</main>
+
+<footer>
+  <p>Tap = copy · Hold = copy formula · Enter = fuse · R = random · Esc = clear</p>
+  <p id="footStats">Session: 0 fusions · 0 wild</p>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     0. UTILITIES + PERFORMANCE PROFILE
+     ============================================================ */
+  function $(id) { return document.getElementById(id); }
+
+  function safeParse(str, fallback) {
+    try {
+      var v = JSON.parse(str);
+      return (v === null || v === undefined) ? fallback : v;
+    } catch (e) { return fallback; }
+  }
+
+  var REDUCED = !!(window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var CORES = navigator.hardwareConcurrency || 4;
+  var LOW_POWER = REDUCED || CORES <= 4;
+
+  /* ============================================================
+     1. EMOJI LOADER — queued, deduped, persistent URL cache
+     ============================================================ */
+  var EMOJI_BASE = "https://fonts.gstatic.com/s/e/notoemoji/latest/";
+  var PX_SMALL = 72;
+  var PX_LARGE = 512;
+  var MAX_PARALLEL = 6;
+
+  var memo     = Object.create(null);
+  var inflight = Object.create(null);
+  var running  = 0;
+  var waitQ    = [];
+
+  var URL_KEY = "noto-fusion-v5:urls";
+  var urlCache = safeParse(localStorage.getItem(URL_KEY), {});
+  if (typeof urlCache !== "object" || urlCache === null || Array.isArray(urlCache)) {
+    urlCache = {};
+  }
+
+  var saveTimer = null;
+  function scheduleSaveUrls() {
+    if (saveTimer) return;
+    saveTimer = setTimeout(function () {
+      saveTimer = null;
+      try {
+        var keys = Object.keys(urlCache);
+        if (keys.length > 500) {
+          for (var i = 0; i < keys.length - 500; i++) delete urlCache[keys[i]];
+        }
+        localStorage.setItem(URL_KEY, JSON.stringify(urlCache));
+      } catch (e) { /* quota — ignore */ }
+    }, 1500);
+  }
+
+  function acquireSlot() {
+    if (running < MAX_PARALLEL) { running++; return Promise.resolve(); }
+    return new Promise(function (res) { waitQ.push(res); });
+  }
+  function releaseSlot() {
+    var next = waitQ.shift();
+    if (next) next();
+    else running = Math.max(0, running - 1);
+  }
+
+  function hexCandidates(emoji) {
+    var cps = Array.from(emoji).map(function (c) { return c.codePointAt(0); });
+    var full = cps.map(function (c) { return c.toString(16); }).join("_");
+    var stripped = cps
+      .filter(function (c) { return c !== 0xfe0f && c !== 0x200d; })
+      .map(function (c) { return c.toString(16); }).join("_");
+    var base = cps[0].toString(16);
+
+    var out = [], seen = Object.create(null);
+    [full, stripped, base].forEach(function (code) {
+      if (code && !seen[code]) { seen[code] = 1; out.push(code); }
+    });
+    return out;
+  }
+
+  function probeImage(url) {
+    return new Promise(function (resolve) {
+      var img = new Image();
+      img.decoding = "async";
+      img.onload = function () { resolve(url); };
+      img.onerror = function () { resolve(null); };
+      img.src = url;
+    });
+  }
+
+  function loadEmoji(emoji, px) {
+    var key = emoji + "@" + px;
+    if (key in memo) return Promise.resolve(memo[key]);
+    if (inflight[key]) return inflight[key];
+
+    var candidates = [];
+    if (urlCache[key]) candidates.push(urlCache[key]);
+    hexCandidates(emoji).forEach(function (code) {
+      var u = EMOJI_BASE + code + "/" + px + ".webp";
+      if (candidates.indexOf(u) === -1) candidates.push(u);
+    });
+
+    var promise = acquireSlot().then(function () {
+      var i = 0;
+      function next() {
+        if (i >= candidates.length) return Promise.resolve(null);
+        return probeImage(candidates[i++]).then(function (u) { return u || next(); });
+      }
+      return next().then(function (url) {
+        releaseSlot();
+        memo[key] = url;
+        if (url) { urlCache[key] = url; scheduleSaveUrls(); }
+        else if (urlCache[key]) { delete urlCache[key]; }
+        delete inflight[key];
+        return url;
+      }, function () {
+        releaseSlot();
+        memo[key] = null;
+        delete inflight[key];
+        return null;
+      });
+    });
+
+    inflight[key] = promise;
+    return promise;
+  }
+
+  function makeEmoji(emoji, size, px) {
+    var box = document.createElement("div");
+    box.className = "emoji";
+    box.setAttribute("aria-hidden", "true");
+    if (!emoji) return box;
+
+    if (size) {
+      box.style.setProperty("--size",
+        "clamp(" + Math.round(size * 0.7) + "px," + (size / 9).toFixed(2) + "vw," + size + "px)");
+      box.style.setProperty("--emoji-fs",
+        "clamp(" + Math.round(size * 0.5) + "px," + (size * 0.08).toFixed(2) + "vw," +
+        Math.round(size * 0.8) + "px)");
+    }
+
+    var pxv = px || PX_SMALL;
+    var cached = memo[emoji + "@" + pxv];
+
+    if (cached === null) {
+      box.classList.add("fallback");
+      box.textContent = emoji;
+      return box;
+    }
+
+    box.textContent = emoji;
+    box.classList.add("loading-emoji");
+
+    loadEmoji(emoji, pxv).then(function (url) {
+      if (!box.isConnected) return;
+      box.classList.remove("loading-emoji");
+      if (!url) { box.classList.add("fallback"); box.textContent = emoji; return; }
+
+      var img = new Image();
+      img.alt = "";
+      img.decoding = "async";
+      img.draggable = false;
+      img.onerror = function () {
+        box.classList.add("fallback");
+        box.textContent = emoji;
+        if (img.parentNode) img.parentNode.removeChild(img);
+      };
+      img.src = url;
+      box.textContent = "";
+      box.appendChild(img);
+    });
+
+    return box;
+  }
+
+  var lazyObserver = null;
+
+  function upgradeEmoji(el) {
+    if (el.dataset.mounted === "1") return;
+    el.dataset.mounted = "1";
+    var emoji = el.dataset.emoji;
+    var px  = parseInt(el.dataset.px, 10) || PX_SMALL;
+    var size = parseInt(el.dataset.size, 10) || 0;
+    el.textContent = "";
+    el.appendChild(makeEmoji(emoji, size, px));
+  }
+
+  function observeLazy(el) {
+    if (!("IntersectionObserver" in window)) { upgradeEmoji(el); return; }
+    if (!lazyObserver) {
+      lazyObserver = new IntersectionObserver(function (entries) {
+        for (var i = 0; i < entries.length; i++) {
+          var entry = entries[i];
+          if (!entry.isIntersecting) continue;
+          lazyObserver.unobserve(entry.target);
+          upgradeEmoji(entry.target);
+        }
+      }, { rootMargin: "300px 0px 300px 0px" });
+    }
+    lazyObserver.observe(el);
+  }
+
+  /* ============================================================
+     2. RECIPES — 120 fusions
+     ============================================================ */
+  var RECIPES = [
+    /* ---------- elemental ---------- */
+    { a: "🔥", b: "❤️", out: "❤️‍🔥", name: "Heart on Fire" },
+    { a: "🔥", b: "💧", out: "💨",  name: "Steam Cloud" },
+    { a: "💧", b: "❄️", out: "🧊",  name: "Ice Cube" },
+    { a: "🔥", b: "🧊", out: "💧",  name: "Meltdown" },
+    { a: "☀️", b: "💧", out: "🌈",  name: "Rainbow" },
+    { a: "☁️", b: "⚡", out: "⛈️", name: "Thunderstorm" },
+    { a: "🌱", b: "💧", out: "🌷",  name: "Bloom" },
+    { a: "🌱", b: "☀️", out: "🌳",  name: "Grow" },
+    { a: "🌷", b: "✨", out: "🌸",  name: "Cherry Blossom" },
+    { a: "💧", b: "💧", out: "🌊",  name: "Big Wave" },
+    { a: "☀️", b: "🌙", out: "🌗",  name: "Eclipse" },
+    { a: "🌙", b: "⭐", out: "🌌",  name: "Starry Night" },
+    { a: "⭐", b: "⭐", out: "🌟",  name: "Superstar" },
+    { a: "🌊", b: "🔥", out: "♨️", name: "Hot Spring" },
+    { a: "🌊", b: "☀️", out: "🏖️", name: "Beach Day" },
+    { a: "❄️", b: "❄️", out: "⛄",  name: "Snowman" },
+    { a: "🥶", b: "🔥", out: "🥵",  name: "Hot & Cold" },
+    { a: "😴", b: "☕", out: "😳",  name: "Wide Awake" },
+    { a: "☀️", b: "☀️", out: "🔆",  name: "Bright Sun" },
+    { a: "🌙", b: "🌙", out: "🌕",  name: "Full Moon" },
+    { a: "⚡", b: "⚡", out: "🌩️", name: "Cloud with Lightning" },
+    { a: "🧊", b: "🧊", out: "❄️",  name: "Snowflake" },
+    { a: "🌑", b: "☀️", out: "🌘",  name: "Waning Crescent" },
+    { a: "🌪️", b: "💧", out: "🌀", name: "Cyclone" },
+    { a: "🌧️", b: "☀️", out: "🌦️", name: "Sun Behind Rain" },
+    { a: "🌧️", b: "❄️", out: "🌨️", name: "Cloud with Snow" },
+    { a: "🌋", b: "💧", out: "🏝️", name: "Island" },
+    { a: "🌋", b: "❄️", out: "🗻",  name: "Snow Peak" },
+    { a: "☄️", b: "🌌", out: "🌠", name: "Shooting Star" },
+    { a: "🍃", b: "💨", out: "🍂",  name: "Fallen Leaf" },
+
+    /* ---------- cooking ---------- */
+    { a: "🥚", b: "🔥", out: "🍳",  name: "Sunny Side Up" },
+    { a: "🐔", b: "🥚", out: "🐣",  name: "Hatchling" },
+    { a: "🐔", b: "🔥", out: "🍗",  name: "Roast Chicken" },
+    { a: "🥔", b: "🔥", out: "🍟",  name: "Fries" },
+    { a: "🍚", b: "🐟", out: "🍣",  name: "Sushi" },
+    { a: "🍚", b: "🥢", out: "🍱",  name: "Bento Box" },
+    { a: "🍚", b: "🥚", out: "🍙",  name: "Onigiri" },
+    { a: "🍇", b: "🍇", out: "🍷",  name: "Fine Wine" },
+    { a: "🥛", b: "❄️", out: "🍦",  name: "Ice Cream" },
+    { a: "🐄", b: "🥛", out: "🧈",  name: "Butter" },
+    { a: "🐝", b: "🌷", out: "🍯",  name: "Honey" },
+    { a: "🧀", b: "🍞", out: "🥪",  name: "Sandwich" },
+    { a: "🐟", b: "🔥", out: "🍤",  name: "Fried Shrimp" },
+    { a: "🥩", b: "🔥", out: "🍖",  name: "Grilled Meat" },
+    { a: "🥬", b: "🍅", out: "🥗",  name: "Fresh Salad" },
+    { a: "☕", b: "🧊", out: "🥤",  name: "Iced Drink" },
+    { a: "🍋", b: "🍬", out: "🍭",  name: "Lollipop" },
+    { a: "🍞", b: "🥚", out: "🥞",  name: "Pancakes" },
+    { a: "🥞", b: "🧈", out: "🧇",  name: "Waffle" },
+    { a: "🌽", b: "🔥", out: "🍿",  name: "Popcorn" },
+    { a: "🍞", b: "🍅", out: "🥙",  name: "Wrap" },
+    { a: "🍚", b: "🥩", out: "🍛",  name: "Curry" },
+    { a: "🍦", b: "🍫", out: "🍨",  name: "Sundae" },
+    { a: "🥔", b: "🥛", out: "🥣",  name: "Mashed Potato" },
+
+    /* ---------- creatures ---------- */
+    { a: "🐛", b: "✨", out: "🦋",  name: "Metamorphosis" },
+    { a: "🐸", b: "👑", out: "🤴",  name: "Frog Prince" },
+    { a: "🐴", b: "🌈", out: "🦄",  name: "Unicorn" },
+    { a: "🐉", b: "🔥", out: "🐲",  name: "Dragon" },
+    { a: "🦖", b: "☄️", out: "💀",  name: "Extinction" },
+    { a: "🐣", b: "🌱", out: "🐤",  name: "Baby Chick" },
+    { a: "🐔", b: "🌱", out: "🐓",  name: "Rooster" },
+    { a: "🐄", b: "🌱", out: "🐂",  name: "Ox" },
+    { a: "🐖", b: "🌱", out: "🐗",  name: "Boar" },
+    { a: "🐑", b: "🌱", out: "🐏",  name: "Ram" },
+    { a: "🐕", b: "🌱", out: "🐺",  name: "Wolf" },
+    { a: "🐈", b: "🌱", out: "🐆",  name: "Leopard" },
+    { a: "🐟", b: "🌱", out: "🦈",  name: "Shark" },
+    { a: "🐦", b: "🌱", out: "🦅",  name: "Eagle" },
+    { a: "🐢", b: "🌱", out: "🦎",  name: "Lizard" },
+    { a: "🐸", b: "🌱", out: "🐊",  name: "Crocodile" },
+    { a: "🐛", b: "🌱", out: "🦂",  name: "Scorpion" },
+    { a: "🕷️", b: "🌱", out: "🦀", name: "Crab" },
+    { a: "🐌", b: "🌱", out: "🐚",  name: "Shell" },
+    { a: "🐕", b: "🐈", out: "🐾",  name: "Paw Prints" },
+    { a: "🦁", b: "⚡", out: "🐯",  name: "Tiger" },
+    { a: "🐢", b: "⚡", out: "🐇",  name: "Rabbit" },
+    { a: "🐟", b: "🐟", out: "🐠",  name: "Tropical Fish" },
+
+    /* ---------- plants ---------- */
+    { a: "🌲", b: "✨", out: "🎄",  name: "Christmas Tree" },
+    { a: "🌵", b: "💧", out: "🌺",  name: "Hibiscus" },
+    { a: "🌻", b: "☀️", out: "🌞",  name: "Sun with Face" },
+    { a: "🍎", b: "🌱", out: "🍏",  name: "Green Apple" },
+    { a: "🌱", b: "🌱", out: "🌿",  name: "Herb" },
+    { a: "🐝", b: "🌻", out: "🌼",  name: "Daisy" },
+    { a: "🍀", b: "💧", out: "☘️",  name: "Shamrock" },
+
+    /* ---------- magic / objects ---------- */
+    { a: "👽", b: "🚀", out: "🛸",  name: "UFO" },
+    { a: "🧠", b: "💡", out: "🤯",  name: "Mind Blown" },
+    { a: "🧪", b: "🧪", out: "💥",  name: "Lab Explosion" },
+    { a: "🧙", b: "✨", out: "🪄",  name: "Magic Wand" },
+    { a: "🪄", b: "❤️", out: "💘",  name: "Love Spell" },
+    { a: "🪙", b: "🔮", out: "💰",  name: "Fortune" },
+    { a: "💰", b: "🔥", out: "💸",  name: "Burning Money" },
+    { a: "🧙", b: "🔮", out: "🧿",  name: "Fortune Teller" },
+    { a: "👑", b: "💎", out: "💍",  name: "Ring" },
+    { a: "💍", b: "❤️", out: "💒",  name: "Wedding" },
+    { a: "🎂", b: "🎈", out: "🎉",  name: "Party" },
+    { a: "🧪", b: "💧", out: "🧴",  name: "Potion" },
+    { a: "👻", b: "🏠", out: "🏚️", name: "Haunted House" },
+    { a: "💀", b: "❤️", out: "💔",  name: "Heartbreak" },
+    { a: "😈", b: "🔥", out: "👿",  name: "Angry Imp" },
+    { a: "⭐", b: "✨", out: "💫",  name: "Dizzy Star" },
+    { a: "📱", b: "⚡", out: "🔋",  name: "Battery" },
+    { a: "💻", b: "🧠", out: "🤖",  name: "Robot" },
+    { a: "🎮", b: "✨", out: "🕹️", name: "Joystick" },
+    { a: "🔑", b: "❤️", out: "🗝️", name: "Old Key" },
+    { a: "📸", b: "🌈", out: "🖼️", name: "Photo" },
+    { a: "🚲", b: "⚡", out: "🛵",  name: "Scooter" },
+    { a: "🏠", b: "🏠", out: "🏘️", name: "Houses" },
+    { a: "🏢", b: "🌙", out: "🏙️", name: "City at Night" },
+
+    /* ---------- symbols ---------- */
+    { a: "🔴", b: "🟡", out: "🟠",  name: "Orange Circle" },
+    { a: "🔵", b: "🟡", out: "🟢",  name: "Green Circle" },
+    { a: "⚫", b: "⚪", out: "🔘",  name: "Radio Button" },
+
+    /* ---------- faces / hearts ---------- */
+    { a: "❤️", b: "❤️", out: "💕",  name: "Two Hearts" },
+    { a: "🌞", b: "🕶️", out: "😎", name: "Cool" },
+    { a: "😀", b: "😢", out: "😂",  name: "Tears of Joy" },
+    { a: "😡", b: "🔥", out: "🤬",  name: "Furious" },
+    { a: "😴", b: "💤", out: "😪",  name: "Sleepy" },
+    { a: "🥳", b: "🎉", out: "🎊",  name: "Party Popper" },
+    { a: "🤔", b: "🧠", out: "🤓",  name: "Smart" },
+    { a: "🥰", b: "❤️", out: "😍",  name: "In Love" },
+    { a: "😱", b: "👻", out: "😨",  name: "Scared" }
+  ];
+
+  /* dev sanity: warn on duplicate fusion keys */
+  (function checkRecipes() {
+    var seen = Object.create(null), dupes = [];
+    RECIPES.forEach(function (r) {
+      var k = [r.a, r.b].sort().join("|");
+      if (seen[k]) dupes.push(k);
+      seen[k] = 1;
+    });
+    if (dupes.length && window.console) {
+      console.warn("[NotoFusion] duplicate recipe keys:", dupes);
+    }
+  })();
+
+  /* ============================================================
+     3. CATEGORIES + INGREDIENTS
+     ============================================================ */
+  var CATEGORIES = [
+    { id: "all",     label: "✨ All" },
+    { id: "fire",    label: "🔥 Fire" },
+    { id: "water",   label: "💧 Water" },
+    { id: "nature",  label: "🌿 Nature" },
+    { id: "food",    label: "🍎 Food" },
+    { id: "faces",   label: "😀 Faces" },
+    { id: "objects", label: "📱 Objects" },
+    { id: "magic",   label: "🪄 Magic" }
+  ];
+
+  var INGREDIENTS = [
+    /* fire */
+    { e: "🔥", c: "fire" }, { e: "☀️", c: "fire" }, { e: "⚡", c: "fire" },
+    { e: "💥", c: "fire" }, { e: "🌋", c: "fire" }, { e: "☄️", c: "fire" },
+    /* water */
+    { e: "💧", c: "water" }, { e: "❄️", c: "water" }, { e: "🧊", c: "water" },
+    { e: "🌊", c: "water" }, { e: "☁️", c: "water" }, { e: "🌪️", c: "water" },
+    { e: "🌧️", c: "water" },
+    /* nature */
+    { e: "🌱", c: "nature" }, { e: "🌷", c: "nature" }, { e: "🌙", c: "nature" },
+    { e: "⭐", c: "nature" }, { e: "✨", c: "nature" }, { e: "🌈", c: "nature" },
+    { e: "🍄", c: "nature" }, { e: "🌿", c: "nature" }, { e: "🍀", c: "nature" },
+    { e: "🍃", c: "nature" }, { e: "💨", c: "nature" }, { e: "🌽", c: "nature" },
+    { e: "🌌", c: "nature" }, { e: "🌻", c: "nature" }, { e: "🌵", c: "nature" },
+    { e: "🌲", c: "nature" }, { e: "🌞", c: "nature" }, { e: "🌑", c: "nature" },
+    { e: "🌕", c: "nature" }, { e: "🍎", c: "nature" },
+    { e: "🐔", c: "nature" }, { e: "🐄", c: "nature" }, { e: "🐝", c: "nature" },
+    { e: "🐛", c: "nature" }, { e: "🐟", c: "nature" }, { e: "🐸", c: "nature" },
+    { e: "🐴", c: "nature" }, { e: "🦖", c: "nature" }, { e: "🦁", c: "nature" },
+    { e: "🐢", c: "nature" }, { e: "🐕", c: "nature" }, { e: "🐈", c: "nature" },
+    { e: "🐦", c: "nature" }, { e: "🐖", c: "nature" }, { e: "🐑", c: "nature" },
+    { e: "🕷️", c: "nature" }, { e: "🐌", c: "nature" }, { e: "🐣", c: "nature" },
+    /* food */
+    { e: "🥚", c: "food" }, { e: "🥔", c: "food" }, { e: "🍚", c: "food" },
+    { e: "🍇", c: "food" }, { e: "🥛", c: "food" }, { e: "🍞", c: "food" },
+    { e: "🧀", c: "food" }, { e: "🍅", c: "food" }, { e: "🥬", c: "food" },
+    { e: "🥩", c: "food" }, { e: "🥢", c: "food" }, { e: "☕", c: "food" },
+    { e: "🍋", c: "food" }, { e: "🍬", c: "food" }, { e: "🥞", c: "food" },
+    { e: "🧈", c: "food" }, { e: "🍙", c: "food" }, { e: "🍏", c: "food" },
+    { e: "🍭", c: "food" }, { e: "🎂", c: "food" }, { e: "🍫", c: "food" },
+    { e: "🍦", c: "food" },
+    /* faces */
+    { e: "😀", c: "faces" }, { e: "😢", c: "faces" }, { e: "😡", c: "faces" },
+    { e: "😴", c: "faces" }, { e: "💤", c: "faces" }, { e: "🥳", c: "faces" },
+    { e: "🤔", c: "faces" }, { e: "🥰", c: "faces" }, { e: "😱", c: "faces" },
+    { e: "😈", c: "faces" }, { e: "🥶", c: "faces" }, { e: "🕶️", c: "faces" },
+    /* objects */
+    { e: "📱", c: "objects" }, { e: "💻", c: "objects" }, { e: "🎮", c: "objects" },
+    { e: "🔑", c: "objects" }, { e: "📸", c: "objects" }, { e: "🔴", c: "objects" },
+    { e: "🟡", c: "objects" }, { e: "🔵", c: "objects" }, { e: "⚫", c: "objects" },
+    { e: "⚪", c: "objects" }, { e: "🏠", c: "objects" }, { e: "🏢", c: "objects" },
+    { e: "🚲", c: "objects" },
+    /* magic */
+    { e: "🧠", c: "magic" }, { e: "💡", c: "magic" }, { e: "👑", c: "magic" },
+    { e: "🧪", c: "magic" }, { e: "🪙", c: "magic" }, { e: "🔮", c: "magic" },
+    { e: "💰", c: "magic" }, { e: "🚀", c: "magic" }, { e: "👽", c: "magic" },
+    { e: "🐉", c: "magic" }, { e: "🧙", c: "magic" }, { e: "🪄", c: "magic" },
+    { e: "❤️", c: "magic" }, { e: "💀", c: "magic" }, { e: "👻", c: "magic" },
+    { e: "💎", c: "magic" }, { e: "💍", c: "magic" }, { e: "🎈", c: "magic" },
+    { e: "🎉", c: "magic" }, { e: "🧿", c: "magic" }
+  ];
+
+  var PICKER_CATS = [
+    { id: "smileys", label: "😀", items:
+      "😀 😃 😄 😁 😆 😅 🤣 😂 🙂 🙃 😉 😊 😇 🥰 😍 🤩 😘 😗 😚 😙 🥲 😋 😛 😜 🤪 😝 🤑 🤗 🤭 🤫 🤔 🤐 🤨 😐 😑 😶 😏 😒 🙄 😬 🤥 😌 😔 😪 🤤 😴 😷 🤒 🤕 🤢 🤮 🤧 🥵 🥶 🥴 😵 🤯 🤠 🥳 🥸 😎 🤓 🧐 😕 😟 🙁 😮 😯 😲 😳 🥺 😦 😧 😨 😰 😥 😢 😭 😱 😖 😣 😞 😓 😩 😫 🥱 😤 😡 😠 🤬 😈 👿 💀 💩 🤡 👹 👺 👻 👽 👾 🤖 😺 😸 😹 😻 😼 😽 🙀 😿 😾" },
+    { id: "people", label: "👍", items:
+      "👋 🤚 🖐 ✋ 🖖 👌 🤏 ✌ 🤞 🤟 🤘 🤙 👈 👉 👆 🖕 👇 ☝ 👍 👎 ✊ 👊 🤛 🤜 👏 🙌 👐 🤲 🤝 🙏 💪 🦾 🦵 🦶 👂 👃 🧠 🫀 🫁 🦷 🦴 👀 👁 👅 👄 💋 🧑 👶 🧒 👦 👧 🧓 👴 👵 🙈 🙉 🙊" },
+    { id: "animals", label: "🐶", items:
+      "🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐜 🕷 🦂 🐢 🐍 🦎 🦖 🦕 🐙 🦑 🦐 🦞 🦀 🐡 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🐆 🦓 🦍 🐘 🦛 🦏 🐪 🐫 🦒 🦘 🐄 🐎 🐖 🐏 🐑 🦙 🐐 🦌 🐕 🐩 🐈 🐓 🦃 🦚 🦜 🦢 🕊 🐇 🦝 🦨 🦡 🦦 🦥 🐁 🐀 🐿 🦔" },
+    { id: "food", label: "🍔", items:
+      "🍏 🍎 🍐 🍊 🍋 🍌 🍉 🍇 🍓 🫐 🍈 🍒 🍑 🥭 🍍 🥥 🥝 🍅 🍆 🥑 🥦 🥬 🥒 🌶 🫑 🌽 🥕 🧄 🧅 🥔 🍠 🥐 🥯 🍞 🥖 🥨 🧀 🥚 🍳 🧈 🥞 🧇 🥓 🍗 🍖 🍤 🥩 🍔 🍟 🍕 🌭 🥪 🌮 🌯 🥙 🧆 🍝 🍜 🍲 🍛 🍣 🍱 🥟 🦪 🍙 🍚 🍘 🍥 🥠 🥮 🍢 🍡 🍧 🍨 🍦 🥧 🧁 🍰 🎂 🍮 🍭 🍬 🍫 🍿 🍩 🍪 🌰 🥜 🍯 🥛 🍼 🫖 ☕ 🧃 🧉 🍵 🍶 🍺 🍻 🥂 🍷 🥃 🍸 🍹 🧊" },
+    { id: "travel", label: "🚗", items:
+      "🚗 🚕 🚙 🚌 🚎 🏎 🚓 🚑 🚒 🚐 🚚 🚛 🚜 🚲 🛴 🛵 🏍 🛺 🚨 🚔 🚍 🚘 🚖 🚡 🚠 🚟 🚃 🚋 🚞 🚝 🚄 🚅 🚈 🚂 🚆 🚇 🚊 🚉 ✈ 🛫 🛬 🛩 🛰 🚀 🛸 🚁 🛶 ⛵ 🚤 🛥 🛳 ⛴ 🚢 ⚓ ⛽ 🚧 🚦 🚥 🗺 🗿 🗽 🗼 🏰 🏯 🏟 🎡 🎢 🎠 ⛲ ⛱ 🏖 🏝 🏜 🌋 ⛰ 🏔 🗻 🏕 ⛺ 🏠 🏡 🏘 🏚 🏗 🏭 🏢 🏬 🏣 🏤 🏥 🏦 🏨 🏪 🏫 🏩 💒 🏛 ⛪ 🕌 🕍 🛕 🕋 ⛩ 🛤 🛣 🗾 🎑 🏞 🌅 🌄 🌠 🎇 🎆 🌇 🌆 🏙 🌃 🌌 🌉 🌁" },
+    { id: "objects", label: "💡", items:
+      "⌚ 📱 📲 💻 ⌨ 🖥 🖨 🖱 🕹 💽 💾 💿 📀 📼 📷 📸 📹 🎥 📽 🎞 📞 ☎ 📟 📠 📺 📻 🎙 🎚 🎛 🧭 ⏱ ⏲ ⏰ 🕰 ⌛ ⏳ 📡 🔋 🔌 💡 🔦 🕯 🧯 🛢 💸 💵 💴 💶 💷 🪙 💰 💳 💎 ⚖ 🧰 🔧 🔨 ⚒ 🛠 ⛏ 🪓 🔩 ⚙ 🧱 ⛓ 🧲 💣 🧨 🗡 ⚔ 🛡 🚬 ⚰ 🪦 🏺 🔮 📿 🧿 💈 ⚗ 🔭 🔬 🩹 🩺 💊 💉 🩸 🧬 🦠 🧫 🧪 🌡 🧹 🧺 🧻 🚽 🚰 🚿 🛁 🧼 🪥 🪒 🧽 🪣 🔑 🗝 🚪 🪑 🛋 🛏 🖼 🪞 🪟 🛍 🛒 🎁 🎈 🎏 🎀 🎊 🎉 🎎 🏮 🎐 🧧 ✉ 📩 📨 📧 💌 📥 📤 📦 🏷 📪 📫 📬 📭 📮 🗳 ✏ ✒ 🖋 🖊 🖌 🖍 📝 📁 📂 🗂 📅 📆 🗒 🗓 📇 📈 📉 📊 📋 📌 📍 📎 🖇 📏 📐 ✂ 🗃 🗄 🗑 🔒 🔓 🔏 🔐" },
+    { id: "symbols", label: "❤️", items:
+      "❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣ 💕 💞 💓 💗 💖 💘 💝 💟 ☮ ✝ ☪ 🕉 ☸ ✡ 🔯 🕎 ☯ ☦ 🛐 ⛎ ♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓ 🆔 ⚛ 🉑 ☢ ☣ 📴 📳 🈶 🈚 🈸 🈺 🈷 ✴ 🆚 💮 🉐 ㊙ ㊗ 🈴 🈵 🈹 🈲 🅰 🅱 🆎 🆑 🅾 🆘 ❌ ⭕ 🛑 ⛔ 📛 🚫 💯 💢 ♨ 🚷 🚯 🚳 🚱 🔞 📵 🚭 ❗ ❕ ❓ ❔ ‼ ⁉ 🔅 🔆 〽 ⚠ 🚸 🔱 ⚜ 🔰 ♻ ✳ ❇ 💠 🎦 📶 🈁 🔣 ℹ 🔤 🔡 🔠 🆖 🆗 🆙 🆒 🆕 🆓 🔢 ▶ ⏸ ⏹ ⏺ ⏭ ⏮ ⏩ ⏪ ⏫ ⏬ ◀ 🔼 🔽 ➡ ⬅ ⬆ ⬇ ↗ ↘ ↙ ↖ ↕ ↔ ↪ ↩ ⤴ ⤵ 🔀 🔁 🔂 🔄 🔃 🎵 🎶 ➕ ➖ ➗ ✖ ♾ 💲 💱 ™ © ® ✔ ☑ 🔘 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ 🟤 🔺 🔻 🔸 🔹 🔶 🔷 🔳 🔲 ▪ ▫ ◾ ◽ ◼ ◻ 🟥 🟧 🟨 🟩 🟦 🟪 ⬛ ⬜ 🟫 🔈 🔇 🔉 🔊 🔔 🔕 📣 📢 💬 💭 🗯 ♠ ♣ ♥ ♦ 🃏 🎴 🀄 🎲" },
+    { id: "nature", label: "🌿", items:
+      "🌵 🎄 🌲 🌳 🌴 🌱 🌿 ☘ 🍀 🎍 🎋 🍃 🍂 🍁 🍄 🐚 🌾 💐 🌷 🌹 🥀 🌺 🌸 🌼 🌻 🌞 🌝 🌚 🌑 🌒 🌓 🌔 🌕 🌖 🌗 🌘 🌙 🌎 🌍 🌏 🪐 💫 ⭐ 🌟 ✨ ⚡ ☄ 💥 🔥 🌪 🌈 ☀ 🌤 ⛅ 🌥 ☁ 🌦 🌧 ⛈ 🌩 🌨 ❄ ☃ ⛄ 🌬 💨 💧 💦 ☔ ☂ 🌊 🌫" }
+  ];
+
+  var WILD_POOL = [
+    "🌟","💫","🪐","🔮","🧿","🎆","🌈","💠","🌀","⚡","✨","🪄","🎇","🌠",
+    "💥","🫧","🧬","🎴","🛸","👾","🍀","🦋","🐉","🔱","♾️","🕯️","🎭","🪬","🌪️","🧊"
+  ];
+  var WILD_NAMES = [
+    "Wild Alchemy","Chaos Blend","Mystic Reaction","Spontaneous Fusion",
+    "Untamed Spark","Rogue Catalyst","Strange Brew","Emoji Anomaly",
+    "Curious Compound","Volatile Mix","Random Enchantment","Odd Concoction"
+  ];
+
+  function recipeKey(a, b) { return [a, b].sort().join("|"); }
+
+  var RECIPE_MAP = Object.create(null);
+  var RECIPE_BY_OUT = Object.create(null);
+  RECIPES.forEach(function (r) {
+    RECIPE_MAP[recipeKey(r.a, r.b)] = r;
+    RECIPE_BY_OUT[r.out] = r;
+  });
+
+  function lookup(a, b) { return RECIPE_MAP[recipeKey(a, b)] || null; }
+
+  function synthFusion(a, b) {
+    var s = a + b, h = 2166136261;
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619) >>> 0;
+    }
+    return {
+      a: a, b: b,
+      out: WILD_POOL[h % WILD_POOL.length],
+      name: WILD_NAMES[(h >>> 8) % WILD_NAMES.length],
+      wild: true
+    };
+  }
+
+  /* ============================================================
+     4. STATE
+     ============================================================ */
+  var STORE_KEY = "noto-fusion-v5";
+
+  var state = {
+    slots: [null, null],
+    result: null,
+    resultName: "",
+    busy: false,
+    sound: true,
+    discovered: Object.create(null),
+    wild: [],
+    customEmoji: [],
+    history: [],
+    activeCat: "all",
+    pickerCat: "smileys",
+    pickerOpen: false,
+    dexFilter: "all",
+    dexQuery: ""
+  };
+
+  state.discovered = safeParse(localStorage.getItem(STORE_KEY), {});
+  if (typeof state.discovered !== "object" || state.discovered === null ||
+      Array.isArray(state.discovered)) state.discovered = {};
+
+  state.wild = safeParse(localStorage.getItem(STORE_KEY + ":wild"), []);
+  if (!Array.isArray(state.wild)) state.wild = [];
+
+  state.customEmoji = safeParse(localStorage.getItem(STORE_KEY + ":custom"), []);
+  if (!Array.isArray(state.customEmoji)) state.customEmoji = [];
+
+  state.history = safeParse(localStorage.getItem(STORE_KEY + ":hist"), []);
+  if (!Array.isArray(state.history)) state.history = [];
+
+  if (localStorage.getItem(STORE_KEY + ":mute") === "1") state.sound = false;
+
+  var sessionFusions = 0;
+  var lastMilestone = 0;
+
+  function persistDiscovered() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state.discovered)); } catch (e) {}
+  }
+  function persistWild() {
+    try { localStorage.setItem(STORE_KEY + ":wild", JSON.stringify(state.wild)); } catch (e) {}
+  }
+  function persistCustom() {
+    try { localStorage.setItem(STORE_KEY + ":custom", JSON.stringify(state.customEmoji)); } catch (e) {}
+  }
+  function persistHistory() {
+    try { localStorage.setItem(STORE_KEY + ":hist", JSON.stringify(state.history)); } catch (e) {}
+  }
+
+  /* ============================================================
+     5. DOM
+     ============================================================ */
+  var reactor     = $("reactor");
+  var cellA       = $("cellA");
+  var cellB       = $("cellB");
+  var cellR       = $("cellR");
+  var flashEl     = $("flash");
+  var statusEl    = $("status");
+  var btnCopyEq   = $("btnCopyEq");
+  var btnChain    = $("btnChain");
+  var paletteEl   = $("palette");
+  var chipsEl     = $("chips");
+  var dexEl       = $("dex");
+  var dexBadge    = $("dexBadge");
+  var dexSearch   = $("dexSearch");
+  var dexFilters  = $("dexFilters");
+  var btnHint     = $("btnHint");
+  var btnResetDex = $("btnResetDex");
+  var statCount   = $("statCount");
+  var statTotal   = $("statTotal");
+  var progressFill= $("progressFill");
+  var btnSound    = $("btnSound");
+  var emojiInput  = $("emojiInput");
+  var btnAddEmoji = $("btnAddEmoji");
+  var btnPicker   = $("btnPicker");
+  var pickerEl    = $("picker");
+  var pickerChips = $("pickerChips");
+  var pickerGrid  = $("pickerGrid");
+  var customBadge = $("customBadge");
+  var wildPanel   = $("wildPanel");
+  var wildList    = $("wildList");
+  var wildBadge   = $("wildBadge");
+  var histPanel   = $("histPanel");
+  var histList    = $("histList");
+  var histBadge   = $("histBadge");
+  var footStats   = $("footStats");
+
+  statTotal.textContent = String(RECIPES.length);
+
+  /* ============================================================
+     6. AUDIO + HAPTICS
+     ============================================================ */
+  var actx = null;
+  function audioCtx() {
+    if (!actx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      actx = new AC();
+    }
+    if (actx.state === "suspended") actx.resume();
+    return actx;
+  }
+
+  function tone(freq, start, dur, type, gain) {
+    if (!state.sound) return;
+    var ac = audioCtx(); if (!ac) return;
+    try {
+      var o = ac.createOscillator(), g = ac.createGain();
+      o.type = type || "sine"; o.frequency.value = freq;
+      var t = ac.currentTime + start;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(gain || 0.06, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(ac.destination);
+      o.start(t); o.stop(t + dur + 0.04);
+    } catch (e) {}
+  }
+
+  function sfxSuccess() {
+    tone(523.25, 0, 0.18, "sine", 0.06);
+    tone(659.25, 0.08, 0.20, "sine", 0.06);
+    tone(783.99, 0.16, 0.34, "triangle", 0.05);
+  }
+  function sfxMilestone() {
+    [523.25, 659.25, 783.99, 1046.5].forEach(function (f, i) {
+      tone(f, i * 0.09, 0.32, "triangle", 0.06);
+    });
+  }
+  function sfxFail() { tone(220, 0, 0.16, "sawtooth", 0.04); tone(150, 0.10, 0.26, "sawtooth", 0.04); }
+  function sfxClick() { tone(880, 0, 0.05, "square", 0.015); }
+  function sfxCopy() { tone(1046.5, 0, 0.07, "sine", 0.045); tone(1318.5, 0.05, 0.10, "sine", 0.035); }
+
+  function updateSoundBtn() {
+    var icon = btnSound.querySelector("i");
+    if (icon) {
+      icon.className = state.sound
+        ? "fa-solid fa-volume-high"
+        : "fa-solid fa-volume-xmark";
+    }
+  }
+  updateSoundBtn();
+
+  btnSound.addEventListener("click", function () {
+    state.sound = !state.sound;
+    updateSoundBtn();
+    try { localStorage.setItem(STORE_KEY + ":mute", state.sound ? "0" : "1"); } catch (e) {}
+    if (state.sound) sfxClick();
+  });
+
+  function haptic(ms) {
+    if (navigator.vibrate) { try { navigator.vibrate(ms || 8); } catch (e) {} }
+  }
+
+  /* ============================================================
+     7. CLIPBOARD
+     ============================================================ */
+  function copyText(text, label) {
+    if (!text) return;
+
+    function done() {
+      sfxCopy(); haptic(10);
+      toast("Copied " + text + (label ? " · " + label : ""));
+    }
+
+    function fallback() {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.cssText = "position:fixed;top:-9999px;opacity:0";
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (ok) done();
+        else toast("Copy unavailable — long-press to select");
+      } catch (e) { toast("Copy unavailable"); }
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done).catch(fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  /* ============================================================
+     8. TOAST
+     ============================================================ */
+  var toastTimer = null;
+  var toastEl = null;
+
+  function toast(msg) {
+    if (!toastEl) {
+      toastEl = document.createElement("div");
+      toastEl.className = "toast";
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = msg;
+    void toastEl.offsetWidth;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2400);
+  }
+
+  /* ============================================================
+     9. DELEGATED TAP / HOLD
+     ============================================================ */
+  function attachTapHold(container, selector, onTap, onHold) {
+    var holdTimer = null;
+    var holdFired = false;
+    var startX = 0, startY = 0;
+    var activeEl = null;
+    var HOLD_MS = 450;
+
+    function clearTimer() {
+      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+    }
+
+    function reset() {
+      clearTimer();
+      if (activeEl) activeEl.dataset.held = "0";
+      activeEl = null;
+      holdFired = false;
+    }
+
+    container.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      var el = e.target.closest(selector);
+      if (!el || !container.contains(el)) return;
+
+      activeEl = el;
+      holdFired = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      clearTimer();
+      holdTimer = setTimeout(function () {
+        holdFired = true;
+        if (el) el.dataset.held = "1";
+        onHold(el);
+      }, HOLD_MS);
+    }, { passive: true });
+
+    container.addEventListener("pointermove", function (e) {
+      if (!activeEl) return;
+      if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
+        clearTimer();
+      }
+    }, { passive: true });
+
+    container.addEventListener("pointerup", clearTimer, { passive: true });
+    container.addEventListener("pointercancel", reset, { passive: true });
+
+    container.addEventListener("click", function (e) {
+      var el = e.target.closest(selector);
+      if (!el || !container.contains(el)) return;
+
+      if (holdFired || el.dataset.held === "1") {
+        holdFired = false;
+        el.dataset.held = "0";
+        activeEl = null;
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+
+      activeEl = null;
+      onTap(el);
+    });
+
+    container.addEventListener("contextmenu", function (e) {
+      if (e.target.closest(selector)) e.preventDefault();
+    });
+  }
+
+  /* ============================================================
+     10. RENDER — reactor
+     ============================================================ */
+  function renderCell(cell, emoji, size, opts) {
+    opts = opts || {};
+    cell.innerHTML = "";
+
+    if (emoji) {
+      cell.classList.add("filled");
+      cell.appendChild(makeEmoji(emoji, size, PX_LARGE));
+
+      if (opts.removable) {
+        var x = document.createElement("button");
+        x.type = "button";
+        x.className = "slot-x";
+        x.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        x.setAttribute("aria-label", "Remove ingredient");
+        x.addEventListener("click", function (ev) {
+          ev.stopPropagation();
+          ev.preventDefault();
+          state.slots[opts.index] = null;
+          renderSlots();
+          scheduleCheck();
+          sfxClick();
+          haptic(6);
+        });
+        cell.appendChild(x);
+      }
+
+      if (opts.copyHint) {
+        var hint = document.createElement("i");
+        hint.className = "fa-solid fa-copy copy-hint";
+        hint.setAttribute("aria-hidden", "true");
+        cell.appendChild(hint);
+      }
+    } else {
+      cell.classList.remove("filled");
+      var ph = document.createElement("span");
+      ph.className = "ph";
+      ph.textContent = "?";
+      cell.appendChild(ph);
+    }
+  }
+
+  function updateNextSlot() {
+    var a = state.slots[0], b = state.slots[1];
+    cellA.classList.toggle("next", !a && !state.busy);
+    cellB.classList.toggle("next", !!a && !b && !state.busy);
+  }
+
+  function renderSlots() {
+    renderCell(cellA, state.slots[0], 82, { removable: true, index: 0, copyHint: true });
+    renderCell(cellB, state.slots[1], 82, { removable: true, index: 1, copyHint: true });
+    updateNextSlot();
+    highlightPalette();
+  }
+
+  function renderResult(emoji, size) {
+    state.result = emoji || null;
+    renderCell(cellR, emoji, size || 108, { copyHint: true });
+    if (emoji) {
+      cellR.classList.add("filled", "reveal");
+      setTimeout(function () { cellR.classList.remove("reveal"); }, 700);
+    }
+  }
+
+  function clearResult() {
+    state.result = null;
+    state.resultName = "";
+    cellR.classList.remove("filled", "reveal");
+    cellR.innerHTML = '<span class="ph">?</span>';
+    btnCopyEq.hidden = true;
+    btnChain.hidden = true;
+  }
+
+  var paletteCache = Object.create(null);
+
+  function highlightPalette() {
+    var used = Object.create(null);
+    if (state.slots[0]) used[state.slots[0]] = 1;
+    if (state.slots[1]) used[state.slots[1]] = 1;
+    var nodes = paletteCache[state.activeCat];
+    if (!nodes) return;
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].classList.toggle("used", !!used[nodes[i].dataset.emoji]);
+    }
+  }
+
+  function setStatus(text, cls) {
+    statusEl.textContent = text;
+    statusEl.className = "status" + (cls ? " " + cls : "");
+  }
+
+  /* ============================================================
+     11. RENDER — palette
+     ============================================================ */
+  function paletteItems() {
+    if (state.activeCat === "custom") {
+      return state.customEmoji.map(function (e) { return { e: e, c: "custom" }; });
+    }
+    if (state.activeCat === "all") return INGREDIENTS;
+    return INGREDIENTS.filter(function (i) { return i.c === state.activeCat; });
+  }
+
+  function createIngredientButton(item) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "ing";
+    b.dataset.emoji = item.e;
+    b.dataset.px = String(PX_SMALL);
+    b.setAttribute("aria-label", "Add " + item.e + " (hold to copy)");
+    b.textContent = item.e;
+    observeLazy(b);
+    return b;
+  }
+
+  function buildChips() {
+    chipsEl.innerHTML = "";
+    var frag = document.createDocumentFragment();
+
+    CATEGORIES.forEach(function (cat) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip" + (cat.id === state.activeCat ? " active" : "");
+      b.dataset.cat = cat.id;
+      b.textContent = cat.label;
+      b.addEventListener("click", function () {
+        if (state.activeCat === cat.id) return;
+        state.activeCat = cat.id;
+        buildChips();
+        buildPalette();
+        sfxClick();
+      });
+      frag.appendChild(b);
+    });
+
+    if (state.customEmoji.length) {
+      var cb = document.createElement("button");
+      cb.type = "button";
+      cb.className = "chip" + (state.activeCat === "custom" ? " active" : "");
+      cb.dataset.cat = "custom";
+      cb.textContent = "⭐ Custom (" + state.customEmoji.length + ")";
+      cb.addEventListener("click", function () {
+        if (state.activeCat === "custom") return;
+        state.activeCat = "custom";
+        buildChips();
+        buildPalette();
+        sfxClick();
+      });
+      frag.appendChild(cb);
+    }
+
+    chipsEl.appendChild(frag);
+  }
+
+  function buildPalette() {
+    var catId = state.activeCat;
+    var nodes = paletteCache[catId];
+
+    if (!nodes) {
+      nodes = paletteItems().map(createIngredientButton);
+      paletteCache[catId] = nodes;
+    }
+
+    paletteEl.innerHTML = "";
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < nodes.length; i++) frag.appendChild(nodes[i]);
+    paletteEl.appendChild(frag);
+
+    highlightPalette();
+  }
+
+  /* ============================================================
+     12. RENDER — picker
+     ============================================================ */
+  var pickerCache = Object.create(null);
+
+  function buildPickerChips() {
+    pickerChips.innerHTML = "";
+    var frag = document.createDocumentFragment();
+
+    PICKER_CATS.forEach(function (cat) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip" + (cat.id === state.pickerCat ? " active" : "");
+      b.textContent = cat.label;
+      b.addEventListener("click", function () {
+        state.pickerCat = cat.id;
+        buildPickerChips();
+        buildPickerGrid();
+        sfxClick();
+      });
+      frag.appendChild(b);
+    });
+
+    if (state.customEmoji.length) {
+      var cb = document.createElement("button");
+      cb.type = "button";
+      cb.className = "chip" + (state.pickerCat === "custom" ? " active" : "");
+      cb.textContent = "⭐";
+      cb.addEventListener("click", function () {
+        state.pickerCat = "custom";
+        buildPickerChips();
+        buildPickerGrid();
+        sfxClick();
+      });
+      frag.appendChild(cb);
+    }
+
+    pickerChips.appendChild(frag);
+  }
+
+  function pickerNodes(catId) {
+    var cached = pickerCache[catId];
+    if (cached) return cached;
+
+    var list;
+    if (catId === "custom") {
+      list = state.customEmoji;
+    } else {
+      var cat = null;
+      for (var i = 0; i < PICKER_CATS.length; i++) {
+        if (PICKER_CATS[i].id === catId) { cat = PICKER_CATS[i]; break; }
+      }
+      list = cat ? cat.items.split(/\s+/).filter(Boolean) : [];
+    }
+
+    var nodes = list.map(function (e) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "pk";
+      b.dataset.emoji = e;
+      b.dataset.px = String(PX_SMALL);
+      b.setAttribute("aria-label", "Use " + e);
+      b.textContent = e;
+      observeLazy(b);
+      return b;
+    });
+
+    pickerCache[catId] = nodes;
+    return nodes;
+  }
+
+  function buildPickerGrid() {
+    pickerGrid.innerHTML = "";
+    var nodes = pickerNodes(state.pickerCat);
+
+    if (!nodes.length) {
+      var empty = document.createElement("div");
+      empty.style.cssText =
+        "grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:13px";
+      empty.textContent = "No custom emoji yet — add one above.";
+      pickerGrid.appendChild(empty);
+      return;
+    }
+
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < nodes.length; i++) frag.appendChild(nodes[i]);
+    pickerGrid.appendChild(frag);
+  }
+
+  function togglePicker(force) {
+    state.pickerOpen = typeof force === "boolean" ? force : !state.pickerOpen;
+    pickerEl.hidden = !state.pickerOpen;
+    btnPicker.setAttribute("aria-expanded", state.pickerOpen ? "true" : "false");
+    btnPicker.innerHTML = state.pickerOpen
+      ? '<i class="fa-solid fa-xmark" aria-hidden="true"></i> <span class="lbl">Close picker</span>'
+      : '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> <span class="lbl">Browse emoji picker</span>';
+
+    if (state.pickerOpen) {
+      buildPickerChips();
+      buildPickerGrid();
+    }
+  }
+
+  /* ============================================================
+     13. RENDER — dex (with search + filters)
+     ============================================================ */
+  var dexTiles = Object.create(null);
+  var dexEmptyEl = null;
+
+  function buildDexTile(r, isFound) {
+    var tile = document.createElement("div");
+    tile.className = "dex-item " + (isFound ? "found" : "locked");
+    tile.dataset.out = r.out;
+
+    if (isFound) {
+      tile.appendChild(makeEmoji(r.out, 36, PX_SMALL));
+
+      var nm = document.createElement("div");
+      nm.className = "dex-name";
+      nm.textContent = r.name;
+
+      var fm = document.createElement("div");
+      fm.className = "dex-formula";
+      fm.textContent = r.a + " + " + r.b;
+
+      var cp = document.createElement("i");
+      cp.className = "fa-solid fa-copy dex-copy";
+      cp.setAttribute("aria-hidden", "true");
+
+      tile.appendChild(nm);
+      tile.appendChild(fm);
+      tile.appendChild(cp);
+    } else {
+      var q = document.createElement("div");
+      q.className = "dex-q";
+      q.textContent = "❓";
+
+      var nm2 = document.createElement("div");
+      nm2.className = "dex-name";
+      nm2.textContent = "???";
+
+      var fm2 = document.createElement("div");
+      fm2.className = "dex-formula";
+      fm2.textContent = "? + ?";
+
+      tile.appendChild(q);
+      tile.appendChild(nm2);
+      tile.appendChild(fm2);
+    }
+
+    return tile;
+  }
+
+  function renderDex() {
+    dexEl.innerHTML = "";
+    dexTiles = Object.create(null);
+    var frag = document.createDocumentFragment();
+    var found = 0;
+
+    for (var i = 0; i < RECIPES.length; i++) {
+      var r = RECIPES[i];
+      var isFound = !!state.discovered[r.out];
+      if (isFound) found++;
+      var tile = buildDexTile(r, isFound);
+      dexTiles[r.out] = tile;
+      frag.appendChild(tile);
+    }
+
+    dexEl.appendChild(frag);
+
+    dexEmptyEl = document.createElement("div");
+    dexEmptyEl.className = "dex-empty";
+    dexEmptyEl.textContent = "No fusions match your search.";
+    dexEmptyEl.hidden = true;
+    dexEl.appendChild(dexEmptyEl);
+
+    updateDexBadge(found);
+  }
+
+  function upgradeDexTile(out) {
+    var tile = dexTiles[out];
+    if (!tile) return;
+    var r = RECIPE_BY_OUT[out];
+    if (!r) return;
+
+    var newTile = buildDexTile(r, true);
+    newTile.classList.add("pop");
+    tile.parentNode.replaceChild(newTile, tile);
+    dexTiles[out] = newTile;
+
+    setTimeout(function () { newTile.classList.remove("pop"); }, 600);
+    updateDexBadge();
+  }
+
+  function countFound() {
+    var n = 0;
+    for (var i = 0; i < RECIPES.length; i++) {
+      if (state.discovered[RECIPES[i].out]) n++;
+    }
+    return n;
+  }
+
+  var DEX_FILTERS = [
+    { id: "all",    label: "All" },
+    { id: "found",  label: "Found" },
+    { id: "locked", label: "Locked" }
+  ];
+
+  function buildDexFilters(found) {
+    if (found === undefined) found = countFound();
+    var counts = {
+      all: RECIPES.length,
+      found: found,
+      locked: RECIPES.length - found
+    };
+
+    dexFilters.innerHTML = "";
+    var frag = document.createDocumentFragment();
+
+    DEX_FILTERS.forEach(function (f) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip" + (state.dexFilter === f.id ? " active" : "");
+      b.dataset.filter = f.id;
+      b.textContent = f.label + " (" + counts[f.id] + ")";
+      b.addEventListener("click", function () {
+        if (state.dexFilter === f.id) return;
+        state.dexFilter = f.id;
+        buildDexFilters();
+        applyDexFilter();
+        sfxClick();
+      });
+      frag.appendChild(b);
+    });
+
+    dexFilters.appendChild(frag);
+  }
+
+  function applyDexFilter() {
+    var q = (state.dexQuery || "").trim().toLowerCase();
+    var f = state.dexFilter;
+    var shown = 0;
+
+    for (var i = 0; i < RECIPES.length; i++) {
+      var r = RECIPES[i];
+      var tile = dexTiles[r.out];
+      if (!tile) continue;
+
+      var found = !!state.discovered[r.out];
+      var okFilter =
+        f === "all" ||
+        (f === "found" && found) ||
+        (f === "locked" && !found);
+
+      var okQuery = !q ||
+        (r.name + " " + r.a + " " + r.b + " " + r.out).toLowerCase().indexOf(q) !== -1;
+
+      var show = okFilter && okQuery;
+      tile.style.display = show ? "" : "none";
+      if (show) shown++;
+    }
+
+    if (dexEmptyEl) dexEmptyEl.hidden = shown !== 0;
+  }
+
+  function updateDexBadge(found) {
+    if (found === undefined) found = countFound();
+    dexBadge.textContent = found + " / " + RECIPES.length;
+    statCount.textContent = String(found);
+    if (progressFill) {
+      progressFill.style.width = ((found / RECIPES.length) * 100).toFixed(2) + "%";
+    }
+    buildDexFilters(found);
+    applyDexFilter();
+  }
+
+  /* ============================================================
+     14. RENDER — wild fusions
+     ============================================================ */
+  function renderWild() {
+    wildList.innerHTML = "";
+
+    if (!state.wild.length) { wildPanel.hidden = true; return; }
+    wildPanel.hidden = false;
+    wildBadge.textContent = String(state.wild.length);
+
+    var frag = document.createDocumentFragment();
+
+    for (var i = state.wild.length - 1; i >= 0; i--) {
+      var w = state.wild[i];
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "wild-chip";
+      chip.dataset.out = w.out;
+      chip.dataset.eq = w.a + " + " + w.b + " = " + w.out;
+      chip.dataset.name = w.name;
+      chip.title = w.name + " — tap to copy";
+      chip.textContent = w.a + " + " + w.b + " = " + w.out;
+      frag.appendChild(chip);
+    }
+
+    wildList.appendChild(frag);
+  }
+
+  function updateCustomBadge() {
+    customBadge.textContent = state.customEmoji.length + " custom";
+  }
+
+  /* ============================================================
+     15. RENDER — history
+     ============================================================ */
+  function pushHistory(r) {
+    var top = state.history[0];
+    if (top && top.a === r.a && top.b === r.b && top.out === r.out) return;
+    state.history.unshift({ a: r.a, b: r.b, out: r.out, name: r.name, ts: Date.now() });
+    if (state.history.length > 20) state.history.length = 20;
+    persistHistory();
+    renderHistory();
+  }
+
+  function renderHistory() {
+    histList.innerHTML = "";
+
+    if (!state.history.length) { histPanel.hidden = true; return; }
+    histPanel.hidden = false;
+    histBadge.textContent = String(state.history.length);
+
+    var frag = document.createDocumentFragment();
+
+    state.history.forEach(function (h, idx) {
+      var row = document.createElement("div");
+      row.className = "hist-row";
+      row.dataset.idx = String(idx);
+
+      var eq = document.createElement("div");
+      eq.className = "hist-eq";
+      eq.textContent = h.a + " + " + h.b + " = " + h.out;
+
+      var nm = document.createElement("span");
+      nm.className = "hist-name";
+      nm.textContent = h.name;
+      eq.appendChild(nm);
+
+      var copyBtn = document.createElement("button");
+      copyBtn.type = "button";
+      copyBtn.className = "hist-btn";
+      copyBtn.dataset.act = "copy";
+      copyBtn.setAttribute("aria-label", "Copy fusion");
+      copyBtn.innerHTML = '<i class="fa-solid fa-copy" aria-hidden="true"></i>';
+
+      var runBtn = document.createElement("button");
+      runBtn.type = "button";
+      runBtn.className = "hist-btn run";
+      runBtn.dataset.act = "run";
+      runBtn.setAttribute("aria-label", "Re-fuse this pair");
+      runBtn.innerHTML = '<i class="fa-solid fa-bolt" aria-hidden="true"></i>';
+
+      row.appendChild(eq);
+      row.appendChild(copyBtn);
+      row.appendChild(runBtn);
+      frag.appendChild(row);
+    });
+
+    histList.appendChild(frag);
+  }
+
+  histList.addEventListener("click", function (e) {
+    var row = e.target.closest(".hist-row");
+    if (!row) return;
+    var h = state.history[parseInt(row.dataset.idx, 10)];
+    if (!h) return;
+
+    var btn = e.target.closest(".hist-btn");
+    if (btn && btn.dataset.act === "run") {
+      if (state.busy) return;
+      state.slots[0] = h.a;
+      state.slots[1] = h.b;
+      renderSlots();
+      fuse();
+      return;
+    }
+    copyText(h.a + " + " + h.b + " = " + h.out + " \u2014 " + h.name, "");
+  });
+
+  /* ============================================================
+     16. FOOTER STATS
+     ============================================================ */
+  function updateFootStats() {
+    footStats.textContent =
+      "Session: " + sessionFusions + " fusions · " + state.wild.length + " wild";
+  }
+
+  /* ============================================================
+     17. EFFECTS
+     ============================================================ */
+  function burst(multiplier) {
+    var rect = reactor.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top + rect.height / 2;
+    var hues = [35, 330, 275, 190, 150, 45, 300];
+    var base = LOW_POWER ? 8 : 14;
+    var COUNT = Math.min(48, base * (multiplier || 1));
+
+    for (var i = 0; i < COUNT; i++) {
+      (function () {
+        var p = document.createElement("div");
+        p.className = "particle";
+        var size = 5 + Math.random() * 10;
+        p.style.width = size + "px";
+        p.style.height = size + "px";
+        p.style.left = (cx - size / 2) + "px";
+        p.style.top  = (cy - size / 2) + "px";
+
+        var hue = hues[i % hues.length];
+        p.style.background =
+          "radial-gradient(circle at 32% 32%, #fff, hsl(" + hue + " 100% 62%))";
+        document.body.appendChild(p);
+
+        var ang = Math.random() * Math.PI * 2;
+        var dist = 70 + Math.random() * 180;
+        var dx = Math.cos(ang) * dist;
+        var dy = Math.sin(ang) * dist;
+
+        var anim = p.animate(
+          [
+            { transform: "translate3d(0,0,0) scale(1) rotate(0deg)", opacity: 1 },
+            {
+              transform: "translate3d(" + dx + "px," + dy + "px,0) scale(0) rotate(" +
+                (Math.random() * 540 - 270) + "deg)",
+              opacity: 0
+            }
+          ],
+          {
+            duration: 650 + Math.random() * 500,
+            easing: "cubic-bezier(.15,.72,.3,1)",
+            fill: "forwards"
+          }
+        );
+        anim.onfinish = function () { p.remove(); };
+      })();
+    }
+  }
+
+  function flash() {
+    if (!flashEl.animate) return;
+    flashEl.animate(
+      [{ opacity: 0 }, { opacity: 0.9, offset: 0.18 }, { opacity: 0 }],
+      { duration: 520, easing: "ease-out" }
+    );
+  }
+
+  /* ============================================================
+     18. GRAPHEME EXTRACTION
+     ============================================================ */
+  function firstGrapheme(str) {
+    str = (str || "").trim();
+    if (!str) return "";
+
+    if (typeof Intl !== "undefined" && Intl.Segmenter) {
+      try {
+        var it = new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(str);
+        for (var s of it) return s.segment;
+      } catch (e) { /* fall through */ }
+    }
+
+    var arr = Array.from(str);
+    var out = arr[0];
+
+    for (var i = 1; i < arr.length; i++) {
+      var cp = arr[i].codePointAt(0);
+      if (cp === 0xfe0f || (cp >= 0x1f3fb && cp <= 0x1f3ff) || cp === 0x20e3) {
+        out += arr[i];
+      } else if (cp === 0x200d) {
+        out += arr[i];
+        if (i + 1 < arr.length) { out += arr[i + 1]; i++; }
+      } else {
+        break;
+      }
+    }
+
+    return out;
+  }
+
+  /* ============================================================
+     19. GAME LOGIC
+     ============================================================ */
+  var autoTimer = null;
+
+  function pick(emoji) {
+    if (state.busy || !emoji) return;
+
+    if (!state.slots[0]) state.slots[0] = emoji;
+    else if (!state.slots[1]) state.slots[1] = emoji;
+    else { state.slots[0] = state.slots[1]; state.slots[1] = emoji; }
+
+    sfxClick();
+    haptic(6);
+    renderSlots();
+    scheduleCheck();
+  }
+
+  function scheduleCheck() {
+    clearTimeout(autoTimer);
+
+    var a = state.slots[0], b = state.slots[1];
+
+    if (!a || !b) {
+      clearResult();
+      setStatus(a || b
+        ? "One more ingredient needed…"
+        : "Pick two ingredients below to begin.");
+      return;
+    }
+
+    var r = lookup(a, b);
+    if (r) {
+      setStatus("⚡ Auto-detect:  " + a + " + " + b + " = " + r.out + "  ·  " + r.name, "ok");
+    } else {
+      setStatus("🌀 No official recipe — fusing " + a + " + " + b + "…");
+    }
+
+    autoTimer = setTimeout(fuse, 520);
+  }
+
+  function fuse() {
+    if (state.busy) return;
+    clearTimeout(autoTimer);
+
+    var a = state.slots[0], b = state.slots[1];
+
+    if (!a || !b) {
+      setStatus("You need two ingredients first!");
+      cellA.classList.add("shake");
+      cellB.classList.add("shake");
+      setTimeout(function () {
+        cellA.classList.remove("shake");
+        cellB.classList.remove("shake");
+      }, 460);
+      sfxFail();
+      return;
+    }
+
+    state.busy = true;
+    reactor.classList.add("fusing");
+    clearResult();
+    setStatus("Fusing…");
+
+    setTimeout(function () {
+      var official = lookup(a, b);
+      var r = official || synthFusion(a, b);
+
+      reactor.classList.remove("fusing");
+
+      flash();
+      renderResult(r.out, 108);
+      burst(1);
+      sfxSuccess();
+      haptic([12, 30, 18]);
+
+      state.resultName = r.name;
+      sessionFusions++;
+
+      setStatus(a + " + " + b + " = " + r.out + "  —  " + r.name, "ok");
+
+      btnCopyEq.hidden = false;
+      btnCopyEq.innerHTML =
+        '<i class="fa-solid fa-copy" aria-hidden="true"></i> Copy \u201c' +
+        a + " + " + b + " = " + r.out + " \u2014 " + r.name + "\u201d";
+
+      btnChain.hidden = false;
+
+      pushHistory(r);
+
+      if (official) {
+        if (!state.discovered[r.out]) {
+          state.discovered[r.out] = true;
+          persistDiscovered();
+          upgradeDexTile(r.out);
+          toast("✨ New discovery: " + r.name + "!");
+
+          var foundNow = countFound();
+          if (foundNow > 0 && foundNow % 10 === 0 && foundNow !== lastMilestone) {
+            lastMilestone = foundNow;
+            setTimeout(function () {
+              sfxMilestone();
+              burst(2.4);
+              toast("🏆 Milestone: " + foundNow + " discoveries!");
+            }, 320);
+          }
+        }
+      } else {
+        var key = recipeKey(a, b);
+        var exists = false;
+        for (var i = 0; i < state.wild.length; i++) {
+          if (state.wild[i].key === key) { exists = true; break; }
+        }
+        if (!exists) {
+          state.wild.push({ key: key, a: a, b: b, out: r.out, name: r.name });
+          persistWild();
+          renderWild();
+          toast("🌀 Wild fusion: " + r.name + "!");
+        }
+      }
+
+      updateFootStats();
+      state.busy = false;
+      updateNextSlot();
+    }, 440);
+  }
+
+  function chainResult() {
+    if (state.busy || !state.result) return;
+    var emoji = state.result;
+    state.slots[0] = emoji;
+    state.slots[1] = null;
+    renderSlots();
+    clearResult();
+    setStatus("🔁 Chained " + emoji + " into slot A — pick a second ingredient.");
+    sfxClick();
+    haptic(6);
+  }
+
+  function clearAll() {
+    if (state.busy) return;
+    clearTimeout(autoTimer);
+    state.slots[0] = null;
+    state.slots[1] = null;
+    renderSlots();
+    clearResult();
+    setStatus("Reactor cleared. Pick two ingredients below.");
+    sfxClick();
+    haptic(6);
+  }
+
+  function randomize() {
+    if (state.busy) return;
+
+    var pool = INGREDIENTS.concat(
+      state.customEmoji.map(function (e) { return { e: e }; })
+    );
+
+    var a = pool[Math.floor(Math.random() * pool.length)].e;
+    var b = pool[Math.floor(Math.random() * pool.length)].e;
+
+    state.slots[0] = a;
+    state.slots[1] = b;
+
+    renderSlots();
+    scheduleCheck();
+    sfxClick();
+    haptic(6);
+  }
+
+  function showHint() {
+    var pool = [];
+    for (var i = 0; i < RECIPES.length; i++) {
+      if (!state.discovered[RECIPES[i].out]) pool.push(RECIPES[i]);
+    }
+    if (!pool.length) {
+      toast("🏆 You found every fusion!");
+      setStatus("🏆 Complete! All " + RECIPES.length + " fusions discovered.", "ok");
+      return;
+    }
+    var r = pool[Math.floor(Math.random() * pool.length)];
+    setStatus("💡 Hint: \u201c" + r.name + "\u201d is made from " + r.a + " + ❓", "ok");
+    toast("💡 Hint: " + r.name);
+    sfxClick();
+    haptic(8);
+  }
+
+  function resetDex() {
+    if (!window.confirm("Reset all discoveries?\n\nCustom emoji, wild fusions and history are kept.")) return;
+    state.discovered = Object.create(null);
+    lastMilestone = 0;
+    persistDiscovered();
+    renderDex();
+    updateDexBadge(0);
+    setStatus("Discoveries reset. " + RECIPES.length + " fusions to find again.");
+    toast("Discoveries reset");
+    sfxClick();
+  }
+
+  function addCustomEmoji(raw) {
+    var g = firstGrapheme(raw);
+    if (!g) {
+      toast("Type or paste an emoji first");
+      if (emojiInput) emojiInput.focus();
+      return;
+    }
+
+    var known = false;
+    for (var i = 0; i < INGREDIENTS.length; i++) {
+      if (INGREDIENTS[i].e === g) { known = true; break; }
+    }
+    var already = state.customEmoji.indexOf(g) !== -1;
+
+    if (!known && !already) {
+      state.customEmoji.push(g);
+      persistCustom();
+      updateCustomBadge();
+      delete paletteCache.custom;
+      delete pickerCache.custom;
+      buildChips();
+      if (state.activeCat === "custom") buildPalette();
+      if (state.pickerOpen && state.pickerCat === "custom") buildPickerGrid();
+      toast("➕ Added " + g + " to your palette");
+
+      var customChip = chipsEl.querySelector('[data-cat="custom"]');
+      if (customChip) {
+        customChip.classList.add("flash");
+        setTimeout(function () { customChip.classList.remove("flash"); }, 820);
+      }
+    } else {
+      toast(g + " is already in the palette");
+    }
+
+    if (emojiInput) emojiInput.value = "";
+    pick(g);
+    sfxClick();
+  }
+
+  /* ============================================================
+     20. WIRING
+     ============================================================ */
+  attachTapHold(
+    paletteEl, ".ing",
+    function (el) { pick(el.dataset.emoji); },
+    function (el) { copyText(el.dataset.emoji, "ingredient"); }
+  );
+
+  attachTapHold(
+    pickerGrid, ".pk",
+    function (el) { pick(el.dataset.emoji); sfxClick(); haptic(6); },
+    function (el) { copyText(el.dataset.emoji, "emoji"); }
+  );
+
+  attachTapHold(
+    dexEl, ".dex-item.found",
+    function (el) {
+      var r = RECIPE_BY_OUT[el.dataset.out];
+      if (r) copyText(r.out + " " + r.name, "");
+    },
+    function (el) {
+      var r = RECIPE_BY_OUT[el.dataset.out];
+      if (r) copyText(r.a + " + " + r.b + " = " + r.out + " \u2014 " + r.name, "");
+    }
+  );
+
+  attachTapHold(
+    wildList, ".wild-chip",
+    function (el) { copyText(el.dataset.out + " " + el.dataset.name, ""); },
+    function (el) { copyText(el.dataset.eq + " \u2014 " + el.dataset.name, ""); }
+  );
+
+  cellA.addEventListener("click", function () {
+    if (state.busy || !state.slots[0]) return;
+    copyText(state.slots[0], "ingredient");
+  });
+  cellB.addEventListener("click", function () {
+    if (state.busy || !state.slots[1]) return;
+    copyText(state.slots[1], "ingredient");
+  });
+
+  cellR.addEventListener("click", function () {
+    if (!state.result) return;
+    var txt = state.resultName
+      ? state.result + " " + state.resultName
+      : state.result;
+    copyText(txt, "");
+  });
+
+  [cellA, cellB, cellR].forEach(function (cell) {
+    cell.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") {
+        ev.preventDefault();
+        cell.click();
+      }
+    });
+  });
+
+  btnCopyEq.addEventListener("click", function () {
+    if (!state.result) return;
+    var a = state.slots[0], b = state.slots[1];
+    if (!a || !b) return;
+    var txt = a + " + " + b + " = " + state.result +
+              (state.resultName ? " \u2014 " + state.resultName : "");
+    copyText(txt, "");
+  });
+
+  btnChain.addEventListener("click", chainResult);
+
+  $("btnFuse").addEventListener("click", fuse);
+  $("btnClear").addEventListener("click", clearAll);
+  $("btnRandom").addEventListener("click", randomize);
+  btnHint.addEventListener("click", showHint);
+  btnResetDex.addEventListener("click", resetDex);
+
+  dexSearch.addEventListener("input", function () {
+    state.dexQuery = dexSearch.value;
+    applyDexFilter();
+  });
+
+  btnAddEmoji.addEventListener("click", function () { addCustomEmoji(emojiInput.value); });
+
+  emojiInput.addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") {
+      ev.preventDefault();
+      addCustomEmoji(emojiInput.value);
+    }
+  });
+
+  emojiInput.addEventListener("paste", function () {
+    setTimeout(function () {
+      if (firstGrapheme(emojiInput.value)) addCustomEmoji(emojiInput.value);
+    }, 0);
+  });
+
+  btnPicker.addEventListener("click", function () { togglePicker(); });
+
+  document.addEventListener("keydown", function (ev) {
+    if (ev.target && /^(INPUT|TEXTAREA|SELECT)$/.test(ev.target.tagName)) {
+      if (ev.key === "Escape" && ev.target === dexSearch) {
+        dexSearch.value = "";
+        state.dexQuery = "";
+        applyDexFilter();
+        dexSearch.blur();
+      }
+      return;
+    }
+    if (ev.key === "Enter" && !ev.repeat) fuse();
+    if (ev.key === "Escape") clearAll();
+    if ((ev.key === "r" || ev.key === "R") && !ev.metaKey && !ev.ctrlKey && !ev.altKey) randomize();
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) clearTimeout(autoTimer);
+  });
+
+  /* ============================================================
+     21. BOOT
+     ============================================================ */
+  buildChips();
+  buildPalette();
+  renderSlots();
+  renderDex();
+  renderWild();
+  renderHistory();
+  updateCustomBadge();
+  updateFootStats();
+
+  setTimeout(function () {
+    if (!state.slots[0] && !state.slots[1] && !state.busy) {
+      var found = countFound();
+      if (found === 0) {
+        setStatus("Try it: tap 🔥 then ❤️ — auto-detects ❤️‍🔥. Tap the result to copy “❤️‍🔥 Heart on Fire”");
+      } else {
+        setStatus("Welcome back — " + found + " / " + RECIPES.length +
+          " discovered. Try the 💡 Hint button.");
+      }
+    }
+  }, 500);
+
+  /* console helper */
+  window.NotoFusion = {
+    state: state,
+    recipes: RECIPES,
+    lookup: lookup,
+    synthFusion: synthFusion,
+    fuse: fuse,
+    copy: copyText,
+    addEmoji: addCustomEmoji,
+    hint: showHint,
+    reset: function () {
+      state.discovered = Object.create(null);
+      state.wild = [];
+      state.history = [];
+      lastMilestone = 0;
+      persistDiscovered();
+      persistWild();
+      persistHistory();
+      renderDex();
+      renderWild();
+      renderHistory();
+      updateDexBadge(0);
+      updateFootStats();
+    }
+  };
+})();
+</script>
+
+<script>
+// Disable right-click
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+function ctrlShiftKey(e, keyCode) {
+  return e.ctrlKey && e.shiftKey && e.keyCode === keyCode.charCodeAt(0);
+}
+
+document.onkeydown = (e) => {
+  // Disable F12, Ctrl + Shift + I, Ctrl + Shift + J, Ctrl + U
+  if (
+    event.keyCode === 123 ||
+    ctrlShiftKey(e, 'I') ||
+    ctrlShiftKey(e, 'J') ||
+    ctrlShiftKey(e, 'C') ||
+    (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0))
+  )
+    return false;
+};
+</script>
+<script>
+ if (typeof document.onselectstart!="undefined" ) {
+  document.onselectstart=new Function ("return false" );
+ }
+ else {
+  document.onmousedown=new Function ("return false" );
+  document.onmouseup=new Function ("return true" );
+ }
+</script>
+<script>
+   document.onkeydown = function(e) {
+if(event.keyCode == 123) {
+    return false;
+}
+if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'C'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'X'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'Y'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'Z'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'V'.charCodeAt(0)){
+    return false;
+}
+if (e.keyCode == 67 && e.shiftKey && (e.ctrlKey || e.metaKey)){
+    return false;
+}
+if (e.keyCode == 'J'.charCodeAt(0) && e.altKey && (e.ctrlKey || e.metaKey)){
+    return false;
+}
+if (e.keyCode == 'I'.charCodeAt(0) && e.altKey && (e.ctrlKey || e.metaKey)){
+    return false;
+}
+if ((e.keyCode == 'V'.charCodeAt(0) && e.metaKey) || (e.metaKey && e.altKey)){
+    return false;
+}
+if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'H'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'A'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'F'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'E'.charCodeAt(0)){
+    return false;
+}
+}
+if (document.addEventListener) {
+    document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    }, false);
+}else{
+    document.attachEvent('oncontextmenu', function() {
+    window.event.returnValue = false;
+    });
+}
+</script>
+
+
+</body>
+</html>
