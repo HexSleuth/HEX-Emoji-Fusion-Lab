@@ -9,9 +9,6 @@
 <meta name="description" content="Fuse animated Noto emoji + real Emoji Kitchen combos. Multi-source kitchen data with graceful fallback." />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 <style>
-/* ============================================================
-   2.5D DARK DESIGN TOKENS (unchanged)
-   ============================================================ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
@@ -540,6 +537,94 @@ main{ max-width:900px; margin:0 auto; }
   50%    { transform:scale(1.08); }
 }
 
+/* ============================================================
+   EMOJI SOURCE STYLE SELECTOR
+   ============================================================ */
+.source-chips{
+  display:flex; gap:7px;
+  overflow-x:auto;
+  padding:2px 0 10px;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch;
+  margin-bottom:6px;
+}
+.source-chips::-webkit-scrollbar{ display:none; }
+
+.source-chip{
+  flex:0 0 auto;
+  padding:7px 12px; border-radius:999px;
+  border:1px solid var(--border-hi);
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  color:var(--txt);
+  font-size:12px; font-weight:600;
+  cursor:pointer; white-space:nowrap;
+  min-height:34px;
+  display:inline-flex; align-items:center; gap:5px;
+  box-shadow:0 2px 0 rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+  transition: transform .1s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.source-chip:active{ transform:translateY(2px); box-shadow:0 0 0 rgba(0,0,0,.35); }
+.source-chip.active{
+  background:linear-gradient(180deg, #5cc8ff, #2e9fd8);
+  color:#04121c;
+  border-color:rgba(255,255,255,.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.3),
+    0 2px 0 #082a3d,
+    0 6px 14px -4px rgba(92,200,255,.5);
+}
+.source-chip[data-src="noto"].active{
+  background:linear-gradient(180deg, #8f6fff, #6b46ff);
+  color:#fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.3),
+    0 2px 0 #3d1a8c,
+    0 6px 14px -4px rgba(124,92,255,.5);
+}
+.source-chip[data-src="emojiall"].active{
+  background:linear-gradient(180deg, #ff7a3c, #ff4d8d);
+  color:#fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.3),
+    0 2px 0 #5c1a4a,
+    0 6px 14px -4px rgba(255,77,141,.5);
+}
+.source-chip[data-src="twemoji"].active{
+  background:linear-gradient(180deg, #1d9bf0, #0e71c2);
+  color:#fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.3),
+    0 2px 0 #07264a,
+    0 6px 14px -4px rgba(29,155,240,.5);
+}
+.source-chip[data-src="openmoji"].active{
+  background:linear-gradient(180deg, #2ee6a8, #14a97a);
+  color:#04120c;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.3),
+    0 2px 0 #0a3a2a,
+    0 6px 14px -4px rgba(46,230,168,.5);
+}
+.source-chip[data-src="joypixels"].active{
+  background:linear-gradient(180deg, #ffb84d, #ff8a3c);
+  color:#1c0d00;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.3),
+    0 2px 0 #5c3a00,
+    0 6px 14px -4px rgba(255,184,77,.5);
+}
+.source-chip[data-src="system"].active{
+  background:linear-gradient(180deg, #7e869e, #5a6278);
+  color:#fff;
+}
+
+.source-note{
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.5;
+  padding:2px 2px 0;
+}
+.source-note b{ color:var(--txt-2); }
+
 .palette{
   display:grid;
   grid-template-columns:repeat(auto-fill, minmax(56px, 1fr));
@@ -940,6 +1025,7 @@ footer .source-links a:hover{
   .dex-name{ font-size:10px; }
   .dex-formula{ font-size:9.5px; }
   .copy-eq{ font-size:12px; padding:9px 14px; }
+  .source-chip{ font-size:11px; padding:6px 10px; }
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -1021,6 +1107,8 @@ footer .source-links a:hover{
 
   <section class="panel" aria-label="Ingredient palette">
     <h2>Ingredient Lab <span class="badge purple">tap = add · hold = copy</span> <span class="badge kitchen" id="kitchenPaletteBadge">🍳</span></h2>
+    <div class="source-chips" id="sourceChips"></div>
+    <p class="source-note" id="sourceNote" style="margin-bottom:8px;"></p>
     <div class="chips" id="chips"></div>
     <div class="palette" id="palette"></div>
   </section>
@@ -1045,7 +1133,7 @@ footer .source-links a:hover{
   <section class="panel" id="kitchenBrowsePanel" aria-label="Browse combos" hidden>
     <h2>
       <i class="fa-solid fa-utensils" aria-hidden="true"></i>
-      Kitchen Combos
+      HEX Emoji Combos
       <span class="badge kitchen" id="kitchenBrowseBadge">0</span>
       <button class="mini-btn" id="btnCloseBrowse">Close</button>
     </h2>
@@ -1132,19 +1220,168 @@ footer .source-links a:hover{
   var LOW_POWER = REDUCED || CORES <= 4;
 
   /* ============================================================
-     1. EMOJI LOADER — animated webp → gif → png chain
+     1. MULTI-SOURCE EMOJI PROVIDERS
+     ------------------------------------------------------------
+     Sources (all publicly hotlinkable / CDN-backed):
+       - Noto Animated      → googlefonts.github.io/noto-emoji-animation
+                              (animated WebP/GIF via fonts.gstatic.com)
+       - Emojiall platform  → emojiall.com platform-animation
+                              (skype / facebook / whatsapp / telegram GIFs)
+       - Twemoji            → jsDelivr CDN (flat SVG, same as emojiterra)
+       - OpenMoji           → jsDelivr CDN (outline/color SVG)
+       - JoyPixels          → jsDelivr CDN (WhatsApp-inspired PNG)
+       - System             → OS emoji font (built-in)
      ============================================================ */
-  var EMOJI_BASE = "https://fonts.gstatic.com/s/e/notoemoji/latest/";
   var PX_SMALL = 72;
   var PX_LARGE = 512;
   var MAX_PARALLEL = 6;
 
+  var EMOJI_SOURCES = [
+    { id: "auto",      label: "✨ Auto",       desc: "Best available (animated Noto + fallbacks)" },
+    { id: "noto",      label: "🎬 Noto Animated", desc: "Google Noto animated WebP/GIF (googlefonts.github.io/noto-emoji-animation)" },
+    { id: "emojiall",  label: "📱 Emojiall",   desc: "Emojiall platform animations (Skype/Facebook/Telegram)" },
+    { id: "twemoji",   label: "🐦 Twemoji",    desc: "Twitter-style flat SVG" },
+    { id: "openmoji",  label: "🎯 OpenMoji",   desc: "Outline/color SVG" },
+    { id: "joypixels", label: "😊 JoyPixels",  desc: "WhatsApp-inspired PNG" },
+    { id: "system",    label: "🖥️ System",     desc: "Use OS emoji font" }
+  ];
+
+  function dedupe(arr) {
+    var seen = Object.create(null), out = [];
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] && !seen[arr[i]]) { seen[arr[i]] = 1; out.push(arr[i]); }
+    }
+    return out;
+  }
+
+  function emojiCodepoints(emoji) {
+    var cps = [];
+    for (var i = 0; i < emoji.length; ) {
+      var cp = emoji.codePointAt(i);
+      cps.push(cp);
+      i += (cp > 0xFFFF) ? 2 : 1;
+    }
+    return cps;
+  }
+
+  function notoCodes(emoji) {
+    var cps = emojiCodepoints(emoji);
+    var full = cps.map(function (c) { return c.toString(16); }).join("-");
+    var stripped = cps
+      .filter(function (c) { return c !== 0xfe0f && c !== 0x200d; })
+      .map(function (c) { return c.toString(16); }).join("-");
+    var base = cps[0].toString(16);
+    return dedupe([full, stripped, base]);
+  }
+
+  function twemojiCode(emoji) {
+    var cps = emojiCodepoints(emoji).filter(function (c) { return c !== 0xfe0f; });
+    return cps.map(function (c) { return c.toString(16); }).join("-");
+  }
+
+  function openmojiCode(emoji) {
+    return emojiCodepoints(emoji)
+      .map(function (c) { return c.toString(16).toUpperCase(); })
+      .join("-");
+  }
+
+  function getEmojiUrlsForSource(emoji, px, sourceId) {
+    var noto = notoCodes(emoji);
+    var staticPx = (px >= 512) ? 512 : 72;
+    var notoBase = function (suffix, size) {
+      var out = [];
+      noto.forEach(function (code) {
+        out.push("https://fonts.gstatic.com/s/e/notoemoji/latest/" + code + "/" + size + "." + suffix);
+      });
+      return out;
+    };
+
+    switch (sourceId) {
+      case "noto":
+        return dedupe([]
+          .concat(notoBase("webp", px))
+          .concat(notoBase("gif", px))
+          .concat(notoBase("png", staticPx)));
+
+      case "emojiall": {
+        var cp = notoCodes(emoji)[0];
+        return dedupe([]
+          .concat([
+            "https://www.emojiall.com/images/animations/skype/" + cp + ".gif",
+            "https://www.emojiall.com/images/animations/facebook/" + cp + ".gif",
+            "https://www.emojiall.com/images/animations/whatsapp/" + cp + ".gif",
+            "https://www.emojiall.com/images/animations/telegram/" + cp + ".gif"
+          ])
+          .concat(notoBase("webp", px))
+          .concat(notoBase("png", staticPx)));
+      }
+
+      case "twemoji": {
+        var tw = twemojiCode(emoji);
+        return dedupe([]
+          .concat([
+            "https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/" + tw + ".svg",
+            "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/" + tw + ".svg"
+          ])
+          .concat(notoBase("webp", px)));
+      }
+
+      case "openmoji": {
+        var om = openmojiCode(emoji);
+        return dedupe([]
+          .concat([
+            "https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@latest/color/svg/" + om + ".svg",
+            "https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@latest/black/svg/" + om + ".svg"
+          ])
+          .concat(notoBase("webp", px)));
+      }
+
+      case "joypixels": {
+        var jp = notoCodes(emoji)[0];
+        var jpSize = (px >= 512) ? 128 : 64;
+        return dedupe([]
+          .concat([
+            "https://cdn.jsdelivr.net/joypixels/assets/png/unicode/" + jpSize + "/" + jp + ".png",
+            "https://cdn.jsdelivr.net/joypixels/assets/png/unicode/64/" + jp + ".png"
+          ])
+          .concat(notoBase("webp", px)));
+      }
+
+      case "system":
+        return []; // text fallback only
+
+      case "auto":
+      default: {
+        var emCode = notoCodes(emoji)[0];
+        var tw2 = twemojiCode(emoji);
+        var om2 = openmojiCode(emoji);
+        var jp2 = notoCodes(emoji)[0];
+        return dedupe([]
+          .concat(notoBase("webp", px))       // Noto animated (primary)
+          .concat(notoBase("gif", px))        // Noto animated gif
+          .concat([                            // Emojiall platform animations
+            "https://www.emojiall.com/images/animations/skype/" + emCode + ".gif",
+            "https://www.emojiall.com/images/animations/facebook/" + emCode + ".gif"
+          ])
+          .concat(notoBase("png", staticPx))  // Noto static
+          .concat([                            // Twemoji / OpenMoji / JoyPixels
+            "https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/" + tw2 + ".svg",
+            "https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@latest/color/svg/" + om2 + ".svg",
+            "https://cdn.jsdelivr.net/joypixels/assets/png/unicode/64/" + jp2 + ".png"
+          ]));
+      }
+    }
+  }
+
+  /* ============================================================
+     2. EMOJI LOADER — multi-source, memoized, throttled
+     ============================================================ */
   var memo     = Object.create(null);
   var inflight = Object.create(null);
   var running  = 0;
   var waitQ    = [];
 
-  var URL_KEY = "noto-fusion-v6:urls";
+  var URL_KEY = "noto-fusion-v7:urls";
   var urlCache = safeParse(localStorage.getItem(URL_KEY), {});
   if (typeof urlCache !== "object" || urlCache === null || Array.isArray(urlCache)) {
     urlCache = {};
@@ -1157,8 +1394,8 @@ footer .source-links a:hover{
       saveTimer = null;
       try {
         var keys = Object.keys(urlCache);
-        if (keys.length > 600) {
-          for (var i = 0; i < keys.length - 600; i++) delete urlCache[keys[i]];
+        if (keys.length > 900) {
+          for (var i = 0; i < keys.length - 900; i++) delete urlCache[keys[i]];
         }
         localStorage.setItem(URL_KEY, JSON.stringify(urlCache));
       } catch (e) { /* ignore quota */ }
@@ -1175,36 +1412,6 @@ footer .source-links a:hover{
     else running = Math.max(0, running - 1);
   }
 
-  function hexCandidates(emoji, px) {
-    var cps = Array.from(emoji).map(function (c) { return c.codePointAt(0); });
-    var full = cps.map(function (c) { return c.toString(16); }).join("_");
-    var stripped = cps
-      .filter(function (c) { return c !== 0xfe0f && c !== 0x200d; })
-      .map(function (c) { return c.toString(16); }).join("_");
-    var base = cps[0].toString(16);
-
-    var codes = [], seen = Object.create(null);
-    [full, stripped, base].forEach(function (code) {
-      if (code && !seen[code]) { seen[code] = 1; codes.push(code); }
-    });
-
-    // Priority: animated webp (best) → animated gif → static png
-    var out = [];
-    codes.forEach(function (code) {
-      out.push(EMOJI_BASE + code + "/" + px + ".webp");
-    });
-    codes.forEach(function (code) {
-      out.push(EMOJI_BASE + code + "/" + px + ".gif");
-    });
-    // static fallback (larger sizes only support webp/png)
-    var staticPx = px >= 512 ? 512 : 72;
-    codes.forEach(function (code) {
-      out.push(EMOJI_BASE + code + "/" + staticPx + ".png");
-    });
-
-    return out;
-  }
-
   function probeImage(url) {
     return new Promise(function (resolve) {
       var img = new Image();
@@ -1216,15 +1423,22 @@ footer .source-links a:hover{
   }
 
   function loadEmoji(emoji, px) {
-    var key = emoji + "@" + px;
+    var sourceId = state.emojiSource || "auto";
+    var key = emoji + "@" + px + "@" + sourceId;
+
     if (key in memo) return Promise.resolve(memo[key]);
     if (inflight[key]) return inflight[key];
 
     var candidates = [];
     if (urlCache[key]) candidates.push(urlCache[key]);
-    hexCandidates(emoji, px).forEach(function (u) {
+    getEmojiUrlsForSource(emoji, px, sourceId).forEach(function (u) {
       if (candidates.indexOf(u) === -1) candidates.push(u);
     });
+
+    if (!candidates.length) {
+      memo[key] = null;
+      return Promise.resolve(null);
+    }
 
     var promise = acquireSlot().then(function () {
       var i = 0;
@@ -1266,7 +1480,9 @@ footer .source-links a:hover{
     }
 
     var pxv = px || PX_SMALL;
-    var cached = memo[emoji + "@" + pxv];
+    var sourceId = state.emojiSource || "auto";
+    var cacheKey = emoji + "@" + pxv + "@" + sourceId;
+    var cached = memo[cacheKey];
 
     if (cached === null) {
       box.classList.add("fallback");
@@ -1327,8 +1543,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     2. GITHUB EMOJI NAME MAP (curated subset for search)
-     Sourced from github's emoji markup list (ricealexander/emoji-list)
+     3. EMOJI NAME MAP (for search)
      ============================================================ */
   var EMOJI_NAMES = {
     "1f525":"fire","2764-fe0f":"heart","2b50":"star","1f31f":"star2","1f4a5":"boom","1f4a2":"anger",
@@ -1531,29 +1746,25 @@ footer .source-links a:hover{
     "1faa1":"sewing_needle","1f9f6":"yarn","1f3b7":"saxophone","1f3b8":"guitar","1f3b9":"musical_keyboard",
     "1f3ba":"trumpet","1f3bb":"violin","1fa95":"banjo","1f941":"drum","1fa98":"long_drum",
     "1f3b6":"notes","1f3b5":"musical_note","1f3bc":"musical_score","1f3a4":"microphone",
-    "1f3a7":"headphones","1f3b7":"saxophone","1f3ac":"clapper","1f3ad":"performing_arts",
-    "1f39f-fe0f":"tickets","1f3ab":"ticket","1f3aa":"circus_tent","1f3a8":"art",
-    "1f692":"fire_engine","1f693":"police_car","1f6a8":"rotating_light","1f9ef":"fire_extinguisher",
+    "1f3a7":"headphones","1f3ac":"clapper","1f3af":"dart","1f3b1":"8ball",
+    "1f39f-fe0f":"tickets","1f3ab":"ticket","1f3aa":"circus_tent",
     "1f3c1":"checkered_flag","1f6a9":"triangular_flag_on_post","1f38c":"crossed_flags",
     "1f3f4":"waving_black_flag","1f3f3-fe0f":"waving_white_flag","1f3f3-fe0f-200d-1f308":"rainbow_flag",
     "1f3f3-fe0f-200d-26a7-fe0f":"transgender_flag","1f3f4-200d-2620-fe0f":"pirate_flag",
-    "2764":"heart","1f9e1":"orange_heart","1f49b":"yellow_heart","1f49a":"green_heart",
-    "1f499":"blue_heart","1f49c":"purple_heart","1f5a4":"black_heart","1f90d":"white_heart",
-    "1f90e":"brown_heart","1f9e1":"orange_heart","1f3f3-fe0f":"white_flag","1f6a9":"flag",
+    "2764":"heart","1f3f3-fe0f":"white_flag","1f6a9":"flag",
     "1f525":"fire","1f4a5":"collision","1f4ab":"dizzy","1f31e":"sun_with_face","1f31d":"full_moon_with_face",
     "1f31a":"new_moon_with_face","1f31b":"first_quarter_moon_with_face","1f31c":"last_quarter_moon_with_face",
-    "1f31f":"star2","1f4ab":"dizzy","2b50":"star","1f320":"stars","2604-fe0f":"comet",
+    "1f31f":"star2","2b50":"star","1f320":"stars","2604-fe0f":"comet",
     "1f30c":"milky_way","1f5fb":"mount_fuji","1f320":"shooting_star","2600-fe0f":"sunny",
     "1f324-fe0f":"sun_behind_small_cloud","26c5":"partly_sunny","1f325-fe0f":"sun_behind_large_cloud",
     "1f326-fe0f":"sun_behind_rain_cloud","1f327-fe0f":"cloud_with_rain","1f328-fe0f":"cloud_with_snow",
     "1f329-fe0f":"cloud_with_lightning","1f32a-fe0f":"tornado","1f32b-fe0f":"fog","1f32c-fe0f":"wind_face",
     "1f300":"cyclone","1f308":"rainbow","1f302":"closed_umbrella","2602-fe0f":"umbrella",
-    "1f6d1":"stop_sign","26a0-fe0f":"warning","1f6a7":"construction","1f300":"cyclone",
-    "1f6df":"ring_buoy","2693":"anchor","1f6a9":"triangular_flag_on_post"
+    "1f6d1":"stop_sign","26a0-fe0f":"warning","1f6a7":"construction"
   };
 
   /* ============================================================
-     3. RECIPES — 120 symbolic fusions
+     4. RECIPES
      ============================================================ */
   var RECIPES = [
     { a: "🔥", b: "❤️", out: "❤️‍🔥", name: "Heart on Fire" },
@@ -1691,7 +1902,7 @@ footer .source-links a:hover{
   })();
 
   /* ============================================================
-     4. CATEGORIES + INGREDIENTS
+     5. CATEGORIES + INGREDIENTS
      ============================================================ */
   var CATEGORIES = [
     { id: "all",     label: "✨ All" },
@@ -1804,9 +2015,9 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     5. STATE
+     6. STATE
      ============================================================ */
-  var STORE_KEY = "noto-fusion-v6";
+  var STORE_KEY = "noto-fusion-v7";
 
   var state = {
     slots: [null, null],
@@ -1827,7 +2038,8 @@ footer .source-links a:hover{
     dexQuery: "",
     kitchenLoaded: false,
     kitchenError: null,
-    kitchenSource: null
+    kitchenSource: null,
+    emojiSource: "auto"
   };
 
   state.discovered = safeParse(localStorage.getItem(STORE_KEY), {});
@@ -1844,6 +2056,15 @@ footer .source-links a:hover{
   if (!Array.isArray(state.history)) state.history = [];
 
   if (localStorage.getItem(STORE_KEY + ":mute") === "1") state.sound = false;
+
+  var savedSource = localStorage.getItem(STORE_KEY + ":source");
+  if (savedSource) {
+    var validSource = false;
+    for (var si = 0; si < EMOJI_SOURCES.length; si++) {
+      if (EMOJI_SOURCES[si].id === savedSource) { validSource = true; break; }
+    }
+    if (validSource) state.emojiSource = savedSource;
+  }
 
   var sessionFusions = 0;
   var lastMilestone = 0;
@@ -1862,7 +2083,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     6. DOM
+     7. DOM REFS
      ============================================================ */
   var reactor     = $("reactor");
   var cellA       = $("cellA");
@@ -1876,6 +2097,8 @@ footer .source-links a:hover{
   var btnBrowseCombos = $("btnBrowseCombos");
   var paletteEl   = $("palette");
   var chipsEl     = $("chips");
+  var sourceChipsEl = $("sourceChips");
+  var sourceNoteEl  = $("sourceNote");
   var dexEl       = $("dex");
   var dexBadge    = $("dexBadge");
   var dexSearch   = $("dexSearch");
@@ -1914,7 +2137,7 @@ footer .source-links a:hover{
   statTotal.textContent = String(RECIPES.length);
 
   /* ============================================================
-     7. AUDIO + HAPTICS
+     8. AUDIO + HAPTICS
      ============================================================ */
   var actx = null;
   function audioCtx() {
@@ -1978,7 +2201,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     8. CLIPBOARD
+     9. CLIPBOARD
      ============================================================ */
   function copyText(text, label) {
     if (!text) return;
@@ -2031,21 +2254,95 @@ footer .source-links a:hover{
     }
   }
 
-  function downloadImage(url, filename) {
-    var a = document.createElement("a");
-    a.href = url;
-    a.download = filename || "emoji-kitchen.png";
-    a.target = "_blank";
-    a.rel = "noopener";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    sfxClick(); haptic(8);
-    toast("⤓ Download started");
+  /* ============================================================
+     10. DOWNLOAD — same-origin blob
+     ============================================================ */
+  async function downloadImage(url, filename) {
+    if (!url) { toast("Nothing to download"); return; }
+
+    var baseName = (filename || "emoji-kitchen.png")
+      .replace(/\.(png|jpe?g|webp|gif|svg)$/i, "");
+    toast("⤓ Preparing download…");
+
+    function saveBlob(blob, mime) {
+      var ext = "png";
+      var t = (mime || blob.type || "").toLowerCase();
+      if (t.indexOf("jpeg") !== -1 || t.indexOf("jpg") !== -1) ext = "jpg";
+      else if (t.indexOf("webp") !== -1) ext = "webp";
+      else if (t.indexOf("gif") !== -1) ext = "gif";
+      else if (t.indexOf("svg") !== -1) ext = "svg";
+
+      var name = baseName + "." + ext;
+      var objectUrl = URL.createObjectURL(blob);
+
+      var a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = name;
+      a.rel = "noopener";
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      setTimeout(function () { URL.revokeObjectURL(objectUrl); }, 10000);
+
+      sfxClick(); haptic(8);
+      toast("⤓ Download started · " + name);
+    }
+
+    function openFallback() {
+      var a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast("⤓ Opened image — long-press / right-click to save");
+    }
+
+    try {
+      var res = await fetch(url, { mode: "cors", cache: "force-cache" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      var blob = await res.blob();
+      saveBlob(blob, res.headers.get("content-type"));
+      return;
+    } catch (err) {
+      if (window.console) console.warn("[Download] fetch failed:", err);
+    }
+
+    try {
+      var img = await new Promise(function (resolve, reject) {
+        var im = new Image();
+        im.crossOrigin = "anonymous";
+        im.onload = function () { resolve(im); };
+        im.onerror = function () { reject(new Error("img load failed")); };
+        im.src = url;
+      });
+
+      var canvas = document.createElement("canvas");
+      canvas.width  = img.naturalWidth  || img.width;
+      canvas.height = img.naturalHeight || img.height;
+      canvas.getContext("2d").drawImage(img, 0, 0);
+
+      var blob2 = await new Promise(function (resolve, reject) {
+        canvas.toBlob(function (b) {
+          if (b) resolve(b); else reject(new Error("toBlob null"));
+        }, "image/png");
+      });
+
+      saveBlob(blob2, "image/png");
+      return;
+    } catch (err2) {
+      if (window.console) console.warn("[Download] canvas fallback failed:", err2);
+    }
+
+    openFallback();
   }
 
   /* ============================================================
-     9. TOAST
+     11. TOAST
      ============================================================ */
   var toastTimer = null;
   var toastEl = null;
@@ -2064,7 +2361,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     10. TAP/HOLD
+     12. TAP/HOLD
      ============================================================ */
   function attachTapHold(container, selector, onTap, onHold) {
     var holdTimer = null;
@@ -2134,7 +2431,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     11. RENDER — reactor
+     13. RENDER — reactor
      ============================================================ */
   function renderCell(cell, emoji, size, opts) {
     opts = opts || {};
@@ -2239,7 +2536,85 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     12. PALETTE
+     14. EMOJI SOURCE CHIPS
+     ============================================================ */
+  function findSource(id) {
+    for (var i = 0; i < EMOJI_SOURCES.length; i++) {
+      if (EMOJI_SOURCES[i].id === id) return EMOJI_SOURCES[i];
+    }
+    return EMOJI_SOURCES[0];
+  }
+
+  function buildSourceChips() {
+    sourceChipsEl.innerHTML = "";
+    var frag = document.createDocumentFragment();
+
+    EMOJI_SOURCES.forEach(function (src) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "source-chip" + (state.emojiSource === src.id ? " active" : "");
+      b.dataset.src = src.id;
+      b.textContent = src.label;
+      b.title = src.desc;
+      b.addEventListener("click", function () {
+        setEmojiSource(src.id);
+      });
+      frag.appendChild(b);
+    });
+
+    sourceChipsEl.appendChild(frag);
+
+    var cur = findSource(state.emojiSource);
+    sourceNoteEl.innerHTML =
+      "<b>" + cur.label + ":</b> " + cur.desc;
+  }
+
+  function setEmojiSource(id) {
+    if (state.emojiSource === id) return;
+    var src = findSource(id);
+    state.emojiSource = id;
+
+    try { localStorage.setItem(STORE_KEY + ":source", id); } catch (e) {}
+
+    // Invalidate memo so every visible emoji re-loads from new source
+    memo = Object.create(null);
+    inflight = Object.create(null);
+
+    buildSourceChips();
+    buildPalette();
+    if (state.pickerOpen) buildPickerGrid();
+    renderSlots();
+
+    // Re-render result cell if it exists
+    if (state.resultIsKitchen && state.kitchenCombo) {
+      cellR.innerHTML = "";
+      cellR.classList.add("filled", "kitchen-result");
+      cellR.appendChild(makeKitchenImage(state.kitchenCombo.gStaticUrl, 108, state.kitchenCombo.alt));
+    } else if (state.result) {
+      var prevResult = state.result;
+      var prevName = state.resultName;
+      var prevKitchen = state.resultIsKitchen;
+      var prevCombo = state.kitchenCombo;
+      renderResult(prevResult, 108);
+      state.resultIsKitchen = prevKitchen;
+      state.kitchenCombo = prevCombo;
+      state.resultName = prevName;
+      if (prevKitchen) {
+        cellR.classList.add("kitchen-result");
+        cellR.innerHTML = "";
+        cellR.appendChild(makeKitchenImage(prevCombo.gStaticUrl, 108, prevCombo.alt));
+      }
+    }
+
+    renderDex();
+
+    sfxClick();
+    haptic(6);
+    toast("🎨 Style: " + src.label);
+  }
+
+  /* ============================================================
+     15. PALETTE
      ============================================================ */
   function paletteItems() {
     if (state.activeCat === "custom") {
@@ -2307,6 +2682,13 @@ footer .source-links a:hover{
     if (!nodes) {
       nodes = paletteItems().map(createIngredientButton);
       paletteCache[catId] = nodes;
+    } else {
+      // Rebuild emoji content so the new source is reflected
+      nodes.forEach(function (b) {
+        b.dataset.mounted = "0";
+        b.textContent = b.dataset.emoji;
+        upgradeEmoji(b);
+      });
     }
 
     paletteEl.innerHTML = "";
@@ -2333,7 +2715,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     13. PICKER
+     16. PICKER
      ============================================================ */
   var pickerCache = Object.create(null);
 
@@ -2416,6 +2798,15 @@ footer .source-links a:hover{
       return;
     }
 
+    // Refresh any already-mounted nodes so the new source is reflected
+    nodes.forEach(function (b) {
+      if (b.dataset.mounted === "1") {
+        b.dataset.mounted = "0";
+        b.textContent = b.dataset.emoji;
+        upgradeEmoji(b);
+      }
+    });
+
     var frag = document.createDocumentFragment();
     for (var i = 0; i < nodes.length; i++) frag.appendChild(nodes[i]);
     pickerGrid.appendChild(frag);
@@ -2436,7 +2827,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     14. DEX
+     17. DEX
      ============================================================ */
   var dexTiles = Object.create(null);
   var dexEmptyEl = null;
@@ -2609,7 +3000,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     15. WILD
+     18. WILD
      ============================================================ */
   function renderWild() {
     wildList.innerHTML = "";
@@ -2641,7 +3032,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     16. HISTORY
+     19. HISTORY
      ============================================================ */
   function pushHistory(r) {
     var top = state.history[0];
@@ -2726,18 +3117,20 @@ footer .source-links a:hover{
   });
 
   /* ============================================================
-     17. FOOTER STATS
+     20. FOOTER STATS
      ============================================================ */
   function updateFootStats() {
     var src = state.kitchenSource ? " · " + state.kitchenSource : "";
+    var emojiSrc = findSource(state.emojiSource).label;
     footStats.textContent =
       "Session: " + sessionFusions + " fusions · " +
       state.wild.length + " wild · " +
-      (state.kitchenLoaded ? "Kitchen ready" + src : "Kitchen loading…");
+      "Style: " + emojiSrc + " · " +
+      (state.kitchenLoaded ? "HEX Emoji ready" + src : "HEX Emoji loading…");
   }
 
   /* ============================================================
-     18. EFFECTS
+     21. EFFECTS
      ============================================================ */
   function burst(multiplier) {
     var rect = reactor.getBoundingClientRect();
@@ -2796,7 +3189,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     19. GRAPHEME EXTRACTION
+     22. GRAPHEME EXTRACTION
      ============================================================ */
   function firstGrapheme(str) {
     str = (str || "").trim();
@@ -2828,21 +3221,21 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     20. KITCHEN MODULE — MULTI-SOURCE + FORMAT ADAPTER
+     23. KITCHEN MODULE
      ============================================================ */
   var KITCHEN_SOURCES = [
     {
-      name: "HEX Emoji/jsDelivr",
+      name: "HEX EMOJI",
       url: "https://cdn.jsdelivr.net/gh/forresto/emoji-kitchen-data@main/dist/emoji-kitchen-data.json",
       format: "forresto"
     },
     {
-      name: "HEX Emoji/raw",
+      name: "HEX EMOJI",
       url: "https://raw.githubusercontent.com/forresto/emoji-kitchen-data/main/dist/emoji-kitchen-data.json",
       format: "forresto"
     },
     {
-      name: "HEX Emoji/Fusion",
+      name: "HEX EMOJI",
       url: "https://raw.githubusercontent.com/xsalazar/emoji-kitchen-backend/refs/heads/main/app/metadata.json",
       format: "xsalazar"
     }
@@ -2881,7 +3274,6 @@ footer .source-links a:hover{
     return cp;
   }
 
-  // Convert the compressed forresto shape to the xsalazar shape
   function adaptForresto(raw) {
     var out = { knownSupportedEmoji: [], data: {} };
     Object.keys(raw).forEach(function (cp) {
@@ -2921,20 +3313,16 @@ footer .source-links a:hover{
     var raw = JSON.parse(text);
 
     if (format === "forresto") {
-      // forresto shape is direct: { cp: { emoji, combinations } }
-      // But some versions might wrap in .data
       if (raw && raw.data && raw.data["2615"] && raw.data["2615"].emoji) {
         return adaptForresto(raw.data);
       }
       return adaptForresto(raw);
     }
 
-    // xsalazar: { knownSupportedEmoji: [...], data: { cp: { emoji, combinations } } }
     if (raw && raw.data && raw.knownSupportedEmoji) {
       return raw;
     }
 
-    // Fallback: try to adapt whatever we got
     if (raw && raw.data) return adaptForresto(raw.data);
     return adaptForresto(raw);
   }
@@ -2983,7 +3371,7 @@ footer .source-links a:hover{
       }
 
       var source = KITCHEN_SOURCES[attempt++];
-      setKitchenStatus("loading", "Trying " + source.name + "…");
+      setKitchenStatus("loading", "" + source.name + "…");
 
       return loadFromSource(source).then(function (result) {
         var data = result.normalized;
@@ -3126,7 +3514,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     21. KITCHEN SEARCH
+     24. KITCHEN SEARCH
      ============================================================ */
   var searchTimer = null;
 
@@ -3253,7 +3641,7 @@ footer .source-links a:hover{
   });
 
   /* ============================================================
-     22. KITCHEN BROWSE
+     25. KITCHEN BROWSE
      ============================================================ */
   function openBrowseForEmoji(emoji) {
     if (!state.kitchenLoaded || !kitchenMeta) {
@@ -3321,7 +3709,7 @@ footer .source-links a:hover{
   });
 
   /* ============================================================
-     23. GAME LOGIC
+     26. GAME LOGIC
      ============================================================ */
   var autoTimer = null;
 
@@ -3619,7 +4007,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     24. WIRING
+     27. WIRING
      ============================================================ */
   attachTapHold(
     paletteEl, ".ing",
@@ -3697,7 +4085,7 @@ footer .source-links a:hover{
   btnChain.addEventListener("click", chainResult);
 
   btnDownloadImg.addEventListener("click", function () {
-    if (!state.kitchenCombo) return;
+    if (!state.kitchenCombo) { toast("Nothing to download"); return; }
     var url = state.kitchenCombo.gStaticUrl;
     var alt = state.kitchenCombo.alt || "emoji-kitchen";
     downloadImage(url, alt.replace(/[^\w-]/g, "_") + ".png");
@@ -3751,8 +4139,9 @@ footer .source-links a:hover{
   });
 
   /* ============================================================
-     25. BOOT
+     28. BOOT
      ============================================================ */
+  buildSourceChips();
   buildChips();
   buildPalette();
   renderSlots();
@@ -3780,6 +4169,8 @@ footer .source-links a:hover{
     state: state,
     recipes: RECIPES,
     emojiNames: EMOJI_NAMES,
+    emojiSources: EMOJI_SOURCES,
+    setSource: setEmojiSource,
     lookup: lookup,
     synthFusion: synthFusion,
     fuse: fuse,
