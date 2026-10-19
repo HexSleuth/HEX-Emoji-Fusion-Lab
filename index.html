@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#05060c" />
 <meta name="color-scheme" content="dark" />
-<title>HEX Emoji Fusion Lab — 2.5D</title>
-<meta name="description" content="Fuse animated Noto emoji. Tap to copy, add any emoji, watch results auto-detect." />
+<title>HEX Emoji Fusion Lab × Kitchen — 2.5D</title>
+<meta name="description" content="Fuse animated Noto emoji + real Emoji Kitchen combos. Tap to copy, browse thousands of combos." />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 <style>
 /* ============================================================
@@ -79,9 +79,6 @@ button{ touch-action:manipulation; font-family:inherit; }
 a{ color:var(--acc); text-decoration:none; }
 a:hover{ text-decoration:underline; }
 
-/* ============================================================
-   HEADER
-   ============================================================ */
 header{ max-width:900px; margin:0 auto; padding:34px 0 4px; text-align:center; }
 h1{ margin:0; font-size:clamp(23px,5.6vw,40px); line-height:1.12; letter-spacing:-.025em; font-weight:800; }
 h1 .grad{
@@ -108,9 +105,19 @@ h1 .grad{
     0 2px 0 rgba(0,0,0,.4),
     0 6px 16px -6px rgba(0,0,0,.6);
   font-size:13px; color:var(--muted);
+  flex-wrap:wrap; justify-content:center;
 }
 .stats b{ color:var(--txt); font-variant-numeric:tabular-nums; }
 .stat-icon{ color:var(--warn); font-size:13px; }
+.stat-divider{ width:1px; height:14px; background:var(--border-hi); }
+
+.kitchen-loading{
+  display:inline-flex; align-items:center; gap:6px;
+  color:var(--warn); font-size:12px; font-weight:600;
+}
+.kitchen-loading i{ animation: spin 1.1s linear infinite; }
+@keyframes spin{ to{ transform: rotate(360deg); } }
+.kitchen-loaded{ color:var(--ok); font-size:12px; font-weight:700; }
 
 .icon-mini{
   border:1px solid var(--border-hi);
@@ -129,7 +136,6 @@ h1 .grad{
   box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 0 0 var(--btn-depth);
 }
 
-/* progress bar */
 .progress{
   margin:14px auto 0; max-width:340px; height:6px;
   border-radius:999px; overflow:hidden;
@@ -145,9 +151,6 @@ h1 .grad{
 
 main{ max-width:900px; margin:0 auto; }
 
-/* ============================================================
-   REACTOR
-   ============================================================ */
 .reactor{
   position:relative;
   display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
@@ -226,6 +229,15 @@ main{ max-width:900px; margin:0 auto; }
     0 4px 0 rgba(80,10,40,.65),
     0 0 40px rgba(255,77,141,.45),
     0 12px 28px -8px rgba(255,77,141,.4);
+}
+.cell.result.kitchen-result{
+  border-color:rgba(92,200,255,.75);
+  background:radial-gradient(circle at 50% 40%, rgba(92,200,255,.15), var(--card));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.2),
+    0 4px 0 rgba(10,40,60,.7),
+    0 0 40px rgba(92,200,255,.5),
+    0 12px 28px -8px rgba(92,200,255,.4);
 }
 .cell.result.filled .emoji{ animation: floaty 3s ease-in-out infinite; }
 @keyframes floaty{
@@ -314,9 +326,6 @@ main{ max-width:900px; margin:0 auto; }
 }
 .cell.result .copy-hint{ font-size:12px; opacity:.7; }
 
-/* ============================================================
-   STATUS + ACTIONS
-   ============================================================ */
 .status{
   text-align:center; margin:16px auto 0;
   min-height:22px; font-size:clamp(12.5px,2.7vw,15px);
@@ -324,6 +333,7 @@ main{ max-width:900px; margin:0 auto; }
   padding:0 6px; transition:color .25s ease;
 }
 .status.ok{ color:var(--ok); }
+.status.kitchen{ color:#5cc8ff; }
 
 .result-actions{
   display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
@@ -354,6 +364,13 @@ main{ max-width:900px; margin:0 auto; }
   color:#b9a6ff;
   background:linear-gradient(180deg, rgba(124,92,255,.18), rgba(124,92,255,.06));
   box-shadow:0 2px 0 rgba(40,20,90,.6), 0 6px 14px -4px rgba(124,92,255,.3);
+}
+
+.copy-eq.kitchen-btn{
+  border-color:rgba(92,200,255,.45);
+  color:#5cc8ff;
+  background:linear-gradient(180deg, rgba(92,200,255,.18), rgba(92,200,255,.06));
+  box-shadow:0 2px 0 rgba(10,40,60,.6), 0 6px 14px -4px rgba(92,200,255,.3);
 }
 
 .action-bar{
@@ -405,12 +422,23 @@ main{ max-width:900px; margin:0 auto; }
     0 2px 8px rgba(255,77,141,.35);
 }
 
+.btn.kitchen{
+  border-color:rgba(92,200,255,.5);
+  background:linear-gradient(180deg, #5cc8ff, #2e9fd8);
+  color:#04121c;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.3),
+    0 4px 0 #082a3d,
+    0 10px 24px -6px rgba(92,200,255,.4);
+}
+.btn.kitchen:hover{ background:linear-gradient(180deg, #6ed3ff, #3aabe2); }
+.btn.kitchen:active{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 0 0 #082a3d;
+}
+
 .btn.small{ padding:12px 16px; flex:0 0 auto; }
 .btn.wide{ width:100%; justify-content:center; margin-top:10px; }
 
-/* ============================================================
-   PANELS
-   ============================================================ */
 .panel{
   margin-top:26px;
   padding:18px 16px 20px;
@@ -445,6 +473,10 @@ main{ max-width:900px; margin:0 auto; }
   background:rgba(124,92,255,.16); color:var(--acc);
   border-color:rgba(124,92,255,.34);
 }
+.badge.kitchen{
+  background:rgba(92,200,255,.16); color:#5cc8ff;
+  border-color:rgba(92,200,255,.34);
+}
 
 .mini-btn{
   font:inherit;font-size:11px;font-weight:800;letter-spacing:.02em;
@@ -458,7 +490,6 @@ main{ max-width:900px; margin:0 auto; }
 .mini-btn:active{transform:translateY(2px);box-shadow:0 0 0 rgba(0,0,0,.35)}
 .mini-btn.danger{color:#ff8a97;border-color:rgba(255,92,108,.4)}
 
-/* ---------- chips ---------- */
 .chips{
   display:flex; gap:8px;
   overflow-x:auto; padding:2px 0 12px;
@@ -495,7 +526,6 @@ main{ max-width:900px; margin:0 auto; }
   50%    { transform:scale(1.08); }
 }
 
-/* ---------- palette ---------- */
 .palette{
   display:grid;
   grid-template-columns:repeat(auto-fill, minmax(56px, 1fr));
@@ -535,8 +565,15 @@ main{ max-width:900px; margin:0 auto; }
   border-color:rgba(255,77,141,.6);
   background:linear-gradient(180deg, rgba(255,77,141,.18), rgba(255,77,141,.06));
 }
+.ing.kitchen-badge::after{
+  content:'🍳';
+  position:absolute;
+  bottom:2px; right:3px;
+  font-size:9px;
+  opacity:.85;
+  pointer-events:none;
+}
 
-/* ---------- add-any-emoji ---------- */
 .add-row{ display:flex; gap:8px; }
 .emoji-input{
   flex:1 1 auto; min-width:0;
@@ -558,7 +595,6 @@ main{ max-width:900px; margin:0 auto; }
     0 0 0 3px rgba(124,92,255,.22);
 }
 
-/* ---------- picker ---------- */
 .picker{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
 .picker[hidden]{ display:none; }
 .picker-grid{
@@ -596,7 +632,6 @@ main{ max-width:900px; margin:0 auto; }
 }
 .pk:active{ transform:scale(.9); }
 
-/* ---------- dex tools ---------- */
 .dex-tools{ display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
 
 .dex-search{
@@ -617,7 +652,6 @@ main{ max-width:900px; margin:0 auto; }
 }
 .dex-filters{ padding-bottom:0; }
 
-/* ---------- dex ---------- */
 .dex{
   display:grid;
   grid-template-columns:repeat(auto-fill, minmax(96px, 1fr));
@@ -671,7 +705,6 @@ main{ max-width:900px; margin:0 auto; }
   color:var(--muted); font-size:13px;
 }
 
-/* ---------- wild fusions ---------- */
 .wild-list{ display:flex; flex-wrap:wrap; gap:8px; }
 .wild-chip{
   display:inline-flex; align-items:center; gap:6px;
@@ -688,7 +721,6 @@ main{ max-width:900px; margin:0 auto; }
 }
 .wild-chip:active{ transform:translateY(2px); box-shadow:0 0 0 rgba(0,0,0,.35); }
 
-/* ---------- history ---------- */
 .hist-list{
   display:flex; flex-direction:column; gap:6px;
   max-height:320px; overflow-y:auto;
@@ -707,6 +739,7 @@ main{ max-width:900px; margin:0 auto; }
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 0 rgba(0,0,0,.3);
   cursor:pointer;
 }
+.hist-row.kitchen-row{ border-color:rgba(92,200,255,.3); }
 .hist-eq{
   flex:1 1 auto; min-width:0;
   font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
@@ -723,10 +756,8 @@ main{ max-width:900px; margin:0 auto; }
 }
 .hist-btn:active{ transform:translateY(2px); box-shadow:none; }
 .hist-btn.run{ color:var(--ok); border-color:rgba(46,230,168,.4); }
+.hist-btn.kitchen{ color:#5cc8ff; border-color:rgba(92,200,255,.4); }
 
-/* ============================================================
-   EMOJI RENDERER
-   ============================================================ */
 .emoji{
   width:var(--size, 100%);
   height:var(--size, 100%);
@@ -746,6 +777,71 @@ main{ max-width:900px; margin:0 auto; }
 @keyframes bob{
   0%,100%{ transform:translate3d(0,0,0) scale(1); }
   50%    { transform:translate3d(0,-6%,0) scale(1.05); }
+}
+
+/* Kitchen image result */
+.kitchen-img{
+  width:var(--size, 100%);
+  height:var(--size, 100%);
+  display:grid; place-items:center;
+  pointer-events:none; flex-shrink:0;
+  line-height:1;
+}
+.kitchen-img img{
+  width:100%; height:100%;
+  object-fit:contain;
+  animation:emojiIn .3s ease;
+}
+
+/* ============================================================
+   KITCHEN BROWSE
+   ============================================================ */
+.kitchen-browse-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(64px, 1fr));
+  gap:6px;
+  max-height:460px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding:2px 2px 8px;
+  contain: content;
+}
+.kitchen-browse-grid::-webkit-scrollbar{ width:6px; }
+.kitchen-browse-grid::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.15); border-radius:3px; }
+
+.kitchen-browse-item{
+  aspect-ratio:1;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  display:grid; place-items:center;
+  cursor:pointer;
+  padding:4px;
+  position:relative;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 2px 0 rgba(0,0,0,.3);
+  transition: transform .12s ease, border-color .2s ease;
+  -webkit-tap-highlight-color:transparent;
+  overflow:hidden;
+  contain: layout style;
+}
+@media (hover:hover){
+  .kitchen-browse-item:hover{
+    transform:scale(1.06);
+    border-color:rgba(92,200,255,.6);
+  }
+}
+.kitchen-browse-item:active{ transform:scale(.94); }
+.kitchen-browse-item img{
+  width:100%; height:100%;
+  object-fit:contain;
+  pointer-events:none;
+}
+
+.kitchen-search-panel .search-row{
+  display:flex; gap:8px;
 }
 
 /* ============================================================
@@ -783,10 +879,23 @@ footer{
 footer p + p{ margin-top:4px; }
 footer code{ font-size:11px; }
 footer a{ color:rgba(255,255,255,.55); }
+footer .source-links{
+  display:flex; justify-content:center; gap:14px;
+  flex-wrap:wrap; margin-top:8px;
+}
+footer .source-links a{
+  display:inline-flex; align-items:center; gap:5px;
+  padding:5px 10px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.02);
+  transition:border-color .2s ease, background .2s ease;
+}
+footer .source-links a:hover{
+  border-color:rgba(124,92,255,.4);
+  background:rgba(124,92,255,.08);
+  text-decoration:none;
+}
 
-/* ============================================================
-   MOBILE
-   ============================================================ */
 @media (max-width:680px){
   body{ padding-left:12px; padding-right:12px; }
   header{ padding-top:24px; }
@@ -811,6 +920,7 @@ footer a{ color:rgba(255,255,255,.55); }
   .dex{ grid-template-columns:repeat(auto-fill, minmax(84px, 1fr)); }
   .toast{ bottom:calc(84px + env(safe-area-inset-bottom)); }
   .result-actions{ margin-top:10px; }
+  .kitchen-browse-grid{ grid-template-columns:repeat(auto-fill, minmax(56px, 1fr)); }
 }
 
 @media (max-width:380px){
@@ -837,12 +947,16 @@ footer a{ color:rgba(255,255,255,.55); }
 <body>
 
 <header>
-  <h1>Hex Emoji <span class="grad">Fusion Lab</span></h1>
-  <p class="sub">Tap any emoji to copy · Add <b>any</b> emoji and watch it fuse into a result.</p>
+  <h1>HEX Emoji <span class="grad">Fusion Lab × Kitchen</span></h1>
+  <p class="sub">Tap any emoji to copy · <b>Real Emoji Kitchen</b> combos load in the background 🍳</p>
 
   <div class="stats">
     <i class="fa-solid fa-trophy stat-icon" aria-hidden="true"></i>
     <span><b id="statCount">0</b> / <span id="statTotal">120</span> discovered</span>
+    <span class="stat-divider" aria-hidden="true"></span>
+    <span id="kitchenStatus" class="kitchen-loading">
+      <i class="fa-solid fa-spinner" aria-hidden="true"></i> Kitchen…
+    </span>
     <button class="icon-mini" id="btnSound" aria-label="Toggle sound">
       <i class="fa-solid fa-volume-high"></i>
     </button>
@@ -864,7 +978,7 @@ footer a{ color:rgba(255,255,255,.55); }
       <span class="ph">?</span>
     </div>
     <div class="op" aria-hidden="true">=</div>
-    <div class="cell result" id="cellR" role="button" tabindex="0" aria-live="polite" title="Tap to copy emoji + name">
+    <div class="cell result" id="cellR" role="button" tabindex="0" aria-live="polite" title="Tap to copy result">
       <span class="ph">?</span>
     </div>
     <div class="flash" id="flash"></div>
@@ -878,6 +992,12 @@ footer a{ color:rgba(255,255,255,.55); }
     </button>
     <button class="copy-eq chain" id="btnChain" hidden>
       <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Chain
+    </button>
+    <button class="copy-eq kitchen-btn" id="btnDownloadImg" hidden>
+      <i class="fa-solid fa-download" aria-hidden="true"></i> Download
+    </button>
+    <button class="copy-eq kitchen-btn" id="btnBrowseCombos" hidden>
+      <i class="fa-solid fa-utensils" aria-hidden="true"></i> Browse combos
     </button>
   </div>
 
@@ -895,9 +1015,41 @@ footer a{ color:rgba(255,255,255,.55); }
 
   <!-- ============ PALETTE ============ -->
   <section class="panel" aria-label="Ingredient palette">
-    <h2>Ingredient Lab <span class="badge purple">tap = add · hold = copy</span></h2>
+    <h2>Ingredient Lab <span class="badge purple">tap = add · hold = copy</span> <span class="badge kitchen" id="kitchenPaletteBadge">🍳</span></h2>
     <div class="chips" id="chips"></div>
     <div class="palette" id="palette"></div>
+  </section>
+
+  <!-- ============ KITCHEN SEARCH ============ -->
+  <section class="panel kitchen-search-panel" id="kitchenSearchPanel" aria-label="Search Emoji Kitchen">
+    <h2>
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      Kitchen Search
+      <span class="badge kitchen" id="kitchenResultCount">—</span>
+    </h2>
+    <div class="add-row">
+      <input id="kitchenSearchInput" class="emoji-input" type="search"
+             placeholder="Search emoji by name or keyword (e.g. fire, cat, love)…"
+             aria-label="Search emoji kitchen" autocomplete="off" />
+      <button class="btn small" id="btnKitchenRandom" aria-label="Random kitchen combo">
+        <i class="fa-solid fa-dice" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="kitchen-browse-grid" id="kitchenSearchResults" style="margin-top:12px;"></div>
+  </section>
+
+  <!-- ============ KITCHEN BROWSE ============ -->
+  <section class="panel" id="kitchenBrowsePanel" aria-label="Browse combos" hidden>
+    <h2>
+      <i class="fa-solid fa-utensils" aria-hidden="true"></i>
+      Kitchen Combos
+      <span class="badge kitchen" id="kitchenBrowseBadge">0</span>
+      <button class="mini-btn" id="btnCloseBrowse">Close</button>
+    </h2>
+    <p id="kitchenBrowseTitle" style="color:var(--muted);font-size:13px;margin-bottom:12px;">
+      Pick an emoji in slot A, then click Browse.
+    </p>
+    <div class="kitchen-browse-grid" id="kitchenBrowseGrid"></div>
   </section>
 
   <!-- ============ ADD ANY EMOJI ============ -->
@@ -928,14 +1080,12 @@ footer a{ color:rgba(255,255,255,.55); }
       <button class="mini-btn" id="btnHint">💡 Hint</button>
       <button class="mini-btn danger" id="btnResetDex">Reset</button>
     </h2>
-
     <div class="dex-tools">
       <input id="dexSearch" class="dex-search" type="search"
              placeholder="Search by name, emoji or formula…"
              aria-label="Search fusions" autocomplete="off" />
       <div class="chips dex-filters" id="dexFilters"></div>
     </div>
-
     <div class="dex" id="dex"></div>
   </section>
 
@@ -959,6 +1109,17 @@ footer a{ color:rgba(255,255,255,.55); }
 <footer>
   <p>Tap = copy · Hold = copy formula · Enter = fuse · R = random · Esc = clear</p>
   <p id="footStats">Session: 0 fusions · 0 wild</p>
+  <div class="source-links">
+    <a href="https://emoji.supply/kitchen/" target="_blank" rel="noopener">
+      🍳 emoji.supply/kitchen
+    </a>
+    <a href="https://github.com/xsalazar/emoji-kitchen" target="_blank" rel="noopener">
+      <i class="fa-brands fa-github" aria-hidden="true"></i> emoji-kitchen
+    </a>
+    <a href="https://emojipedia.org/emoji-mashup/microsoft-3D-fluent/fluent-15.0" target="_blank" rel="noopener">
+      <i class="fa-solid fa-book" aria-hidden="true"></i> Emojipedia
+    </a>
+  </div>
 </footer>
 
 <script>
@@ -983,7 +1144,7 @@ footer a{ color:rgba(255,255,255,.55); }
   var LOW_POWER = REDUCED || CORES <= 4;
 
   /* ============================================================
-     1. EMOJI LOADER — queued, deduped, persistent URL cache
+     1. EMOJI LOADER
      ============================================================ */
   var EMOJI_BASE = "https://fonts.gstatic.com/s/e/notoemoji/latest/";
   var PX_SMALL = 72;
@@ -1164,10 +1325,9 @@ footer a{ color:rgba(255,255,255,.55); }
   }
 
   /* ============================================================
-     2. RECIPES — 120 fusions
+     2. RECIPES — 120 symbolic fusions
      ============================================================ */
   var RECIPES = [
-    /* ---------- elemental ---------- */
     { a: "🔥", b: "❤️", out: "❤️‍🔥", name: "Heart on Fire" },
     { a: "🔥", b: "💧", out: "💨",  name: "Steam Cloud" },
     { a: "💧", b: "❄️", out: "🧊",  name: "Ice Cube" },
@@ -1198,8 +1358,6 @@ footer a{ color:rgba(255,255,255,.55); }
     { a: "🌋", b: "❄️", out: "🗻",  name: "Snow Peak" },
     { a: "☄️", b: "🌌", out: "🌠", name: "Shooting Star" },
     { a: "🍃", b: "💨", out: "🍂",  name: "Fallen Leaf" },
-
-    /* ---------- cooking ---------- */
     { a: "🥚", b: "🔥", out: "🍳",  name: "Sunny Side Up" },
     { a: "🐔", b: "🥚", out: "🐣",  name: "Hatchling" },
     { a: "🐔", b: "🔥", out: "🍗",  name: "Roast Chicken" },
@@ -1224,8 +1382,6 @@ footer a{ color:rgba(255,255,255,.55); }
     { a: "🍚", b: "🥩", out: "🍛",  name: "Curry" },
     { a: "🍦", b: "🍫", out: "🍨",  name: "Sundae" },
     { a: "🥔", b: "🥛", out: "🥣",  name: "Mashed Potato" },
-
-    /* ---------- creatures ---------- */
     { a: "🐛", b: "✨", out: "🦋",  name: "Metamorphosis" },
     { a: "🐸", b: "👑", out: "🤴",  name: "Frog Prince" },
     { a: "🐴", b: "🌈", out: "🦄",  name: "Unicorn" },
@@ -1249,8 +1405,6 @@ footer a{ color:rgba(255,255,255,.55); }
     { a: "🦁", b: "⚡", out: "🐯",  name: "Tiger" },
     { a: "🐢", b: "⚡", out: "🐇",  name: "Rabbit" },
     { a: "🐟", b: "🐟", out: "🐠",  name: "Tropical Fish" },
-
-    /* ---------- plants ---------- */
     { a: "🌲", b: "✨", out: "🎄",  name: "Christmas Tree" },
     { a: "🌵", b: "💧", out: "🌺",  name: "Hibiscus" },
     { a: "🌻", b: "☀️", out: "🌞",  name: "Sun with Face" },
@@ -1258,8 +1412,6 @@ footer a{ color:rgba(255,255,255,.55); }
     { a: "🌱", b: "🌱", out: "🌿",  name: "Herb" },
     { a: "🐝", b: "🌻", out: "🌼",  name: "Daisy" },
     { a: "🍀", b: "💧", out: "☘️",  name: "Shamrock" },
-
-    /* ---------- magic / objects ---------- */
     { a: "👽", b: "🚀", out: "🛸",  name: "UFO" },
     { a: "🧠", b: "💡", out: "🤯",  name: "Mind Blown" },
     { a: "🧪", b: "🧪", out: "💥",  name: "Lab Explosion" },
@@ -1284,13 +1436,9 @@ footer a{ color:rgba(255,255,255,.55); }
     { a: "🚲", b: "⚡", out: "🛵",  name: "Scooter" },
     { a: "🏠", b: "🏠", out: "🏘️", name: "Houses" },
     { a: "🏢", b: "🌙", out: "🏙️", name: "City at Night" },
-
-    /* ---------- symbols ---------- */
     { a: "🔴", b: "🟡", out: "🟠",  name: "Orange Circle" },
     { a: "🔵", b: "🟡", out: "🟢",  name: "Green Circle" },
     { a: "⚫", b: "⚪", out: "🔘",  name: "Radio Button" },
-
-    /* ---------- faces / hearts ---------- */
     { a: "❤️", b: "❤️", out: "💕",  name: "Two Hearts" },
     { a: "🌞", b: "🕶️", out: "😎", name: "Cool" },
     { a: "😀", b: "😢", out: "😂",  name: "Tears of Joy" },
@@ -1302,7 +1450,6 @@ footer a{ color:rgba(255,255,255,.55); }
     { a: "😱", b: "👻", out: "😨",  name: "Scared" }
   ];
 
-  /* dev sanity: warn on duplicate fusion keys */
   (function checkRecipes() {
     var seen = Object.create(null), dupes = [];
     RECIPES.forEach(function (r) {
@@ -1330,14 +1477,11 @@ footer a{ color:rgba(255,255,255,.55); }
   ];
 
   var INGREDIENTS = [
-    /* fire */
     { e: "🔥", c: "fire" }, { e: "☀️", c: "fire" }, { e: "⚡", c: "fire" },
     { e: "💥", c: "fire" }, { e: "🌋", c: "fire" }, { e: "☄️", c: "fire" },
-    /* water */
     { e: "💧", c: "water" }, { e: "❄️", c: "water" }, { e: "🧊", c: "water" },
     { e: "🌊", c: "water" }, { e: "☁️", c: "water" }, { e: "🌪️", c: "water" },
     { e: "🌧️", c: "water" },
-    /* nature */
     { e: "🌱", c: "nature" }, { e: "🌷", c: "nature" }, { e: "🌙", c: "nature" },
     { e: "⭐", c: "nature" }, { e: "✨", c: "nature" }, { e: "🌈", c: "nature" },
     { e: "🍄", c: "nature" }, { e: "🌿", c: "nature" }, { e: "🍀", c: "nature" },
@@ -1351,7 +1495,6 @@ footer a{ color:rgba(255,255,255,.55); }
     { e: "🐢", c: "nature" }, { e: "🐕", c: "nature" }, { e: "🐈", c: "nature" },
     { e: "🐦", c: "nature" }, { e: "🐖", c: "nature" }, { e: "🐑", c: "nature" },
     { e: "🕷️", c: "nature" }, { e: "🐌", c: "nature" }, { e: "🐣", c: "nature" },
-    /* food */
     { e: "🥚", c: "food" }, { e: "🥔", c: "food" }, { e: "🍚", c: "food" },
     { e: "🍇", c: "food" }, { e: "🥛", c: "food" }, { e: "🍞", c: "food" },
     { e: "🧀", c: "food" }, { e: "🍅", c: "food" }, { e: "🥬", c: "food" },
@@ -1360,18 +1503,15 @@ footer a{ color:rgba(255,255,255,.55); }
     { e: "🧈", c: "food" }, { e: "🍙", c: "food" }, { e: "🍏", c: "food" },
     { e: "🍭", c: "food" }, { e: "🎂", c: "food" }, { e: "🍫", c: "food" },
     { e: "🍦", c: "food" },
-    /* faces */
     { e: "😀", c: "faces" }, { e: "😢", c: "faces" }, { e: "😡", c: "faces" },
     { e: "😴", c: "faces" }, { e: "💤", c: "faces" }, { e: "🥳", c: "faces" },
     { e: "🤔", c: "faces" }, { e: "🥰", c: "faces" }, { e: "😱", c: "faces" },
     { e: "😈", c: "faces" }, { e: "🥶", c: "faces" }, { e: "🕶️", c: "faces" },
-    /* objects */
     { e: "📱", c: "objects" }, { e: "💻", c: "objects" }, { e: "🎮", c: "objects" },
     { e: "🔑", c: "objects" }, { e: "📸", c: "objects" }, { e: "🔴", c: "objects" },
     { e: "🟡", c: "objects" }, { e: "🔵", c: "objects" }, { e: "⚫", c: "objects" },
     { e: "⚪", c: "objects" }, { e: "🏠", c: "objects" }, { e: "🏢", c: "objects" },
     { e: "🚲", c: "objects" },
-    /* magic */
     { e: "🧠", c: "magic" }, { e: "💡", c: "magic" }, { e: "👑", c: "magic" },
     { e: "🧪", c: "magic" }, { e: "🪙", c: "magic" }, { e: "🔮", c: "magic" },
     { e: "💰", c: "magic" }, { e: "🚀", c: "magic" }, { e: "👽", c: "magic" },
@@ -1444,6 +1584,8 @@ footer a{ color:rgba(255,255,255,.55); }
     slots: [null, null],
     result: null,
     resultName: "",
+    resultIsKitchen: false,
+    kitchenCombo: null,
     busy: false,
     sound: true,
     discovered: Object.create(null),
@@ -1454,7 +1596,9 @@ footer a{ color:rgba(255,255,255,.55); }
     pickerCat: "smileys",
     pickerOpen: false,
     dexFilter: "all",
-    dexQuery: ""
+    dexQuery: "",
+    kitchenLoaded: false,
+    kitchenError: null
   };
 
   state.discovered = safeParse(localStorage.getItem(STORE_KEY), {});
@@ -1499,6 +1643,8 @@ footer a{ color:rgba(255,255,255,.55); }
   var statusEl    = $("status");
   var btnCopyEq   = $("btnCopyEq");
   var btnChain    = $("btnChain");
+  var btnDownloadImg = $("btnDownloadImg");
+  var btnBrowseCombos = $("btnBrowseCombos");
   var paletteEl   = $("palette");
   var chipsEl     = $("chips");
   var dexEl       = $("dex");
@@ -1525,6 +1671,16 @@ footer a{ color:rgba(255,255,255,.55); }
   var histList    = $("histList");
   var histBadge   = $("histBadge");
   var footStats   = $("footStats");
+  var kitchenStatusEl = $("kitchenStatus");
+  var kitchenSearchInput = $("kitchenSearchInput");
+  var kitchenSearchResults = $("kitchenSearchResults");
+  var kitchenResultCount = $("kitchenResultCount");
+  var kitchenBrowsePanel = $("kitchenBrowsePanel");
+  var kitchenBrowseGrid = $("kitchenBrowseGrid");
+  var kitchenBrowseBadge = $("kitchenBrowseBadge");
+  var kitchenBrowseTitle = $("kitchenBrowseTitle");
+  var btnCloseBrowse = $("btnCloseBrowse");
+  var btnKitchenRandom = $("btnKitchenRandom");
 
   statTotal.textContent = String(RECIPES.length);
 
@@ -1626,6 +1782,39 @@ footer a{ color:rgba(255,255,255,.55); }
     }
   }
 
+  async function copyImageOrUrl(url) {
+    if (!navigator.clipboard || !navigator.clipboard.write || !window.ClipboardItem) {
+      copyText(url, "image URL");
+      return;
+    }
+    try {
+      toast("Copying image…");
+      var res = await fetch(url, { mode: "cors" });
+      if (!res.ok) throw new Error("fetch " + res.status);
+      var blob = await res.blob();
+      await navigator.clipboard.write([
+        new ClipboardItem({ [blob.type || "image/png"]: blob })
+      ]);
+      sfxCopy(); haptic(10);
+      toast("✅ Image copied to clipboard!");
+    } catch (e) {
+      copyText(url, "image URL");
+    }
+  }
+
+  function downloadImage(url, filename) {
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = filename || "emoji-kitchen.png";
+    a.target = "_blank";
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    sfxClick(); haptic(8);
+    toast("⬇️ Download started");
+  }
+
   /* ============================================================
      8. TOAST
      ============================================================ */
@@ -1646,7 +1835,7 @@ footer a{ color:rgba(255,255,255,.55); }
   }
 
   /* ============================================================
-     9. DELEGATED TAP / HOLD
+     9. TAP/HOLD
      ============================================================ */
   function attachTapHold(container, selector, onTap, onHold) {
     var holdTimer = null;
@@ -1770,10 +1959,13 @@ footer a{ color:rgba(255,255,255,.55); }
     renderCell(cellB, state.slots[1], 82, { removable: true, index: 1, copyHint: true });
     updateNextSlot();
     highlightPalette();
+    updateBrowseButton();
   }
 
   function renderResult(emoji, size) {
     state.result = emoji || null;
+    state.resultIsKitchen = false;
+    state.kitchenCombo = null;
     renderCell(cellR, emoji, size || 108, { copyHint: true });
     if (emoji) {
       cellR.classList.add("filled", "reveal");
@@ -1784,10 +1976,14 @@ footer a{ color:rgba(255,255,255,.55); }
   function clearResult() {
     state.result = null;
     state.resultName = "";
-    cellR.classList.remove("filled", "reveal");
+    state.resultIsKitchen = false;
+    state.kitchenCombo = null;
+    cellR.classList.remove("filled", "reveal", "kitchen-result");
     cellR.innerHTML = '<span class="ph">?</span>';
     btnCopyEq.hidden = true;
     btnChain.hidden = true;
+    btnDownloadImg.hidden = true;
+    updateBrowseButton();
   }
 
   var paletteCache = Object.create(null);
@@ -1808,8 +2004,13 @@ footer a{ color:rgba(255,255,255,.55); }
     statusEl.className = "status" + (cls ? " " + cls : "");
   }
 
+  function updateBrowseButton() {
+    var a = state.slots[0];
+    btnBrowseCombos.hidden = !(a && !state.slots[1] && state.kitchenLoaded);
+  }
+
   /* ============================================================
-     11. RENDER — palette
+     11. PALETTE
      ============================================================ */
   function paletteItems() {
     if (state.activeCat === "custom") {
@@ -1885,10 +2086,25 @@ footer a{ color:rgba(255,255,255,.55); }
     paletteEl.appendChild(frag);
 
     highlightPalette();
+    decoratePaletteWithKitchen();
+  }
+
+  function decoratePaletteWithKitchen() {
+    if (!state.kitchenLoaded || !kitchenMeta) return;
+    var nodes = paletteEl.querySelectorAll(".ing");
+    for (var i = 0; i < nodes.length; i++) {
+      var emoji = nodes[i].dataset.emoji;
+      if (!emoji) continue;
+      var cp = normalizeCp(emojiToCp(emoji));
+      if (kitchenMeta.data[cp]) {
+        nodes[i].classList.add("kitchen-badge");
+        nodes[i].title = "Also has real Kitchen combos 🍳";
+      }
+    }
   }
 
   /* ============================================================
-     12. RENDER — picker
+     12. PICKER
      ============================================================ */
   var pickerCache = Object.create(null);
 
@@ -1991,7 +2207,7 @@ footer a{ color:rgba(255,255,255,.55); }
   }
 
   /* ============================================================
-     13. RENDER — dex (with search + filters)
+     13. DEX
      ============================================================ */
   var dexTiles = Object.create(null);
   var dexEmptyEl = null;
@@ -2164,7 +2380,7 @@ footer a{ color:rgba(255,255,255,.55); }
   }
 
   /* ============================================================
-     14. RENDER — wild fusions
+     14. WILD
      ============================================================ */
   function renderWild() {
     wildList.innerHTML = "";
@@ -2196,12 +2412,15 @@ footer a{ color:rgba(255,255,255,.55); }
   }
 
   /* ============================================================
-     15. RENDER — history
+     15. HISTORY
      ============================================================ */
   function pushHistory(r) {
     var top = state.history[0];
-    if (top && top.a === r.a && top.b === r.b && top.out === r.out) return;
-    state.history.unshift({ a: r.a, b: r.b, out: r.out, name: r.name, ts: Date.now() });
+    if (top && top.a === r.a && top.b === r.b && top.out === r.out && !!top.kitchen === !!r.kitchen) return;
+    state.history.unshift({
+      a: r.a, b: r.b, out: r.out, name: r.name,
+      kitchen: !!r.kitchen, url: r.url || null, ts: Date.now()
+    });
     if (state.history.length > 20) state.history.length = 20;
     persistHistory();
     renderHistory();
@@ -2218,12 +2437,12 @@ footer a{ color:rgba(255,255,255,.55); }
 
     state.history.forEach(function (h, idx) {
       var row = document.createElement("div");
-      row.className = "hist-row";
+      row.className = "hist-row" + (h.kitchen ? " kitchen-row" : "");
       row.dataset.idx = String(idx);
 
       var eq = document.createElement("div");
       eq.className = "hist-eq";
-      eq.textContent = h.a + " + " + h.b + " = " + h.out;
+      eq.textContent = h.a + " + " + h.b + " = " + (h.kitchen ? "🍳" : h.out);
 
       var nm = document.createElement("span");
       nm.className = "hist-name";
@@ -2232,10 +2451,12 @@ footer a{ color:rgba(255,255,255,.55); }
 
       var copyBtn = document.createElement("button");
       copyBtn.type = "button";
-      copyBtn.className = "hist-btn";
+      copyBtn.className = "hist-btn" + (h.kitchen ? " kitchen" : "");
       copyBtn.dataset.act = "copy";
-      copyBtn.setAttribute("aria-label", "Copy fusion");
-      copyBtn.innerHTML = '<i class="fa-solid fa-copy" aria-hidden="true"></i>';
+      copyBtn.setAttribute("aria-label", "Copy");
+      copyBtn.innerHTML = h.kitchen
+        ? '<i class="fa-solid fa-image" aria-hidden="true"></i>'
+        : '<i class="fa-solid fa-copy" aria-hidden="true"></i>';
 
       var runBtn = document.createElement("button");
       runBtn.type = "button";
@@ -2268,7 +2489,11 @@ footer a{ color:rgba(255,255,255,.55); }
       fuse();
       return;
     }
-    copyText(h.a + " + " + h.b + " = " + h.out + " \u2014 " + h.name, "");
+    if (h.kitchen && h.url) {
+      copyImageOrUrl(h.url);
+    } else {
+      copyText(h.a + " + " + h.b + " = " + h.out + " \u2014 " + h.name, "");
+    }
   });
 
   /* ============================================================
@@ -2276,7 +2501,9 @@ footer a{ color:rgba(255,255,255,.55); }
      ============================================================ */
   function updateFootStats() {
     footStats.textContent =
-      "Session: " + sessionFusions + " fusions · " + state.wild.length + " wild";
+      "Session: " + sessionFusions + " fusions · " +
+      state.wild.length + " wild · " +
+      (state.kitchenLoaded ? "Kitchen ready" : "Kitchen loading…");
   }
 
   /* ============================================================
@@ -2371,7 +2598,372 @@ footer a{ color:rgba(255,255,255,.55); }
   }
 
   /* ============================================================
-     19. GAME LOGIC
+     19. KITCHEN MODULE
+     ============================================================ */
+  var KITCHEN_META_URL =
+    "https://raw.githubusercontent.com/xsalazar/emoji-kitchen-backend/refs/heads/main/app/metadata.json";
+  var kitchenMeta = null;
+  var kitchenMetaPromise = null;
+  var kitchenComboCount = 0;
+
+  function emojiToCp(emoji) {
+    if (!emoji) return "";
+    var cps = [];
+    for (var i = 0; i < emoji.length; ) {
+      var cp = emoji.codePointAt(i);
+      cps.push(cp.toString(16));
+      i += (cp > 0xFFFF) ? 2 : 1;
+    }
+    return cps.join("-");
+  }
+
+  function cpToEmoji(cp) {
+    if (!cp) return "";
+    try {
+      return String.fromCodePoint.apply(null, cp.split("-").map(function (p) {
+        return parseInt(p, 16);
+      }));
+    } catch (e) { return ""; }
+  }
+
+  function normalizeCp(cp) {
+    if (!kitchenMeta) return cp;
+    var variants = [cp, cp.replace(/-fe0f/g, "")];
+    for (var i = 0; i < variants.length; i++) {
+      if (kitchenMeta.data[variants[i]]) return variants[i];
+    }
+    return cp;
+  }
+
+  function loadKitchenMeta() {
+    if (kitchenMeta) return Promise.resolve(kitchenMeta);
+    if (kitchenMetaPromise) return kitchenMetaPromise;
+
+    setKitchenStatus("loading");
+
+    kitchenMetaPromise = fetch(KITCHEN_META_URL, { mode: "cors", cache: "force-cache" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        kitchenMeta = data;
+        state.kitchenLoaded = true;
+        state.kitchenError = null;
+
+        var total = 0;
+        var keys = Object.keys(data.data);
+        keys.forEach(function (k) {
+          var combos = data.data[k].combinations;
+          if (!combos) return;
+          Object.keys(combos).forEach(function (c) {
+            var list = combos[c];
+            if (list && list.length) total++;
+          });
+        });
+        kitchenComboCount = total;
+
+        setKitchenStatus("loaded", keys.length + " emojis · " + total.toLocaleString() + " combos");
+
+        if (typeof decoratePaletteWithKitchen === "function") {
+          decoratePaletteWithKitchen();
+        }
+        updateBrowseButton();
+        updateFootStats();
+        return data;
+      })
+      .catch(function (err) {
+        kitchenMetaPromise = null;
+        state.kitchenError = err;
+        setKitchenStatus("error", "Kitchen unavailable");
+        if (window.console) console.warn("[Kitchen] Load failed:", err);
+        return null;
+      });
+
+    return kitchenMetaPromise;
+  }
+
+  function setKitchenStatus(mode, text) {
+    if (!kitchenStatusEl) return;
+    if (mode === "loading") {
+      kitchenStatusEl.className = "kitchen-loading";
+      kitchenStatusEl.innerHTML =
+        '<i class="fa-solid fa-spinner" aria-hidden="true"></i> Kitchen…';
+    } else if (mode === "loaded") {
+      kitchenStatusEl.className = "kitchen-loaded";
+      kitchenStatusEl.innerHTML = '🍳 ' + (text || "Ready");
+    } else {
+      kitchenStatusEl.className = "kitchen-loading";
+      kitchenStatusEl.innerHTML = '⚠️ ' + (text || "Unavailable");
+      kitchenStatusEl.style.color = "#ff8a97";
+    }
+  }
+
+  function getKitchenCombo(leftCp, rightCp) {
+    if (!kitchenMeta) return null;
+    var leftData = kitchenMeta.data[leftCp];
+    if (!leftData || !leftData.combinations) return null;
+    var combos = leftData.combinations[rightCp];
+    if (!combos || !combos.length) return null;
+    for (var i = 0; i < combos.length; i++) {
+      if (combos[i].isLatest) return combos[i];
+    }
+    return combos[0];
+  }
+
+  function findKitchenCombo(leftEmoji, rightEmoji) {
+    if (!kitchenMeta) return null;
+    var leftCp = normalizeCp(emojiToCp(leftEmoji));
+    var rightCp = normalizeCp(emojiToCp(rightEmoji));
+
+    var combo = getKitchenCombo(leftCp, rightCp);
+    if (combo) return { combo: combo, leftCp: leftCp, rightCp: rightCp };
+
+    // Try reverse order
+    combo = getKitchenCombo(rightCp, leftCp);
+    if (combo) return { combo: combo, leftCp: rightCp, rightCp: leftCp };
+
+    return null;
+  }
+
+  function getAllCombosOf(emojiOrCp) {
+    if (!kitchenMeta) return [];
+    var cp = normalizeCp(emojiToCp(emojiOrCp));
+    var data = kitchenMeta.data[cp];
+    if (!data || !data.combinations) return [];
+
+    var out = [];
+    Object.keys(data.combinations).forEach(function (rightCp) {
+      var list = data.combinations[rightCp];
+      var chosen = null;
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].isLatest) { chosen = list[i]; break; }
+      }
+      if (!chosen && list.length) chosen = list[0];
+      if (chosen) out.push({ leftCp: cp, rightCp: rightCp, combo: chosen });
+    });
+
+    // Sort by gBoardOrder
+    out.sort(function (a, b) {
+      return (a.combo.gBoardOrder || 0) - (b.combo.gBoardOrder || 0);
+    });
+    return out;
+  }
+
+  function makeKitchenImage(url, size, alt) {
+    var box = document.createElement("div");
+    box.className = "kitchen-img";
+    box.setAttribute("aria-hidden", "true");
+    if (size) {
+      box.style.setProperty("--size",
+        "clamp(" + Math.round(size * 0.7) + "px," + (size / 9).toFixed(2) + "vw," + size + "px)");
+    }
+    var img = new Image();
+    img.alt = alt || "";
+    img.decoding = "async";
+    img.draggable = false;
+    img.loading = "lazy";
+    img.src = url;
+    box.appendChild(img);
+    return box;
+  }
+
+  /* ============================================================
+     20. KITCHEN SEARCH
+     ============================================================ */
+  var searchTimer = null;
+
+  function renderKitchenSearchResults(results) {
+    kitchenSearchResults.innerHTML = "";
+
+    if (!results.length) {
+      kitchenSearchResults.innerHTML =
+        '<div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:13px;">No matching combos.</div>';
+      kitchenResultCount.textContent = "0";
+      return;
+    }
+
+    var frag = document.createDocumentFragment();
+    results.slice(0, 120).forEach(function (combo) {
+      var item = document.createElement("button");
+      item.type = "button";
+      item.className = "kitchen-browse-item";
+      item.dataset.left = combo.leftEmoji;
+      item.dataset.right = combo.rightEmoji;
+      item.dataset.url = combo.gStaticUrl;
+      item.title = (combo.alt || "") + " — tap to fuse";
+      var img = new Image();
+      img.alt = combo.alt || "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.src = combo.gStaticUrl;
+      item.appendChild(img);
+      frag.appendChild(item);
+    });
+
+    kitchenSearchResults.appendChild(frag);
+    kitchenResultCount.textContent = results.length > 120
+      ? "Showing 120 of " + results.length
+      : results.length + " combos";
+  }
+
+  function doKitchenSearch(query) {
+    if (!kitchenMeta) return;
+
+    var q = (query || "").trim().toLowerCase();
+    if (!q) { renderKitchenSearchResults([]); return; }
+
+    var results = [];
+    var keys = Object.keys(kitchenMeta.data);
+
+    for (var i = 0; i < keys.length && results.length < 200; i++) {
+      var cp = keys[i];
+      var data = kitchenMeta.data[cp];
+      if (!data) continue;
+
+      var haystack = ((data.alt || "") + " " +
+        (data.keywords || []).join(" ") + " " +
+        (data.emoji || "")).toLowerCase();
+
+      if (haystack.indexOf(q) === -1) continue;
+
+      var leftEmoji = data.emoji || cpToEmoji(cp);
+      var combos = data.combinations || {};
+      var rightCps = Object.keys(combos);
+
+      for (var j = 0; j < rightCps.length && results.length < 200; j++) {
+        var rightCp = rightCps[j];
+        var list = combos[rightCp];
+        if (!list || !list.length) continue;
+
+        var chosen = null;
+        for (var k = 0; k < list.length; k++) {
+          if (list[k].isLatest) { chosen = list[k]; break; }
+        }
+        if (!chosen) chosen = list[0];
+
+        results.push({
+          leftEmoji: leftEmoji,
+          rightEmoji: cpToEmoji(rightCp),
+          gStaticUrl: chosen.gStaticUrl,
+          alt: chosen.alt || ""
+        });
+
+        if (results.length >= 200) break;
+      }
+    }
+
+    renderKitchenSearchResults(results);
+  }
+
+  kitchenSearchInput.addEventListener("input", function () {
+    clearTimeout(searchTimer);
+    var q = kitchenSearchInput.value;
+    searchTimer = setTimeout(function () { doKitchenSearch(q); }, 320);
+  });
+
+  attachTapHold(
+    kitchenSearchResults, ".kitchen-browse-item",
+    function (el) {
+      if (state.busy) return;
+      state.slots[0] = el.dataset.left;
+      state.slots[1] = el.dataset.right;
+      renderSlots();
+      fuse();
+      kitchenBrowsePanel.hidden = true;
+      reactor.scrollIntoView({ behavior: "smooth", block: "center" });
+    },
+    function (el) {
+      copyImageOrUrl(el.dataset.url);
+    }
+  );
+
+  btnKitchenRandom.addEventListener("click", function () {
+    if (!kitchenMeta) { toast("Kitchen still loading…"); return; }
+    var keys = Object.keys(kitchenMeta.data);
+    if (!keys.length) return;
+    var cp = keys[Math.floor(Math.random() * keys.length)];
+    var data = kitchenMeta.data[cp];
+    var combos = data.combinations ? Object.keys(data.combinations) : [];
+    if (!combos.length) { toast("No combos for that emoji"); return; }
+    var rightCp = combos[Math.floor(Math.random() * combos.length)];
+    state.slots[0] = data.emoji || cpToEmoji(cp);
+    state.slots[1] = cpToEmoji(rightCp);
+    renderSlots();
+    fuse();
+    sfxClick(); haptic(8);
+  });
+
+  /* ============================================================
+     21. KITCHEN BROWSE
+     ============================================================ */
+  function openBrowseForEmoji(emoji) {
+    if (!state.kitchenLoaded || !kitchenMeta) {
+      toast("🍳 Kitchen still loading…");
+      return;
+    }
+    var combos = getAllCombosOf(emoji);
+    if (!combos.length) {
+      toast("No kitchen combos for " + emoji);
+      return;
+    }
+
+    kitchenBrowsePanel.hidden = false;
+    kitchenBrowseBadge.textContent = String(combos.length);
+    kitchenBrowseTitle.textContent =
+      "All " + combos.length + " combos with " + emoji + " — tap to fuse, hold to copy image";
+
+    kitchenBrowseGrid.innerHTML = "";
+    var frag = document.createDocumentFragment();
+
+    combos.forEach(function (c) {
+      var item = document.createElement("button");
+      item.type = "button";
+      item.className = "kitchen-browse-item";
+      item.dataset.left = emoji;
+      item.dataset.right = cpToEmoji(c.rightCp);
+      item.dataset.url = c.combo.gStaticUrl;
+      item.title = (c.combo.alt || "") + " — tap to fuse";
+
+      var img = new Image();
+      img.alt = c.combo.alt || "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.src = c.combo.gStaticUrl;
+      item.appendChild(img);
+      frag.appendChild(item);
+    });
+
+    kitchenBrowseGrid.appendChild(frag);
+    kitchenBrowsePanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    sfxClick();
+  }
+
+  attachTapHold(
+    kitchenBrowseGrid, ".kitchen-browse-item",
+    function (el) {
+      if (state.busy) return;
+      state.slots[0] = el.dataset.left;
+      state.slots[1] = el.dataset.right;
+      renderSlots();
+      fuse();
+      reactor.scrollIntoView({ behavior: "smooth", block: "center" });
+    },
+    function (el) { copyImageOrUrl(el.dataset.url); }
+  );
+
+  btnBrowseCombos.addEventListener("click", function () {
+    if (!state.slots[0]) { toast("Pick an emoji in slot A first"); return; }
+    openBrowseForEmoji(state.slots[0]);
+  });
+
+  btnCloseBrowse.addEventListener("click", function () {
+    kitchenBrowsePanel.hidden = true;
+    sfxClick();
+  });
+
+  /* ============================================================
+     22. GAME LOGIC
      ============================================================ */
   var autoTimer = null;
 
@@ -2402,7 +2994,11 @@ footer a{ color:rgba(255,255,255,.55); }
     }
 
     var r = lookup(a, b);
-    if (r) {
+    var hit = findKitchenCombo(a, b);
+
+    if (hit) {
+      setStatus("🍳 Kitchen combo detected: " + a + " + " + b + " → real Emoji Kitchen!", "kitchen");
+    } else if (r) {
       setStatus("⚡ Auto-detect:  " + a + " + " + b + " = " + r.out + "  ·  " + r.name, "ok");
     } else {
       setStatus("🌀 No official recipe — fusing " + a + " + " + b + "…");
@@ -2435,6 +3031,48 @@ footer a{ color:rgba(255,255,255,.55); }
     setStatus("Fusing…");
 
     setTimeout(function () {
+      var hit = findKitchenCombo(a, b);
+
+      if (hit) {
+        // === REAL EMBED KITCHEN COMBO ===
+        var combo = hit.combo;
+        var url = combo.gStaticUrl;
+
+        reactor.classList.remove("fusing");
+        flash();
+
+        state.result = url;
+        state.resultName = combo.alt || "Kitchen Combo";
+        state.resultIsKitchen = true;
+        state.kitchenCombo = combo;
+
+        cellR.innerHTML = "";
+        cellR.classList.add("filled", "reveal", "kitchen-result");
+        cellR.appendChild(makeKitchenImage(url, 108, combo.alt));
+        setTimeout(function () { cellR.classList.remove("reveal"); }, 700);
+
+        burst(1.2);
+        sfxSuccess();
+        haptic([12, 30, 18]);
+        sessionFusions++;
+
+        setStatus("🍳 " + a + " + " + b + " — " + (combo.alt || "kitchen combo"), "kitchen");
+
+        btnCopyEq.hidden = false;
+        btnCopyEq.innerHTML =
+          '<i class="fa-solid fa-image" aria-hidden="true"></i> Copy image';
+        btnDownloadImg.hidden = false;
+        btnChain.hidden = true;
+
+        pushHistory({ a: a, b: b, out: "🍳", name: combo.alt || "Kitchen", kitchen: true, url: url });
+
+        updateFootStats();
+        state.busy = false;
+        updateNextSlot();
+        return;
+      }
+
+      // === SYMBOLIC / WILD FALLBACK ===
       var official = lookup(a, b);
       var r = official || synthFusion(a, b);
 
@@ -2457,6 +3095,7 @@ footer a{ color:rgba(255,255,255,.55); }
         a + " + " + b + " = " + r.out + " \u2014 " + r.name + "\u201d";
 
       btnChain.hidden = false;
+      btnDownloadImg.hidden = true;
 
       pushHistory(r);
 
@@ -2498,7 +3137,7 @@ footer a{ color:rgba(255,255,255,.55); }
   }
 
   function chainResult() {
-    if (state.busy || !state.result) return;
+    if (state.busy || !state.result || state.resultIsKitchen) return;
     var emoji = state.result;
     state.slots[0] = emoji;
     state.slots[1] = null;
@@ -2524,16 +3163,34 @@ footer a{ color:rgba(255,255,255,.55); }
   function randomize() {
     if (state.busy) return;
 
+    // Prefer real Kitchen combos if loaded
+    if (state.kitchenLoaded && kitchenMeta) {
+      var keys = Object.keys(kitchenMeta.data);
+      if (keys.length) {
+        var cp = keys[Math.floor(Math.random() * keys.length)];
+        var data = kitchenMeta.data[cp];
+        var combos = data.combinations ? Object.keys(data.combinations) : [];
+        if (combos.length) {
+          var rightCp = combos[Math.floor(Math.random() * combos.length)];
+          state.slots[0] = data.emoji || cpToEmoji(cp);
+          state.slots[1] = cpToEmoji(rightCp);
+          renderSlots();
+          scheduleCheck();
+          sfxClick();
+          haptic(6);
+          return;
+        }
+      }
+    }
+
+    // Fallback
     var pool = INGREDIENTS.concat(
       state.customEmoji.map(function (e) { return { e: e }; })
     );
-
     var a = pool[Math.floor(Math.random() * pool.length)].e;
     var b = pool[Math.floor(Math.random() * pool.length)].e;
-
     state.slots[0] = a;
     state.slots[1] = b;
-
     renderSlots();
     scheduleCheck();
     sfxClick();
@@ -2609,7 +3266,7 @@ footer a{ color:rgba(255,255,255,.55); }
   }
 
   /* ============================================================
-     20. WIRING
+     23. WIRING
      ============================================================ */
   attachTapHold(
     paletteEl, ".ing",
@@ -2652,6 +3309,10 @@ footer a{ color:rgba(255,255,255,.55); }
 
   cellR.addEventListener("click", function () {
     if (!state.result) return;
+    if (state.resultIsKitchen && state.kitchenCombo) {
+      copyImageOrUrl(state.kitchenCombo.gStaticUrl);
+      return;
+    }
     var txt = state.resultName
       ? state.result + " " + state.resultName
       : state.result;
@@ -2669,6 +3330,10 @@ footer a{ color:rgba(255,255,255,.55); }
 
   btnCopyEq.addEventListener("click", function () {
     if (!state.result) return;
+    if (state.resultIsKitchen && state.kitchenCombo) {
+      copyImageOrUrl(state.kitchenCombo.gStaticUrl);
+      return;
+    }
     var a = state.slots[0], b = state.slots[1];
     if (!a || !b) return;
     var txt = a + " + " + b + " = " + state.result +
@@ -2677,6 +3342,13 @@ footer a{ color:rgba(255,255,255,.55); }
   });
 
   btnChain.addEventListener("click", chainResult);
+
+  btnDownloadImg.addEventListener("click", function () {
+    if (!state.kitchenCombo) return;
+    var url = state.kitchenCombo.gStaticUrl;
+    var alt = state.kitchenCombo.alt || "emoji-kitchen";
+    downloadImage(url, alt.replace(/[^\w-]/g, "_") + ".png");
+  });
 
   $("btnFuse").addEventListener("click", fuse);
   $("btnClear").addEventListener("click", clearAll);
@@ -2726,7 +3398,7 @@ footer a{ color:rgba(255,255,255,.55); }
   });
 
   /* ============================================================
-     21. BOOT
+     24. BOOT
      ============================================================ */
   buildChips();
   buildPalette();
@@ -2737,11 +3409,14 @@ footer a{ color:rgba(255,255,255,.55); }
   updateCustomBadge();
   updateFootStats();
 
+  // Kick off Kitchen metadata load in the background
+  loadKitchenMeta();
+
   setTimeout(function () {
     if (!state.slots[0] && !state.slots[1] && !state.busy) {
       var found = countFound();
       if (found === 0) {
-        setStatus("Try it: tap 🔥 then ❤️ — auto-detects ❤️‍🔥. Tap the result to copy “❤️‍🔥 Heart on Fire”");
+        setStatus("Try it: tap 🔥 then ❤️ — auto-detects ❤️‍🔥. Kitchen data loads in background 🍳", "ok");
       } else {
         setStatus("Welcome back — " + found + " / " + RECIPES.length +
           " discovered. Try the 💡 Hint button.");
@@ -2759,6 +3434,10 @@ footer a{ color:rgba(255,255,255,.55); }
     copy: copyText,
     addEmoji: addCustomEmoji,
     hint: showHint,
+    loadKitchen: loadKitchenMeta,
+    getKitchenCombo: findKitchenCombo,
+    getAllCombos: getAllCombosOf,
+    meta: function () { return kitchenMeta; },
     reset: function () {
       state.discovered = Object.create(null);
       state.wild = [];
@@ -2778,105 +3457,26 @@ footer a{ color:rgba(255,255,255,.55); }
 </script>
 
 <script>
-// Disable right-click
-document.addEventListener('contextmenu', (e) => e.preventDefault());
+// Disable right-click outside form fields only
+document.addEventListener('contextmenu', function(e) {
+  var el = e.target || e.srcElement;
+  var inInput = el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+  if (!inInput) e.preventDefault();
+}, false);
 
-function ctrlShiftKey(e, keyCode) {
-  return e.ctrlKey && e.shiftKey && e.keyCode === keyCode.charCodeAt(0);
-}
+// Block dev tools shortcuts (F12 / Ctrl+Shift+I/J/C / Ctrl+U) outside inputs
+document.onkeydown = function(e) {
+  var el = e.target || e.srcElement;
+  var inInput = el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+  if (inInput) return; // Never block typing/pasting in inputs
 
-document.onkeydown = (e) => {
-  // Disable F12, Ctrl + Shift + I, Ctrl + Shift + J, Ctrl + U
-  if (
-    event.keyCode === 123 ||
-    ctrlShiftKey(e, 'I') ||
-    ctrlShiftKey(e, 'J') ||
-    ctrlShiftKey(e, 'C') ||
-    (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0))
-  )
-    return false;
+  var kc = e.keyCode;
+  if (kc === 123) return false; // F12
+  if (e.ctrlKey && e.shiftKey && (kc === 73 || kc === 74 || kc === 67)) return false;
+  if (e.ctrlKey && kc === 85) return false; // Ctrl+U
+  return true;
 };
 </script>
-<script>
- if (typeof document.onselectstart!="undefined" ) {
-  document.onselectstart=new Function ("return false" );
- }
- else {
-  document.onmousedown=new Function ("return false" );
-  document.onmouseup=new Function ("return true" );
- }
-</script>
-<script>
-   document.onkeydown = function(e) {
-if(event.keyCode == 123) {
-    return false;
-}
-if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'C'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'X'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'Y'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'Z'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'V'.charCodeAt(0)){
-    return false;
-}
-if (e.keyCode == 67 && e.shiftKey && (e.ctrlKey || e.metaKey)){
-    return false;
-}
-if (e.keyCode == 'J'.charCodeAt(0) && e.altKey && (e.ctrlKey || e.metaKey)){
-    return false;
-}
-if (e.keyCode == 'I'.charCodeAt(0) && e.altKey && (e.ctrlKey || e.metaKey)){
-    return false;
-}
-if ((e.keyCode == 'V'.charCodeAt(0) && e.metaKey) || (e.metaKey && e.altKey)){
-    return false;
-}
-if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'H'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'A'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'F'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'E'.charCodeAt(0)){
-    return false;
-}
-}
-if (document.addEventListener) {
-    document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    }, false);
-}else{
-    document.attachEvent('oncontextmenu', function() {
-    window.event.returnValue = false;
-    });
-}
-</script>
-
 
 </body>
 </html>
