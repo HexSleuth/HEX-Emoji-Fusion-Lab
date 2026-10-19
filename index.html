@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#05060c" />
 <meta name="color-scheme" content="dark" />
-<title>HEX Emoji Fusion Lab × Kitchen — 2.5D</title>
+<title>HEX Emoji Fusion Lab × Kitchen</title>
 <meta name="description" content="Fuse animated Noto emoji + real Emoji Kitchen combos. Tap to copy, browse thousands of combos." />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 <style>
@@ -1785,7 +1785,7 @@ footer .source-links a:hover{
         new ClipboardItem({ [blob.type || "image/png"]: blob })
       ]);
       sfxCopy(); haptic(10);
-      toast("✅ Image copied to clipboard!");
+      toast("✔ Image copied to clipboard!");
     } catch (e) {
       copyText(url, "image URL");
     }
@@ -1801,7 +1801,7 @@ footer .source-links a:hover{
     a.click();
     document.body.removeChild(a);
     sfxClick(); haptic(8);
-    toast("⬇️ Download started");
+    toast("⤓ Download started");
   }
 
   /* ============================================================
