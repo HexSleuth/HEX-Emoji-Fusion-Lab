@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#05060c" />
 <meta name="color-scheme" content="dark" />
-<title>HEX Emoji Fusion Lab × Kitchen</title>
-<meta name="description" content="Fuse animated Noto emoji + real Emoji Kitchen combos. Tap to copy, browse thousands of combos." />
+<title>HEX Emoji Fusion Lab</title>
+<meta name="description" content="Fuse animated Noto emoji + real Emoji Kitchen combos. Multi-source kitchen data with graceful fallback." />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 <style>
 /* ============================================================
-   2.5D DARK DESIGN TOKENS
+   2.5D DARK DESIGN TOKENS (unchanged)
    ============================================================ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -32,6 +32,7 @@
   --acc-2: #ff4d8d;
   --ok: #2ee6a8;
   --warn: #ffb84d;
+  --err: #ff8a97;
   --btn-depth: #070910;
   --btn-depth-primary: #5c1a4a;
   --glow-1: rgba(124,92,255,.28);
@@ -118,6 +119,19 @@ h1 .grad{
 .kitchen-loading i{ animation: spin 1.1s linear infinite; }
 @keyframes spin{ to{ transform: rotate(360deg); } }
 .kitchen-loaded{ color:var(--ok); font-size:12px; font-weight:700; }
+.kitchen-error{ color:var(--err); font-size:12px; font-weight:600; }
+
+.retry-btn{
+  margin-left:6px;
+  padding:3px 10px; border-radius:999px;
+  border:1px solid rgba(255,138,151,.5);
+  background:rgba(255,138,151,.12);
+  color:var(--err);
+  font-size:11px; font-weight:800;
+  cursor:pointer;
+  transition: background .2s ease;
+}
+.retry-btn:hover{ background:rgba(255,138,151,.22); }
 
 .icon-mini{
   border:1px solid var(--border-hi);
@@ -779,7 +793,6 @@ main{ max-width:900px; margin:0 auto; }
   50%    { transform:translate3d(0,-6%,0) scale(1.05); }
 }
 
-/* Kitchen image result */
 .kitchen-img{
   width:var(--size, 100%);
   height:var(--size, 100%);
@@ -793,9 +806,6 @@ main{ max-width:900px; margin:0 auto; }
   animation:emojiIn .3s ease;
 }
 
-/* ============================================================
-   KITCHEN BROWSE
-   ============================================================ */
 .kitchen-browse-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill, minmax(64px, 1fr));
@@ -844,9 +854,6 @@ main{ max-width:900px; margin:0 auto; }
   display:flex; gap:8px;
 }
 
-/* ============================================================
-   PARTICLES + TOAST
-   ============================================================ */
 .particle{
   position:fixed; border-radius:50%;
   pointer-events:none; z-index:80;
@@ -947,15 +954,15 @@ footer .source-links a:hover{
 <body>
 
 <header>
-  <h1>HEX Emoji <span class="grad">Fusion Lab × Kitchen</span></h1>
-  <p class="sub">Tap any emoji to copy · <b>Real Emoji Kitchen</b> combos load in the background 🍳</p>
+  <h1>HEX Emoji <span class="grad">Fusion Lab </span></h1>
+  <p class="sub">Tap any emoji to copy · <b>Real Emoji Fusion</b> combos load in the background 🍳</p>
 
   <div class="stats">
     <i class="fa-solid fa-trophy stat-icon" aria-hidden="true"></i>
     <span><b id="statCount">0</b> / <span id="statTotal">120</span> discovered</span>
     <span class="stat-divider" aria-hidden="true"></span>
     <span id="kitchenStatus" class="kitchen-loading">
-      <i class="fa-solid fa-spinner" aria-hidden="true"></i> Kitchen…
+      <i class="fa-solid fa-spinner" aria-hidden="true"></i> HEX Emoji…
     </span>
     <button class="icon-mini" id="btnSound" aria-label="Toggle sound">
       <i class="fa-solid fa-volume-high"></i>
@@ -968,7 +975,6 @@ footer .source-links a:hover{
 </header>
 
 <main>
-  <!-- ============ REACTOR ============ -->
   <section class="reactor" id="reactor" aria-label="Fusion reactor">
     <div class="cell next" id="cellA" data-slot="0" role="button" tabindex="0" aria-label="Ingredient A">
       <span class="ph">?</span>
@@ -1013,18 +1019,16 @@ footer .source-links a:hover{
     </button>
   </div>
 
-  <!-- ============ PALETTE ============ -->
   <section class="panel" aria-label="Ingredient palette">
     <h2>Ingredient Lab <span class="badge purple">tap = add · hold = copy</span> <span class="badge kitchen" id="kitchenPaletteBadge">🍳</span></h2>
     <div class="chips" id="chips"></div>
     <div class="palette" id="palette"></div>
   </section>
 
-  <!-- ============ KITCHEN SEARCH ============ -->
-  <section class="panel kitchen-search-panel" id="kitchenSearchPanel" aria-label="Search Emoji Kitchen">
+  <section class="panel kitchen-search-panel" id="kitchenSearchPanel" aria-label="Search Hex Emoji ">
     <h2>
       <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-      Kitchen Search
+      Hex Emoji  Search
       <span class="badge kitchen" id="kitchenResultCount">—</span>
     </h2>
     <div class="add-row">
@@ -1038,7 +1042,6 @@ footer .source-links a:hover{
     <div class="kitchen-browse-grid" id="kitchenSearchResults" style="margin-top:12px;"></div>
   </section>
 
-  <!-- ============ KITCHEN BROWSE ============ -->
   <section class="panel" id="kitchenBrowsePanel" aria-label="Browse combos" hidden>
     <h2>
       <i class="fa-solid fa-utensils" aria-hidden="true"></i>
@@ -1052,7 +1055,6 @@ footer .source-links a:hover{
     <div class="kitchen-browse-grid" id="kitchenBrowseGrid"></div>
   </section>
 
-  <!-- ============ ADD ANY EMOJI ============ -->
   <section class="panel" aria-label="Add any emoji">
     <h2>Add Any Emoji <span class="badge" id="customBadge">0 custom</span></h2>
     <div class="add-row">
@@ -1072,7 +1074,6 @@ footer .source-links a:hover{
     </div>
   </section>
 
-  <!-- ============ DEX ============ -->
   <section class="panel" aria-label="Discoveries">
     <h2>
       Discoveries
@@ -1089,7 +1090,6 @@ footer .source-links a:hover{
     <div class="dex" id="dex"></div>
   </section>
 
-  <!-- ============ HISTORY ============ -->
   <section class="panel" id="histPanel" aria-label="Fusion history" hidden>
     <h2>
       History
@@ -1099,7 +1099,6 @@ footer .source-links a:hover{
     <div class="hist-list" id="histList"></div>
   </section>
 
-  <!-- ============ WILD FUSIONS ============ -->
   <section class="panel" id="wildPanel" aria-label="Custom fusions" hidden>
     <h2>Custom Fusions <span class="badge purple" id="wildBadge">0</span> <span class="badge purple">tap to copy</span></h2>
     <div class="wild-list" id="wildList"></div>
@@ -1133,7 +1132,7 @@ footer .source-links a:hover{
   var LOW_POWER = REDUCED || CORES <= 4;
 
   /* ============================================================
-     1. EMOJI LOADER
+     1. EMOJI LOADER — animated webp → gif → png chain
      ============================================================ */
   var EMOJI_BASE = "https://fonts.gstatic.com/s/e/notoemoji/latest/";
   var PX_SMALL = 72;
@@ -1145,7 +1144,7 @@ footer .source-links a:hover{
   var running  = 0;
   var waitQ    = [];
 
-  var URL_KEY = "noto-fusion-v5:urls";
+  var URL_KEY = "noto-fusion-v6:urls";
   var urlCache = safeParse(localStorage.getItem(URL_KEY), {});
   if (typeof urlCache !== "object" || urlCache === null || Array.isArray(urlCache)) {
     urlCache = {};
@@ -1158,11 +1157,11 @@ footer .source-links a:hover{
       saveTimer = null;
       try {
         var keys = Object.keys(urlCache);
-        if (keys.length > 500) {
-          for (var i = 0; i < keys.length - 500; i++) delete urlCache[keys[i]];
+        if (keys.length > 600) {
+          for (var i = 0; i < keys.length - 600; i++) delete urlCache[keys[i]];
         }
         localStorage.setItem(URL_KEY, JSON.stringify(urlCache));
-      } catch (e) { /* quota — ignore */ }
+      } catch (e) { /* ignore quota */ }
     }, 1500);
   }
 
@@ -1176,7 +1175,7 @@ footer .source-links a:hover{
     else running = Math.max(0, running - 1);
   }
 
-  function hexCandidates(emoji) {
+  function hexCandidates(emoji, px) {
     var cps = Array.from(emoji).map(function (c) { return c.codePointAt(0); });
     var full = cps.map(function (c) { return c.toString(16); }).join("_");
     var stripped = cps
@@ -1184,10 +1183,25 @@ footer .source-links a:hover{
       .map(function (c) { return c.toString(16); }).join("_");
     var base = cps[0].toString(16);
 
-    var out = [], seen = Object.create(null);
+    var codes = [], seen = Object.create(null);
     [full, stripped, base].forEach(function (code) {
-      if (code && !seen[code]) { seen[code] = 1; out.push(code); }
+      if (code && !seen[code]) { seen[code] = 1; codes.push(code); }
     });
+
+    // Priority: animated webp (best) → animated gif → static png
+    var out = [];
+    codes.forEach(function (code) {
+      out.push(EMOJI_BASE + code + "/" + px + ".webp");
+    });
+    codes.forEach(function (code) {
+      out.push(EMOJI_BASE + code + "/" + px + ".gif");
+    });
+    // static fallback (larger sizes only support webp/png)
+    var staticPx = px >= 512 ? 512 : 72;
+    codes.forEach(function (code) {
+      out.push(EMOJI_BASE + code + "/" + staticPx + ".png");
+    });
+
     return out;
   }
 
@@ -1208,8 +1222,7 @@ footer .source-links a:hover{
 
     var candidates = [];
     if (urlCache[key]) candidates.push(urlCache[key]);
-    hexCandidates(emoji).forEach(function (code) {
-      var u = EMOJI_BASE + code + "/" + px + ".webp";
+    hexCandidates(emoji, px).forEach(function (u) {
       if (candidates.indexOf(u) === -1) candidates.push(u);
     });
 
@@ -1314,7 +1327,233 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     2. RECIPES — 120 symbolic fusions
+     2. GITHUB EMOJI NAME MAP (curated subset for search)
+     Sourced from github's emoji markup list (ricealexander/emoji-list)
+     ============================================================ */
+  var EMOJI_NAMES = {
+    "1f525":"fire","2764-fe0f":"heart","2b50":"star","1f31f":"star2","1f4a5":"boom","1f4a2":"anger",
+    "1f600":"grinning","1f603":"smiley","1f604":"smile","1f601":"grin","1f606":"laughing",
+    "1f605":"sweat_smile","1f923":"rofl","1f602":"joy","1f642":"slightly_smiling_face",
+    "1f643":"upside_down_face","1f609":"wink","1f60a":"blush","1f970":"smiling_face_with_three_hearts",
+    "1f60d":"heart_eyes","1f929":"star_struck","1f618":"kissing_heart","1f617":"kissing",
+    "1f619":"kissing_smiling_eyes","1f61a":"kissing_closed_eyes","263a-fe0f":"relaxed",
+    "1f972":"smiling_face_with_tear","1f60b":"yum","1f61b":"stuck_out_tongue",
+    "1f61c":"stuck_out_tongue_winking_eye","1f92a":"zany_face","1f61d":"stuck_out_tongue_closed_eyes",
+    "1f911":"money_mouth_face","1f917":"hugs","1f92d":"hand_over_mouth","1fae2":"face_with_open_eyes_and_hand_over_mouth",
+    "1f92b":"shushing_face","1f914":"thinking","1f910":"zipper_mouth_face","1f928":"raised_eyebrow",
+    "1f610":"neutral_face","1f611":"expressionless","1f636":"no_mouth","1f60f":"smirk",
+    "1f612":"unamused","1f644":"roll_eyes","1f62c":"grimacing","1f925":"lying_face",
+    "1f60c":"relieved","1f614":"pensive","1f62a":"sleepy","1f924":"drooling_face",
+    "1f634":"sleeping","1f637":"mask","1f912":"face_with_thermometer","1f915":"face_with_head_bandage",
+    "1f922":"nauseated_face","1f92e":"vomiting_face","1f927":"sneezing_face","1f975":"hot_face",
+    "1f976":"cold_face","1f974":"woozy_face","1f635":"dizzy_face","1f92f":"exploding_head",
+    "1f920":"cowboy_hat_face","1f973":"partying_face","1f978":"disguised_face","1f60e":"sunglasses",
+    "1f913":"nerd_face","1f9d0":"monocle_face","1f615":"confused","1f61f":"worried",
+    "1f641":"slightly_frowning_face","2639-fe0f":"frowning_face","1f62e":"open_mouth","1f62f":"hushed",
+    "1f632":"astonished","1f633":"flushed","1f97a":"pleading_face","1f626":"frowning",
+    "1f627":"anguished","1f628":"fearful","1f630":"cold_sweat","1f625":"disappointed_relieved",
+    "1f622":"cry","1f62d":"sob","1f631":"scream","1f616":"confounded","1f623":"persevere",
+    "1f61e":"disappointed","1f613":"sweat","1f629":"weary","1f62b":"tired_face","1f971":"yawning_face",
+    "1f624":"triumph","1f621":"rage","1f620":"angry","1f92c":"cursing_face","1f608":"smiling_imp",
+    "1f47f":"imp","1f480":"skull","2620-fe0f":"skull_and_crossbones","1f4a9":"poop",
+    "1f921":"clown_face","1f479":"japanese_ogre","1f47a":"japanese_goblin","1f47b":"ghost",
+    "1f47d":"alien","1f47e":"space_invader","1f916":"robot","1f63a":"smiley_cat","1f638":"smile_cat",
+    "1f639":"joy_cat","1f63b":"heart_eyes_cat","1f63c":"smirk_cat","1f63d":"kissing_cat",
+    "1f640":"scream_cat","1f63f":"crying_cat_face","1f63e":"pouting_cat","1f648":"see_no_evil",
+    "1f649":"hear_no_evil","1f64a":"speak_no_evil","1f48b":"kiss","1f48c":"love_letter",
+    "1f498":"cupid","1f49d":"gift_heart","1f496":"sparkling_heart","1f497":"heartpulse",
+    "1f493":"heartbeat","1f49e":"revolving_hearts","1f495":"two_hearts","1f49f":"heart_decoration",
+    "2763-fe0f":"heavy_heart_exclamation","1f494":"broken_heart","2764-fe0f-200d-1fa79":"mending_heart",
+    "1f9e1":"orange_heart","1f49b":"yellow_heart","1f49a":"green_heart","1f499":"blue_heart",
+    "1f49c":"purple_heart","1f5a4":"black_heart","1f90d":"white_heart","1f90e":"brown_heart",
+    "1fa75":"light_blue_heart","1fa76":"grey_heart","1fa77":"pink_heart",
+    "1f4af":"100","1f4a2":"anger","1f4a5":"boom","1f4ab":"dizzy","1f4a6":"sweat_drops","1f4a8":"dash",
+    "1f573-fe0f":"hole","1f4a3":"bomb","1f4ac":"speech_balloon","1f441-fe0f-200d-1f5e8-fe0f":"eye_in_speech_bubble",
+    "1f5e8-fe0f":"left_speech_bubble","1f5ef-fe0f":"right_anger_bubble","1f4ad":"thought_balloon",
+    "1f4a4":"zzz","1f44b":"wave","1f91a":"raised_back_of_hand","1f590-fe0f":"raised_hand_with_fingers_splayed",
+    "270b":"hand","1f596":"vulcan_salute","1f44c":"ok_hand","1f90c":"pinched_fingers","1f90f":"pinching_hand",
+    "270c-fe0f":"v","1f91e":"crossed_fingers","1faf0":"hand_with_index_finger_and_thumb_crossed",
+    "1f91f":"love_you_gesture","1f918":"metal","1f919":"call_me_hand","1f448":"point_left",
+    "1f449":"point_right","1f446":"point_up_2","1f595":"middle_finger","1f447":"point_down",
+    "261d-fe0f":"point_up","1faf5":"index_pointing_at_the_viewer","1f44d":"+1","1f44e":"-1",
+    "270a":"fist_raised","1f44a":"facepunch","1f91b":"fist_left","1f91c":"fist_right",
+    "1f44f":"clap","1f64c":"raised_hands","1f450":"open_hands","1f932":"palms_up_together",
+    "1f91d":"handshake","1f64f":"pray","270d-fe0f":"writing_hand","1f485":"nail_care",
+    "1f933":"selfie","1f4aa":"muscle","1f9be":"mechanical_arm","1f9bf":"mechanical_leg",
+    "1f9b5":"leg","1f9b6":"foot","1f442":"ear","1f9bb":"ear_with_hearing_aid","1f443":"nose",
+    "1f9e0":"brain","1fac0":"anatomical_heart","1fac1":"lungs","1f9b7":"tooth","1f9b4":"bone",
+    "1f440":"eyes","1f441-fe0f":"eye","1f445":"tongue","1f444":"lips","1fae6":"biting_lip",
+    "1f476":"baby","1f9d2":"child","1f466":"boy","1f467":"girl","1f9d1":"adult",
+    "1f471":"person_blond_hair","1f468":"man","1f469":"woman","1f9d3":"older_adult",
+    "1f474":"older_man","1f475":"older_woman","1f64d":"person_frowning","1f64e":"person_pouting",
+    "1f645":"no_good","1f646":"ok_person","1f481":"tipping_hand_person","1f64b":"raising_hand",
+    "1f9cf":"deaf_person","1f647":"bow","1f926":"facepalm","1f937":"shrug","1f9d1-200d-2695-fe0f":"health_worker",
+    "1f9d1-200d-1f393":"student","1f9d1-200d-1f3eb":"teacher","1f9d1-200d-1f3a8":"artist",
+    "1f9d1-200d-1f3a4":"singer","1f9d1-200d-1f4bb":"technologist","1f9d1-200d-1f680":"astronaut",
+    "1f9d1-200d-1f692":"firefighter","1f46e":"cop","1f575-fe0f":"detective","1f482":"guard",
+    "1f977":"ninja","1f477":"construction_worker","1f934":"prince","1f478":"princess",
+    "1f473":"person_with_turban","1f472":"person_with_skullcap","1f9d5":"woman_with_headscarf",
+    "1f935":"person_in_tuxedo","1f470":"bride_with_veil","1f930":"pregnant_woman",
+    "1f931":"breast_feeding","1f47c":"angel","1f385":"santa","1f936":"mrs_claus","1f9b8":"superhero",
+    "1f9b9":"supervillain","1f9d9":"mage","1f9da":"fairy","1f9db":"vampire","1f9dc":"merperson",
+    "1f9dd":"elf","1f9de":"genie","1f9df":"zombie","1f486":"massage","1f487":"haircut",
+    "1f6b6":"walking","1f9cd":"standing_person","1f9ce":"kneeling_person","1f9d1-200d-1f9bd":"person_in_manual_wheelchair",
+    "1f9d1-200d-1f9bc":"person_in_motorized_wheelchair","1f6b6-200d-2642-fe0f":"walking_man",
+    "1f483":"dancer","1f57a":"man_dancing","1f574-fe0f":"person_in_suit_levitating",
+    "1f46f":"people_with_bunny_ears","1f9d8":"person_in_lotus_position","1f6c0":"bath",
+    "1f6cc":"sleeping_accommodation","1f46f-200d-2642-fe0f":"men_with_bunny_ears",
+    "1f46f-200d-2640-fe0f":"women_with_bunny_ears","1f46d":"two_women_holding_hands",
+    "1f46b":"couple","1f46c":"two_men_holding_hands","1f491":"couple_with_heart",
+    "1f48f":"couplekiss","1f46a":"family","1f9d1-200d-1f91d-200d-1f9d1":"people_holding_hands",
+    "1f464":"bust_in_silhouette","1f465":"busts_in_silhouette","1fac2":"people_hugging",
+    "1f463":"footprints","1f9b1":"curly_haired","1f9b0":"red_haired","1f9b3":"white_haired","1f9b2":"bald",
+    "1f436":"dog","1f431":"cat","1f42d":"mouse","1f439":"hamster","1f430":"rabbit",
+    "1f98a":"fox_face","1f43b":"bear","1f43c":"panda_face","1f428":"koala","1f42f":"tiger",
+    "1f981":"lion_face","1f42e":"cow","1f437":"pig","1f438":"frog","1f435":"monkey_face",
+    "1f648":"see_no_evil","1f649":"hear_no_evil","1f64a":"speak_no_evil","1f412":"monkey",
+    "1f414":"chicken","1f427":"penguin","1f426":"bird","1f424":"baby_chick","1f423":"hatching_chick",
+    "1f425":"hatched_chick","1f986":"duck","1f985":"eagle","1f989":"owl","1f987":"bat",
+    "1f43a":"wolf","1f417":"boar","1f434":"horse","1f984":"unicorn","1f41d":"bee",
+    "1f41b":"bug","1f98b":"butterfly","1f40c":"snail","1f41e":"ladybug","1f41c":"ant",
+    "1f99f":"mosquito","1f997":"cricket","1fab2":"beetle","1f577-fe0f":"spider","1f578-fe0f":"spider_web",
+    "1f982":"scorpion","1f422":"turtle","1f40d":"snake","1f98e":"lizard","1f996":"t-rex",
+    "1f995":"sauropod","1f419":"octopus","1f991":"squid","1f990":"shrimp","1f99e":"lobster",
+    "1f980":"crab","1f421":"blowfish","1f420":"tropical_fish","1f41f":"fish","1f42c":"dolphin",
+    "1f433":"whale","1f40b":"whale2","1f988":"shark","1f40a":"crocodile","1f405":"tiger2",
+    "1f406":"leopard","1f993":"zebra","1f98d":"gorilla","1f9a7":"orangutan","1f418":"elephant",
+    "1f9a3":"mammoth","1f9ac":"bison","1f42a":"dromedary_camel","1f42b":"camel","1f999":"llama",
+    "1f992":"giraffe","1f998":"kangaroo","1f403":"water_buffalo","1f401":"mouse2","1f402":"ox",
+    "1f404":"cow2","1f40e":"racehorse","1f416":"pig2","1f40f":"ram","1f411":"sheep","1f410":"goat",
+    "1f98c":"deer","1f415":"dog2","1f9ae":"guide_dog","1f415-200d-1f9ba":"service_dog",
+    "1f429":"poodle","1f408":"cat2","1f413":"rooster","1f983":"turkey","1f54a-fe0f":"dove",
+    "1f407":"rabbit2","1f99d":"raccoon","1f9a8":"skunk","1f9a1":"badger","1f9ab":"beaver",
+    "1f9a6":"otter","1f9a5":"sloth","1f9a2":"swan","1f9a9":"flamingo","1f99a":"peacock",
+    "1f99c":"parrot","1f9a4":"dodo","1fab6":"feather","1f9ad":"seal","1f42c":"dolphin",
+    "1f335":"cactus","1f384":"christmas_tree","1f332":"evergreen_tree","1f333":"deciduous_tree",
+    "1f334":"palm_tree","1f331":"seedling","1f33f":"herb","2618-fe0f":"shamrock",
+    "1f340":"four_leaf_clover","1f38d":"bamboo","1f38b":"tanabata_tree","1f343":"leaves",
+    "1f342":"fallen_leaf","1f341":"maple_leaf","1f344":"mushroom","1f33e":"ear_of_rice","1f33f":"herb",
+    "1f490":"bouquet","1f337":"tulip","1f339":"rose","1f940":"wilted_flower","1f33a":"hibiscus",
+    "1f33b":"sunflower","1f33c":"blossom","1f338":"cherry_blossom","1fab7":"lotus",
+    "1faba":"empty_nest","1f340":"four_leaf_clover","1fab4":"potted_plant","1f9c4":"garlic",
+    "1f9c5":"onion","1f344":"mushroom","1f347":"grapes","1f348":"melon","1f349":"watermelon",
+    "1f34a":"tangerine","1f34b":"lemon","1f34c":"banana","1f34d":"pineapple","1f96d":"mango",
+    "1f34e":"apple","1f34f":"green_apple","1f350":"pear","1f351":"peach","1f352":"cherries",
+    "1f353":"strawberry","1fad0":"blueberries","1f95d":"kiwi_fruit","1f345":"tomato",
+    "1fad2":"olive","1f965":"coconut","1f951":"avocado","1f346":"eggplant","1f954":"potato",
+    "1f955":"carrot","1f33d":"corn","1f336-fe0f":"hot_pepper","1fad1":"bell_pepper","1f952":"cucumber",
+    "1f96c":"leafy_green","1f966":"broccoli","1f9c4":"garlic","1f9c5":"onion","1f344":"mushroom",
+    "1f95c":"peanuts","1fad8":"beans","1f330":"chestnut","1f35e":"bread","1f950":"croissant",
+    "1f956":"baguette_bread","1fad3":"flatbread","1f968":"pretzel","1f96f":"bagel",
+    "1f95e":"pancakes","1f9c7":"waffle","1f9c0":"cheese","1f356":"meat_on_bone","1f357":"poultry_leg",
+    "1f969":"cut_of_meat","1f953":"bacon","1f354":"hamburger","1f35f":"fries","1f355":"pizza",
+    "1f32d":"hotdog","1f96a":"sandwich","1f32e":"taco","1f32f":"burrito","1fad4":"tamale",
+    "1f959":"stuffed_flatbread","1f9c6":"falafel","1f95a":"egg","1f373":"fried_egg",
+    "1f958":"shallow_pan_of_food","1f372":"stew","1fad5":"fondue","1f963":"bowl_with_spoon",
+    "1f957":"green_salad","1f37f":"popcorn","1f9c8":"butter","1f9c2":"salt","1f96b":"canned_food",
+    "1f371":"bento","1f358":"rice_cracker","1f359":"rice_ball","1f35a":"rice","1f35b":"curry",
+    "1f35c":"ramen","1f35d":"spaghetti","1f360":"sweet_potato","1f362":"oden","1f363":"sushi",
+    "1f364":"fried_shrimp","1f365":"fish_cake","1f96e":"moon_cake","1f361":"dango",
+    "1f95f":"dumpling","1f960":"fortune_cookie","1f92f":"exploding_head","1f366":"icecream",
+    "1f367":"shaved_ice","1f368":"ice_cream","1f369":"doughnut","1f36a":"cookie","1f382":"birthday",
+    "1f370":"cake","1f9c1":"cupcake","1f967":"pie","1f36b":"chocolate_bar","1f36c":"candy",
+    "1f36d":"lollipop","1f36e":"custard","1f36f":"honey_pot","1f37c":"baby_bottle",
+    "1f95b":"milk_glass","2615":"coffee","1fad6":"teapot","1f375":"tea","1f376":"sake",
+    "1f37e":"champagne","1f377":"wine_glass","1f378":"cocktail","1f379":"tropical_drink",
+    "1f37a":"beer","1f37b":"beers","1f942":"clinking_glasses","1f943":"tumbler_glass",
+    "1f964":"cup_with_straw","1f9cb":"bubble_tea","1f9c3":"beverage_box","1f9c9":"mate",
+    "1f9ca":"ice_cube","1f962":"chopsticks","1f37d-fe0f":"fork_and_knife_with_plate",
+    "1f374":"fork_and_knife","1f944":"spoon","1f52a":"hocho","1f3fa":"amphora",
+    "1f30d":"earth_africa","1f30e":"earth_americas","1f30f":"earth_asia","1f310":"globe_with_meridians",
+    "1f5fa-fe0f":"world_map","1f5fe":"japan","1f3d4-fe0f":"mountain_snow","26f0-fe0f":"mountain",
+    "1f30b":"volcano","1f5fb":"mount_fuji","1f3d5-fe0f":"camping","1f3d6-fe0f":"beach_umbrella",
+    "1f3dc-fe0f":"desert","1f3dd-fe0f":"desert_island","1f3de-fe0f":"national_park",
+    "1f3df-fe0f":"stadium","1f3db-fe0f":"classical_building","1f3d7-fe0f":"building_construction",
+    "1f9f1":"bricks","1faa8":"rock","1fab5":"wood","1f3d8-fe0f":"houses","1f3da-fe0f":"derelict_house",
+    "1f3e0":"house","1f3e1":"house_with_garden","1f3e2":"office","1f3e3":"post_office",
+    "1f3e4":"european_post_office","1f3e5":"hospital","1f3e6":"bank","1f3e8":"hotel",
+    "1f3e9":"love_hotel","1f3ea":"convenience_store","1f3eb":"school","1f3ec":"department_store",
+    "1f3ed":"factory","1f3ef":"japanese_castle","1f3f0":"european_castle","1f492":"wedding",
+    "1f5fc":"tokyo_tower","1f5fd":"statue_of_liberty","26ea":"church","1f54c":"mosque",
+    "1f6d5":"hindu_temple","1f54d":"synagogue","26e9-fe0f":"shinto_shrine","1f54b":"kaaba",
+    "26f2":"fountain","26fa":"tent","1f301":"foggy","1f303":"night_with_stars",
+    "1f3d9-fe0f":"cityscape","1f304":"sunrise_over_mountains","1f305":"sunrise","1f306":"city_sunset",
+    "1f307":"city_sunrise","1f309":"bridge_at_night","2668-fe0f":"hotsprings","1f3a0":"carousel_horse",
+    "1f6dd":"playground_slide","1f3a1":"ferris_wheel","1f3a2":"roller_coaster","1f488":"barber",
+    "1f3aa":"circus_tent","1f682":"steam_locomotive","1f683":"railway_car","1f684":"bullettrain_side",
+    "1f685":"bullettrain_front","1f686":"train2","1f687":"metro","1f688":"light_rail","1f689":"station",
+    "1f68a":"tram","1f69d":"monorail","1f69e":"mountain_railway","1f68b":"train","1f68c":"bus",
+    "1f68d":"oncoming_bus","1f68e":"trolleybus","1f690":"minibus","1f691":"ambulance",
+    "1f692":"fire_engine","1f693":"police_car","1f694":"oncoming_police_car","1f695":"taxi",
+    "1f696":"oncoming_taxi","1f697":"car","1f698":"oncoming_automobile","1f699":"blue_car",
+    "1f6fb":"pickup_truck","1f69a":"truck","1f69b":"articulated_lorry","1f69c":"tractor",
+    "1f3ce-fe0f":"racing_car","1f3cd-fe0f":"motorcycle","1f6f5":"motor_scooter","1f9bd":"manual_wheelchair",
+    "1f9bc":"motorized_wheelchair","1f6fa":"auto_rickshaw","1f6b2":"bike","1f6f4":"kick_scooter",
+    "1f6f9":"skateboard","1f6fc":"roller_skate","1f68f":"busstop","1f6e3-fe0f":"motorway",
+    "1f6e4-fe0f":"railway_track","1f6e2-fe0f":"oil_drum","26fd":"fuelpump","1f6a8":"rotating_light",
+    "1f6a5":"traffic_light","1f6a6":"vertical_traffic_light","1f6d1":"stop_sign","1f6a7":"construction",
+    "2693":"anchor","1f6df":"ring_buoy","26f5":"boat","1f6f6":"canoe","1f6a4":"speedboat",
+    "1f6f3-fe0f":"passenger_ship","26f4-fe0f":"ferry","1f6e5-fe0f":"motor_boat","1f6a2":"ship",
+    "2708-fe0f":"airplane","1f6e9-fe0f":"small_airplane","1f6eb":"flight_departure",
+    "1f6ec":"flight_arrival","1fa82":"parachute","1f4ba":"seat","1f681":"helicopter",
+    "1f6f0-fe0f":"artificial_satellite","1f680":"rocket","1f6f8":"flying_saucer",
+    "231a":"watch","1f4f1":"iphone","1f4f2":"calling","1f4bb":"computer","1f5a5-fe0f":"desktop_computer",
+    "1f5a8-fe0f":"printer","1f5b1-fe0f":"computer_mouse","1f5b2-fe0f":"trackball",
+    "1f579-fe0f":"joystick","1f5dc-fe0f":"compression","1f4bd":"minidisc","1f4be":"floppy_disk",
+    "1f4bf":"cd","1f4c0":"dvd","1f4fc":"vhs","1f4f7":"camera","1f4f8":"camera_flash",
+    "1f4f9":"video_camera","1f3a5":"movie_camera","1f4fd-fe0f":"film_projector",
+    "1f39e-fe0f":"film_strip","1f4de":"telephone_receiver","260e-fe0f":"phone","1f4df":"pager",
+    "1f4e0":"fax","1f4fa":"tv","1f4fb":"radio","1f399-fe0f":"studio_microphone","1f39a-fe0f":"level_slider",
+    "1f39b-fe0f":"control_knobs","1f9ed":"compass","23f1-fe0f":"stopwatch","23f2-fe0f":"timer_clock",
+    "23f0":"alarm_clock","1f570-fe0f":"mantelpiece_clock","231b":"hourglass","23f3":"hourglass_flowing_sand",
+    "1f4e1":"satellite","1f50b":"battery","1f50c":"electric_plug","1f4a1":"bulb","1f526":"flashlight",
+    "1f56f-fe0f":"candle","1fa94":"diya_lamp","1f9ef":"fire_extinguisher","1f6e2-fe0f":"oil_drum",
+    "1f4b8":"money_with_wings","1f4b5":"dollar","1f4b4":"yen","1f4b6":"euro","1f4b7":"pound",
+    "1f4b0":"moneybag","1f4b3":"credit_card","1f48e":"gem","2696-fe0f":"balance_scale",
+    "1fa9c":"ladder","1f9f0":"toolbox","1f527":"wrench","1f528":"hammer","2692-fe0f":"hammer_and_pick",
+    "1f6e0-fe0f":"hammer_and_wrench","1f5e1-fe0f":"dagger","2694-fe0f":"crossed_swords",
+    "1f52b":"gun","1f3f9":"bow_and_arrow","1f6e1-fe0f":"shield","1fa9a":"carpentry_saw",
+    "1f529":"nut_and_bolt","2699-fe0f":"gear","1f5dc-fe0f":"clamp","2697-fe0f":"alembic",
+    "1f9ea":"test_tube","1f9eb":"petri_dish","1f9ec":"dna","1f52c":"microscope","1f52d":"telescope",
+    "1f4e1":"satellite","1f489":"syringe","1fa78":"drop_of_blood","1f48a":"pill",
+    "1fa79":"adhesive_bandage","1fa7a":"stethoscope","1f6aa":"door","1f6cf-fe0f":"bed",
+    "1f6cb-fe0f":"couch_and_lamp","1fa91":"chair","1f6bd":"toilet","1faa0":"plunger",
+    "1f6bf":"shower","1f6c1":"bathtub","1faa4":"mouse_trap","1fa92":"razor","1f9f4":"lotion_bottle",
+    "1f9f9":"broom","1f9fa":"basket","1f9fb":"roll_of_paper","1f9fc":"soap","1faa1":"bubble",
+    "1f9fd":"sponge","1f9f1":"bricks","1faa3":"bucket","1f6d2":"shopping_cart","1f6cd-fe0f":"shopping_bags",
+    "1f381":"gift","1f388":"balloon","1f38f":"flags","1f380":"ribbon","1fa84":"magic_wand",
+    "1fa81":"kite","1f52e":"crystal_ball","1f9ff":"nazar_amulet","1f3ae":"video_game",
+    "1f579-fe0f":"joystick","1f3b0":"slot_machine","1f3b2":"game_die","1f9e9":"jigsaw",
+    "1f9f8":"teddy_bear","1fa85":"pinata","1fa86":"nesting_dolls","2660-fe0f":"spades",
+    "2665-fe0f":"hearts","2666-fe0f":"diamonds","2663-fe0f":"clubs","265f-fe0f":"chess_pawn",
+    "1f0cf":"black_joker","1f004":"mahjong","1f3b4":"flower_playing_cards",
+    "1f3ad":"performing_arts","1f5bc-fe0f":"framed_picture","1f3a8":"art","1f9f5":"thread",
+    "1faa1":"sewing_needle","1f9f6":"yarn","1f3b7":"saxophone","1f3b8":"guitar","1f3b9":"musical_keyboard",
+    "1f3ba":"trumpet","1f3bb":"violin","1fa95":"banjo","1f941":"drum","1fa98":"long_drum",
+    "1f3b6":"notes","1f3b5":"musical_note","1f3bc":"musical_score","1f3a4":"microphone",
+    "1f3a7":"headphones","1f3b7":"saxophone","1f3ac":"clapper","1f3ad":"performing_arts",
+    "1f39f-fe0f":"tickets","1f3ab":"ticket","1f3aa":"circus_tent","1f3a8":"art",
+    "1f692":"fire_engine","1f693":"police_car","1f6a8":"rotating_light","1f9ef":"fire_extinguisher",
+    "1f3c1":"checkered_flag","1f6a9":"triangular_flag_on_post","1f38c":"crossed_flags",
+    "1f3f4":"waving_black_flag","1f3f3-fe0f":"waving_white_flag","1f3f3-fe0f-200d-1f308":"rainbow_flag",
+    "1f3f3-fe0f-200d-26a7-fe0f":"transgender_flag","1f3f4-200d-2620-fe0f":"pirate_flag",
+    "2764":"heart","1f9e1":"orange_heart","1f49b":"yellow_heart","1f49a":"green_heart",
+    "1f499":"blue_heart","1f49c":"purple_heart","1f5a4":"black_heart","1f90d":"white_heart",
+    "1f90e":"brown_heart","1f9e1":"orange_heart","1f3f3-fe0f":"white_flag","1f6a9":"flag",
+    "1f525":"fire","1f4a5":"collision","1f4ab":"dizzy","1f31e":"sun_with_face","1f31d":"full_moon_with_face",
+    "1f31a":"new_moon_with_face","1f31b":"first_quarter_moon_with_face","1f31c":"last_quarter_moon_with_face",
+    "1f31f":"star2","1f4ab":"dizzy","2b50":"star","1f320":"stars","2604-fe0f":"comet",
+    "1f30c":"milky_way","1f5fb":"mount_fuji","1f320":"shooting_star","2600-fe0f":"sunny",
+    "1f324-fe0f":"sun_behind_small_cloud","26c5":"partly_sunny","1f325-fe0f":"sun_behind_large_cloud",
+    "1f326-fe0f":"sun_behind_rain_cloud","1f327-fe0f":"cloud_with_rain","1f328-fe0f":"cloud_with_snow",
+    "1f329-fe0f":"cloud_with_lightning","1f32a-fe0f":"tornado","1f32b-fe0f":"fog","1f32c-fe0f":"wind_face",
+    "1f300":"cyclone","1f308":"rainbow","1f302":"closed_umbrella","2602-fe0f":"umbrella",
+    "1f6d1":"stop_sign","26a0-fe0f":"warning","1f6a7":"construction","1f300":"cyclone",
+    "1f6df":"ring_buoy","2693":"anchor","1f6a9":"triangular_flag_on_post"
+  };
+
+  /* ============================================================
+     3. RECIPES — 120 symbolic fusions
      ============================================================ */
   var RECIPES = [
     { a: "🔥", b: "❤️", out: "❤️‍🔥", name: "Heart on Fire" },
@@ -1452,7 +1691,7 @@ footer .source-links a:hover{
   })();
 
   /* ============================================================
-     3. CATEGORIES + INGREDIENTS
+     4. CATEGORIES + INGREDIENTS
      ============================================================ */
   var CATEGORIES = [
     { id: "all",     label: "✨ All" },
@@ -1565,9 +1804,9 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     4. STATE
+     5. STATE
      ============================================================ */
-  var STORE_KEY = "noto-fusion-v5";
+  var STORE_KEY = "noto-fusion-v6";
 
   var state = {
     slots: [null, null],
@@ -1587,7 +1826,8 @@ footer .source-links a:hover{
     dexFilter: "all",
     dexQuery: "",
     kitchenLoaded: false,
-    kitchenError: null
+    kitchenError: null,
+    kitchenSource: null
   };
 
   state.discovered = safeParse(localStorage.getItem(STORE_KEY), {});
@@ -1622,7 +1862,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     5. DOM
+     6. DOM
      ============================================================ */
   var reactor     = $("reactor");
   var cellA       = $("cellA");
@@ -1674,7 +1914,7 @@ footer .source-links a:hover{
   statTotal.textContent = String(RECIPES.length);
 
   /* ============================================================
-     6. AUDIO + HAPTICS
+     7. AUDIO + HAPTICS
      ============================================================ */
   var actx = null;
   function audioCtx() {
@@ -1738,7 +1978,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     7. CLIPBOARD
+     8. CLIPBOARD
      ============================================================ */
   function copyText(text, label) {
     if (!text) return;
@@ -1805,7 +2045,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     8. TOAST
+     9. TOAST
      ============================================================ */
   var toastTimer = null;
   var toastEl = null;
@@ -1824,7 +2064,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     9. TAP/HOLD
+     10. TAP/HOLD
      ============================================================ */
   function attachTapHold(container, selector, onTap, onHold) {
     var holdTimer = null;
@@ -1894,7 +2134,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     10. RENDER — reactor
+     11. RENDER — reactor
      ============================================================ */
   function renderCell(cell, emoji, size, opts) {
     opts = opts || {};
@@ -1999,7 +2239,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     11. PALETTE
+     12. PALETTE
      ============================================================ */
   function paletteItems() {
     if (state.activeCat === "custom") {
@@ -2093,7 +2333,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     12. PICKER
+     13. PICKER
      ============================================================ */
   var pickerCache = Object.create(null);
 
@@ -2196,7 +2436,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     13. DEX
+     14. DEX
      ============================================================ */
   var dexTiles = Object.create(null);
   var dexEmptyEl = null;
@@ -2369,7 +2609,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     14. WILD
+     15. WILD
      ============================================================ */
   function renderWild() {
     wildList.innerHTML = "";
@@ -2401,7 +2641,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     15. HISTORY
+     16. HISTORY
      ============================================================ */
   function pushHistory(r) {
     var top = state.history[0];
@@ -2486,17 +2726,18 @@ footer .source-links a:hover{
   });
 
   /* ============================================================
-     16. FOOTER STATS
+     17. FOOTER STATS
      ============================================================ */
   function updateFootStats() {
+    var src = state.kitchenSource ? " · " + state.kitchenSource : "";
     footStats.textContent =
       "Session: " + sessionFusions + " fusions · " +
       state.wild.length + " wild · " +
-      (state.kitchenLoaded ? "Kitchen ready" : "Kitchen loading…");
+      (state.kitchenLoaded ? "Kitchen ready" + src : "Kitchen loading…");
   }
 
   /* ============================================================
-     17. EFFECTS
+     18. EFFECTS
      ============================================================ */
   function burst(multiplier) {
     var rect = reactor.getBoundingClientRect();
@@ -2555,7 +2796,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     18. GRAPHEME EXTRACTION
+     19. GRAPHEME EXTRACTION
      ============================================================ */
   function firstGrapheme(str) {
     str = (str || "").trim();
@@ -2587,10 +2828,26 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     19. KITCHEN MODULE
+     20. KITCHEN MODULE — MULTI-SOURCE + FORMAT ADAPTER
      ============================================================ */
-  var KITCHEN_META_URL =
-    "https://raw.githubusercontent.com/xsalazar/emoji-kitchen-backend/refs/heads/main/app/metadata.json";
+  var KITCHEN_SOURCES = [
+    {
+      name: "HEX Emoji/jsDelivr",
+      url: "https://cdn.jsdelivr.net/gh/forresto/emoji-kitchen-data@main/dist/emoji-kitchen-data.json",
+      format: "forresto"
+    },
+    {
+      name: "HEX Emoji/raw",
+      url: "https://raw.githubusercontent.com/forresto/emoji-kitchen-data/main/dist/emoji-kitchen-data.json",
+      format: "forresto"
+    },
+    {
+      name: "HEX Emoji/Fusion",
+      url: "https://raw.githubusercontent.com/xsalazar/emoji-kitchen-backend/refs/heads/main/app/metadata.json",
+      format: "xsalazar"
+    }
+  ];
+
   var kitchenMeta = null;
   var kitchenMetaPromise = null;
   var kitchenComboCount = 0;
@@ -2617,27 +2874,127 @@ footer .source-links a:hover{
 
   function normalizeCp(cp) {
     if (!kitchenMeta) return cp;
-    var variants = [cp, cp.replace(/-fe0f/g, "")];
+    var variants = [cp, cp.replace(/-fe0f/g, ""), cp + "-fe0f"];
     for (var i = 0; i < variants.length; i++) {
       if (kitchenMeta.data[variants[i]]) return variants[i];
     }
     return cp;
   }
 
-  function loadKitchenMeta() {
-    if (kitchenMeta) return Promise.resolve(kitchenMeta);
-    if (kitchenMetaPromise) return kitchenMetaPromise;
+  // Convert the compressed forresto shape to the xsalazar shape
+  function adaptForresto(raw) {
+    var out = { knownSupportedEmoji: [], data: {} };
+    Object.keys(raw).forEach(function (cp) {
+      var entry = raw[cp];
+      if (!entry || !entry.emoji) return;
 
-    setKitchenStatus("loading");
+      var name = EMOJI_NAMES[cp] || entry.emoji;
+      var combos = {};
+      Object.keys(entry.combinations || {}).forEach(function (rcp) {
+        var c = entry.combinations[rcp];
+        if (!c || !c.gStaticUrl) return;
+        var rightName = EMOJI_NAMES[rcp] || cpToEmoji(rcp);
+        combos[rcp] = [{
+          gStaticUrl: c.gStaticUrl,
+          alt: (name + "-" + rightName).replace(/\s+/g, "_"),
+          leftEmoji: c.leftEmoji || entry.emoji,
+          leftEmojiCodepoint: c.leftEmojiCodepoint || cp,
+          rightEmoji: c.rightEmoji || cpToEmoji(rcp),
+          rightEmojiCodepoint: c.rightEmojiCodepoint || rcp,
+          isLatest: true
+        }];
+      });
 
-    kitchenMetaPromise = fetch(KITCHEN_META_URL, { mode: "cors", cache: "force-cache" })
-      .then(function (res) {
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return res.json();
-      })
-      .then(function (data) {
+      out.data[cp] = {
+        alt: name,
+        emoji: entry.emoji,
+        emojiCodepoint: cp,
+        keywords: [name].filter(Boolean),
+        combinations: combos
+      };
+      out.knownSupportedEmoji.push(cp);
+    });
+    return out;
+  }
+
+  function parseKitchenPayload(text, format) {
+    var raw = JSON.parse(text);
+
+    if (format === "forresto") {
+      // forresto shape is direct: { cp: { emoji, combinations } }
+      // But some versions might wrap in .data
+      if (raw && raw.data && raw.data["2615"] && raw.data["2615"].emoji) {
+        return adaptForresto(raw.data);
+      }
+      return adaptForresto(raw);
+    }
+
+    // xsalazar: { knownSupportedEmoji: [...], data: { cp: { emoji, combinations } } }
+    if (raw && raw.data && raw.knownSupportedEmoji) {
+      return raw;
+    }
+
+    // Fallback: try to adapt whatever we got
+    if (raw && raw.data) return adaptForresto(raw.data);
+    return adaptForresto(raw);
+  }
+
+  async function fetchWithTimeout(url, timeoutMs) {
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, timeoutMs || 90000);
+    try {
+      var res = await fetch(url, {
+        mode: "cors",
+        signal: controller.signal,
+        cache: "force-cache"
+      });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res;
+    } catch (e) {
+      clearTimeout(timer);
+      throw e;
+    }
+  }
+
+  async function loadFromSource(source) {
+    var res = await fetchWithTimeout(source.url, 120000);
+    var text = await res.text();
+    if (!text || text.length < 100) throw new Error("Empty response");
+    var normalized = parseKitchenPayload(text, source.format);
+    return { normalized: normalized, bytes: text.length };
+  }
+
+  function loadKitchenMeta(force) {
+    if (kitchenMeta && !force) return Promise.resolve(kitchenMeta);
+    if (kitchenMetaPromise && !force) return kitchenMetaPromise;
+
+    setKitchenStatus("loading", "Connecting…");
+    state.kitchenError = null;
+
+    var attempt = 0;
+
+    function tryNext() {
+      if (attempt >= KITCHEN_SOURCES.length) {
+        state.kitchenError = new Error("all sources failed");
+        setKitchenStatus("error", "All sources failed");
+        if (window.console) console.warn("[Kitchen] All sources exhausted");
+        return Promise.resolve(null);
+      }
+
+      var source = KITCHEN_SOURCES[attempt++];
+      setKitchenStatus("loading", "Trying " + source.name + "…");
+
+      return loadFromSource(source).then(function (result) {
+        var data = result.normalized;
+
+        if (!data || !data.data || !data.knownSupportedEmoji) {
+          throw new Error("malformed data");
+        }
+
         kitchenMeta = data;
         state.kitchenLoaded = true;
+        state.kitchenSource = source.name;
         state.kitchenError = null;
 
         var total = 0;
@@ -2652,39 +3009,52 @@ footer .source-links a:hover{
         });
         kitchenComboCount = total;
 
-        setKitchenStatus("loaded", keys.length + " emojis · " + total.toLocaleString() + " combos");
+        setKitchenStatus("loaded",
+          source.name + " · " + keys.length + " emoji · " +
+          total.toLocaleString() + " combos");
 
-        if (typeof decoratePaletteWithKitchen === "function") {
-          decoratePaletteWithKitchen();
-        }
+        try { decoratePaletteWithKitchen(); } catch (e) {}
         updateBrowseButton();
         updateFootStats();
         return data;
-      })
-      .catch(function (err) {
-        kitchenMetaPromise = null;
-        state.kitchenError = err;
-        setKitchenStatus("error", "Kitchen unavailable");
-        if (window.console) console.warn("[Kitchen] Load failed:", err);
-        return null;
+      }).catch(function (err) {
+        if (window.console) console.warn("[Kitchen] " + source.name + " failed:", err);
+        return tryNext();
       });
+    }
+
+    kitchenMetaPromise = tryNext().then(function (result) {
+      if (!result) kitchenMetaPromise = null;
+      return result;
+    });
 
     return kitchenMetaPromise;
   }
 
   function setKitchenStatus(mode, text) {
     if (!kitchenStatusEl) return;
+
     if (mode === "loading") {
       kitchenStatusEl.className = "kitchen-loading";
       kitchenStatusEl.innerHTML =
-        '<i class="fa-solid fa-spinner" aria-hidden="true"></i> Kitchen…';
+        '<i class="fa-solid fa-spinner" aria-hidden="true"></i> ' +
+        (text || "Kitchen…");
     } else if (mode === "loaded") {
       kitchenStatusEl.className = "kitchen-loaded";
-      kitchenStatusEl.innerHTML = '🍳 ' + (text || "Ready");
+      kitchenStatusEl.innerHTML = '🍳' + (text || "Ready");
     } else {
-      kitchenStatusEl.className = "kitchen-loading";
-      kitchenStatusEl.innerHTML = '⚠️ ' + (text || "Unavailable");
-      kitchenStatusEl.style.color = "#ff8a97";
+      kitchenStatusEl.className = "kitchen-error";
+      kitchenStatusEl.innerHTML =
+        '⚠️ ' + (text || "Unavailable") +
+        ' <button class="retry-btn" id="btnRetryKitchen">Retry</button>';
+
+      var retry = document.getElementById("btnRetryKitchen");
+      if (retry) {
+        retry.addEventListener("click", function () {
+          kitchenMetaPromise = null;
+          loadKitchenMeta(true);
+        });
+      }
     }
   }
 
@@ -2708,7 +3078,6 @@ footer .source-links a:hover{
     var combo = getKitchenCombo(leftCp, rightCp);
     if (combo) return { combo: combo, leftCp: leftCp, rightCp: rightCp };
 
-    // Try reverse order
     combo = getKitchenCombo(rightCp, leftCp);
     if (combo) return { combo: combo, leftCp: rightCp, rightCp: leftCp };
 
@@ -2732,7 +3101,6 @@ footer .source-links a:hover{
       if (chosen) out.push({ leftCp: cp, rightCp: rightCp, combo: chosen });
     });
 
-    // Sort by gBoardOrder
     out.sort(function (a, b) {
       return (a.combo.gBoardOrder || 0) - (b.combo.gBoardOrder || 0);
     });
@@ -2758,7 +3126,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     20. KITCHEN SEARCH
+     21. KITCHEN SEARCH
      ============================================================ */
   var searchTimer = null;
 
@@ -2810,7 +3178,8 @@ footer .source-links a:hover{
       var data = kitchenMeta.data[cp];
       if (!data) continue;
 
-      var haystack = ((data.alt || "") + " " +
+      var nameForEmoji = data.alt || EMOJI_NAMES[cp] || "";
+      var haystack = (nameForEmoji + " " +
         (data.keywords || []).join(" ") + " " +
         (data.emoji || "")).toLowerCase();
 
@@ -2884,7 +3253,7 @@ footer .source-links a:hover{
   });
 
   /* ============================================================
-     21. KITCHEN BROWSE
+     22. KITCHEN BROWSE
      ============================================================ */
   function openBrowseForEmoji(emoji) {
     if (!state.kitchenLoaded || !kitchenMeta) {
@@ -2952,7 +3321,7 @@ footer .source-links a:hover{
   });
 
   /* ============================================================
-     22. GAME LOGIC
+     23. GAME LOGIC
      ============================================================ */
   var autoTimer = null;
 
@@ -3023,7 +3392,6 @@ footer .source-links a:hover{
       var hit = findKitchenCombo(a, b);
 
       if (hit) {
-        // === REAL EMBED KITCHEN COMBO ===
         var combo = hit.combo;
         var url = combo.gStaticUrl;
 
@@ -3048,8 +3416,7 @@ footer .source-links a:hover{
         setStatus("🍳 " + a + " + " + b + " — " + (combo.alt || "kitchen combo"), "kitchen");
 
         btnCopyEq.hidden = false;
-        btnCopyEq.innerHTML =
-          '<i class="fa-solid fa-image" aria-hidden="true"></i> Copy image';
+        btnCopyEq.innerHTML = '<i class="fa-solid fa-image" aria-hidden="true"></i> Copy image';
         btnDownloadImg.hidden = false;
         btnChain.hidden = true;
 
@@ -3061,7 +3428,6 @@ footer .source-links a:hover{
         return;
       }
 
-      // === SYMBOLIC / WILD FALLBACK ===
       var official = lookup(a, b);
       var r = official || synthFusion(a, b);
 
@@ -3152,7 +3518,6 @@ footer .source-links a:hover{
   function randomize() {
     if (state.busy) return;
 
-    // Prefer real Kitchen combos if loaded
     if (state.kitchenLoaded && kitchenMeta) {
       var keys = Object.keys(kitchenMeta.data);
       if (keys.length) {
@@ -3172,7 +3537,6 @@ footer .source-links a:hover{
       }
     }
 
-    // Fallback
     var pool = INGREDIENTS.concat(
       state.customEmoji.map(function (e) { return { e: e }; })
     );
@@ -3255,7 +3619,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     23. WIRING
+     24. WIRING
      ============================================================ */
   attachTapHold(
     paletteEl, ".ing",
@@ -3387,7 +3751,7 @@ footer .source-links a:hover{
   });
 
   /* ============================================================
-     24. BOOT
+     25. BOOT
      ============================================================ */
   buildChips();
   buildPalette();
@@ -3398,7 +3762,6 @@ footer .source-links a:hover{
   updateCustomBadge();
   updateFootStats();
 
-  // Kick off Kitchen metadata load in the background
   loadKitchenMeta();
 
   setTimeout(function () {
@@ -3413,10 +3776,10 @@ footer .source-links a:hover{
     }
   }, 500);
 
-  /* console helper */
   window.NotoFusion = {
     state: state,
     recipes: RECIPES,
+    emojiNames: EMOJI_NAMES,
     lookup: lookup,
     synthFusion: synthFusion,
     fuse: fuse,
@@ -3457,12 +3820,11 @@ document.addEventListener('contextmenu', function(e) {
 document.onkeydown = function(e) {
   var el = e.target || e.srcElement;
   var inInput = el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
-  if (inInput) return; // Never block typing/pasting in inputs
-
+  if (inInput) return;
   var kc = e.keyCode;
-  if (kc === 123) return false; // F12
+  if (kc === 123) return false;
   if (e.ctrlKey && e.shiftKey && (kc === 73 || kc === 74 || kc === 67)) return false;
-  if (e.ctrlKey && kc === 85) return false; // Ctrl+U
+  if (e.ctrlKey && kc === 85) return false;
   return true;
 };
 </script>
