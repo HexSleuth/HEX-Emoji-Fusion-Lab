@@ -12,7 +12,7 @@
 
 </div>
 
-Welcome to the **HEX Emoji Fusion Lab × Kitchen**—an advanced, highly immersive web experiment that interfaces with the **Google Emoji Kitchen** ecosystem. Mix, match, search, and discover hundreds of unique custom emoji mashups right in your browser with zero bloat!
+Welcome to the **HEX Emoji Fusion Lab**—an advanced, highly immersive web experiment that interfaces with the **Google Emoji Kitchen** ecosystem. Mix, match, search, and discover hundreds of unique custom emoji mashups right in your browser with zero bloat!
 
 🌐 **[Experience the Live Demo Here](https://hexsleuth.github.io/HEX-Emoji-Fusion-Lab/)**
 
