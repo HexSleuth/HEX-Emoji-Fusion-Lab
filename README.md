@@ -1,4 +1,4 @@
-# 🧪 HEX Emoji Fusion Lab × Kitchen 🍳
+# 🧪 HEX Emoji Fusion Lab 🍳
 
 <div align="center">
 
