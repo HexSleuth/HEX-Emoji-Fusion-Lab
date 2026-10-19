@@ -1,8 +1,21 @@
 # 🧪 HEX Emoji Fusion Lab × Kitchen 🍳
+
+<div align="center">
+
 ![GitHub Pages](https://img.shields.io/badge/Hosted-GitHub_Pages-success?style=for-the-badge&logo=github)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)
-Welcome to the **HEX Emoji Fusion Lab × Kitchen**! This interactive web experiment allows you to mix and match emojis to discover unique, delightful, and sometimes bizarre "Real Emoji Kitchen" combinations right in your browser. 
-🌐 **[Live Demo](https://hexsleuth.github.io/HEX-Emoji-Fusion-Lab/)**
+![License](https://img.shields.io/github/license/hexsleuth/HEX-Emoji-Fusion-Lab?style=for-the-badge&color=blue)
+![GitHub last commit](https://img.shields.io/github/last-commit/hexsleuth/HEX-Emoji-Fusion-Lab?style=for-the-badge)
+![GitHub repo size](https://img.shields.io/github/repo-size/hexsleuth/HEX-Emoji-Fusion-Lab?style=for-the-badge)
+![GitHub stars](https://img.shields.io/github/stars/hexsleuth/HEX-Emoji-Fusion-Lab?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/hexsleuth/HEX-Emoji-Fusion-Lab?style=for-the-badge)
+
+</div>
+
+Welcome to the **HEX Emoji Fusion Lab × Kitchen**—an advanced, highly immersive web experiment that interfaces with the **Google Emoji Kitchen** ecosystem. Mix, match, search, and discover hundreds of unique custom emoji mashups right in your browser with zero bloat!
+
+🌐 **[Experience the Live Demo Here](https://hexsleuth.github.io/HEX-Emoji-Fusion-Lab/)**
+
 ---
 ## ✨ Features
 - **🧬 Emoji Fusion Reactor**: Combine *Ingredient A* and *Ingredient B* to reveal official Emoji Kitchen creations.
