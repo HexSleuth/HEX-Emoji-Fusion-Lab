@@ -472,6 +472,7 @@ main{ max-width:900px; margin:0 auto; }
   color:var(--muted);
   display:flex; align-items:center; gap:8px; flex-wrap:wrap;
 }
+.panel h2 > i:first-child{ color:var(--acc); }
 
 .badge{
   font-size:11px; letter-spacing:.03em;
@@ -497,9 +498,11 @@ main{ max-width:900px; margin:0 auto; }
   color:var(--txt-2);
   box-shadow:0 2px 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08);
   transition:transform .1s ease,box-shadow .1s ease,color .2s ease;
+  display:inline-flex; align-items:center; gap:5px;
 }
 .mini-btn:active{transform:translateY(2px);box-shadow:0 0 0 rgba(0,0,0,.35)}
 .mini-btn.danger{color:#ff8a97;border-color:rgba(255,92,108,.4)}
+.mini-btn i{ font-size:10px; }
 
 .chips{
   display:flex; gap:8px;
@@ -537,9 +540,7 @@ main{ max-width:900px; margin:0 auto; }
   50%    { transform:scale(1.08); }
 }
 
-/* ============================================================
-   EMOJI SOURCE STYLE SELECTOR
-   ============================================================ */
+/* EMOJI SOURCE STYLE SELECTOR */
 .source-chips{
   display:flex; gap:7px;
   overflow-x:auto;
@@ -1035,6 +1036,351 @@ footer .source-links a:hover{
     transition-duration:.001s !important;
   }
 }
+
+/* ============================================================
+   IMAGE → EMOJI CONVERTER  +  AI BG REMOVER
+   ============================================================ */
+.img-conv-drop{
+  position:relative;
+  border:2px dashed var(--border-hi);
+  border-radius:16px;
+  padding:28px 20px;
+  text-align:center;
+  cursor:pointer;
+  transition: border-color .2s ease, background .2s ease;
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  min-height:110px; justify-content:center;
+}
+.img-conv-drop:hover, .img-conv-drop.drag{
+  border-color:var(--acc);
+  background:rgba(124,92,255,.06);
+}
+.img-conv-drop > i:first-child{
+  font-size:32px; color:var(--acc); margin-bottom:2px;
+}
+.img-conv-drop p{ color:var(--muted); font-size:13px; }
+.img-conv-drop small{ color:rgba(255,255,255,.3); font-size:11px; }
+.img-conv-drop img{
+  max-width:100%; max-height:170px; border-radius:10px;
+  box-shadow:0 6px 20px rgba(0,0,0,.5);
+  margin-bottom:6px;
+  background-color: #0a0c14;
+  background-image:
+    linear-gradient(45deg, #161b2c 25%, transparent 25%),
+    linear-gradient(-45deg, #161b2c 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #161b2c 75%),
+    linear-gradient(-45deg, transparent 75%, #161b2c 75%);
+  background-size: 14px 14px;
+  background-position: 0 0, 0 7px, 7px -7px, -7px 0px;
+}
+.img-conv-drop .change-hint{
+  font-size:11px; color:var(--muted); margin-top:4px;
+}
+
+.img-conv-controls{
+  display:flex; gap:14px; flex-wrap:wrap;
+  margin-top:14px;
+}
+.img-conv-controls label{
+  flex:1 1 180px;
+  display:flex; flex-direction:column; gap:5px;
+  font-size:12px; color:var(--muted); font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase;
+}
+.img-conv-controls label > span:first-child{
+  display:inline-flex; align-items:center;
+}
+.img-conv-controls label > span:first-child i{
+  color:var(--acc); margin-right:6px; font-size:11px;
+}
+.img-conv-controls input[type="range"]{
+  width:100%; height:24px;
+  accent-color: var(--acc);
+  background:transparent;
+}
+.img-conv-controls .range-val{
+  font-size:12px; color:var(--txt-2); font-weight:700;
+  text-transform:none; letter-spacing:0;
+}
+.img-conv-controls select{
+  padding:9px 11px; border-radius:10px;
+  border:1px solid var(--border-hi);
+  background:linear-gradient(180deg,var(--card-hi),var(--card));
+  color:var(--txt); font-size:13px; font-family:inherit;
+  outline:none; cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 2px 0 rgba(0,0,0,.35);
+}
+.img-conv-controls select:focus{ border-color:var(--acc); }
+
+/* BG Remover block */
+.bg-remover{
+  margin-top:14px;
+  padding:14px;
+  border-radius:14px;
+  background:
+    linear-gradient(180deg, rgba(124,92,255,.10), rgba(124,92,255,.02));
+  border:1px solid rgba(124,92,255,.32);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 2px 0 rgba(0,0,0,.35);
+}
+.bg-remover-head{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; flex-wrap:wrap;
+}
+.bg-remover-title{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:12.5px; font-weight:800;
+  letter-spacing:.06em; text-transform:uppercase;
+  color:#b9a6ff;
+}
+.bg-remover-title i{ color:var(--acc); font-size:13px; }
+.bg-remover-badge{
+  font-size:10px; font-weight:800;
+  padding:2px 8px; border-radius:999px;
+  background:rgba(46,230,168,.14);
+  color:var(--ok);
+  border:1px solid rgba(46,230,168,.34);
+  letter-spacing:.04em;
+}
+.bg-remover-badge.pending{
+  background:rgba(255,184,77,.14);
+  color:var(--warn);
+  border-color:rgba(255,184,77,.34);
+}
+.bg-remover-badge.error{
+  background:rgba(255,138,151,.14);
+  color:var(--err);
+  border-color:rgba(255,138,151,.34);
+}
+.bg-remover-badge.working{
+  background:rgba(92,200,255,.14);
+  color:#5cc8ff;
+  border-color:rgba(92,200,255,.34);
+}
+
+.bg-remover-actions{
+  display:flex; gap:8px; flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.bg-btn{
+  display:inline-flex; align-items:center; gap:7px;
+  padding:10px 16px; border-radius:12px;
+  font-size:13px; font-weight:700;
+  cursor:pointer; font-family:inherit;
+  border:1px solid rgba(124,92,255,.45);
+  background:linear-gradient(180deg, #8f6fff, #6b46ff);
+  color:#fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    0 3px 0 #3d1a8c,
+    0 6px 16px -4px rgba(124,92,255,.5);
+  transition: transform .1s ease, box-shadow .1s ease, filter .2s ease;
+  min-height:40px;
+}
+.bg-btn:hover{ filter:brightness(1.08); }
+.bg-btn:active{
+  transform:translateY(3px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    0 0 0 #3d1a8c,
+    0 2px 6px rgba(0,0,0,.4);
+}
+.bg-btn[disabled]{
+  opacity:.45; pointer-events:none;
+  filter:grayscale(.5);
+}
+.bg-btn.secondary{
+  border-color: var(--border-hi);
+  background:linear-gradient(180deg, #2a3048, #1a1f30);
+  color:var(--txt);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 3px 0 var(--btn-depth),
+    0 6px 14px -6px rgba(0,0,0,.7);
+}
+.bg-btn.success{
+  border-color: rgba(46,230,168,.5);
+  background:linear-gradient(180deg, #2ee6a8, #14a97a);
+  color:#04120c;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.3),
+    0 3px 0 #0a3a2a,
+    0 6px 16px -4px rgba(46,230,168,.5);
+}
+.bg-btn.success:active{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.3),
+    0 0 0 #0a3a2a,
+    0 2px 6px rgba(0,0,0,.4);
+}
+
+.bg-progress{
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:rgba(0,0,0,.35);
+  border:1px solid var(--border);
+  font-size:12px;
+  color:var(--txt-2);
+  display:flex; flex-direction:column; gap:8px;
+}
+.bg-progress[hidden]{ display:none; }
+.bg-progress-row{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.bg-progress-label{
+  display:inline-flex; align-items:center; gap:7px;
+  min-width:0; flex:1 1 auto;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.bg-progress-label i{ color:var(--acc); font-size:12px; flex-shrink:0; }
+.bg-progress-label span{
+  overflow:hidden; text-overflow:ellipsis;
+}
+.bg-progress-pct{
+  font-variant-numeric:tabular-nums;
+  color:var(--txt); font-weight:800;
+  flex-shrink:0;
+}
+.bg-progress-bar{
+  height:6px; border-radius:999px;
+  background:rgba(255,255,255,.08);
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+.bg-progress-fill{
+  height:100%; width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg, #8f6fff, #5cc8ff, #2ee6a8);
+  transition:width .25s ease;
+  will-change:width;
+}
+.bg-info{
+  margin-top:8px;
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.5;
+}
+.bg-info b{ color:var(--txt-2); }
+.bg-info code{
+  font-size:10.5px;
+  padding:1px 5px;
+  border-radius:4px;
+  background:rgba(255,255,255,.06);
+  color:var(--txt-2);
+}
+.bg-engine-tag{
+  display:inline-flex; align-items:center; gap:5px;
+  padding:2px 8px; border-radius:999px;
+  font-size:10px; font-weight:800;
+  background:rgba(46,230,168,.15);
+  color:var(--ok);
+  border:1px solid rgba(46,230,168,.35);
+  margin-left:6px;
+  letter-spacing:.03em;
+}
+.bg-engine-tag.fallback{
+  background:rgba(255,184,77,.15);
+  color:var(--warn);
+  border-color:rgba(255,184,77,.35);
+}
+
+.bg-compare{
+  margin-top:10px;
+  display:flex; gap:6px;
+  padding:4px;
+  border-radius:10px;
+  background:rgba(0,0,0,.35);
+  border:1px solid var(--border);
+  width:max-content;
+  max-width:100%;
+}
+.bg-compare[hidden]{ display:none; }
+.bg-compare button{
+  padding:6px 12px;
+  border-radius:8px;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  font-size:12px; font-weight:700;
+  cursor:pointer;
+  font-family:inherit;
+  display:inline-flex; align-items:center; gap:5px;
+  transition: background .15s ease, color .15s ease;
+}
+.bg-compare button.active{
+  background:rgba(124,92,255,.25);
+  color:#fff;
+}
+.bg-compare button i{ font-size:11px; }
+
+.img-conv-output-wrap{
+  margin-top:14px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  overflow:auto;
+  max-height:62vh;
+  min-height:60px;
+  display:flex; align-items:center; justify-content:center;
+  padding:10px;
+  scrollbar-width:thin;
+  background-color: #0a0c14;
+  background-image:
+    linear-gradient(45deg, #161b2c 25%, transparent 25%),
+    linear-gradient(-45deg, #161b2c 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #161b2c 75%),
+    linear-gradient(-45deg, transparent 75%, #161b2c 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+.img-conv-output-wrap::-webkit-scrollbar{ width:6px; height:6px; }
+.img-conv-output-wrap::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.15); border-radius:3px; }
+
+.img-conv-output{
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji',
+               'EmojiOne Color', 'Android Emoji', 'Twemoji Mozilla', sans-serif;
+  text-align:center;
+  white-space:nowrap;
+  line-height:1;
+  user-select:text;
+  -webkit-user-select:text;
+  contain: content;
+  background: transparent;
+}
+.img-conv-output .cell-emoji{
+  display:inline-block;
+  text-align:center;
+  vertical-align:top;
+  overflow:hidden;
+  line-height:1;
+  text-rendering:optimizeLegibility;
+}
+.img-conv-empty{
+  color:rgba(255,255,255,.35);
+  font-size:13px;
+  text-align:center;
+  padding:8px 0;
+  width:100%;
+}
+
+.img-conv-actions{
+  display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+  margin-top:12px;
+}
+.img-conv-actions .copy-eq{ display:inline-flex !important; }
+.img-conv-actions .copy-eq[disabled]{ opacity:.4; pointer-events:none; }
+
+.img-conv-info{
+  margin-top:10px;
+  font-size:11.5px;
+  color:var(--muted);
+  text-align:center;
+  line-height:1.5;
+}
+.img-conv-info b{ color:var(--txt-2); }
 </style>
 </head>
 <body>
@@ -1044,7 +1390,7 @@ footer .source-links a:hover{
   <p class="sub">Tap any emoji to copy · <b>Real Emoji Fusion</b> combos load in the background 🍳</p>
 
   <div class="stats">
-    <i class="fa-solid fa-trophy stat-icon" aria-hidden="true"></i>
+    <i class="fa-solid fa-trophy-star stat-icon" aria-hidden="true"></i>
     <span><b id="statCount">0</b> / <span id="statTotal">120</span> discovered</span>
     <span class="stat-divider" aria-hidden="true"></span>
     <span id="kitchenStatus" class="kitchen-loading">
@@ -1083,10 +1429,10 @@ footer .source-links a:hover{
       <i class="fa-solid fa-copy" aria-hidden="true"></i> Copy fusion
     </button>
     <button class="copy-eq chain" id="btnChain" hidden>
-      <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Chain
+      <i class="fa-solid fa-link" aria-hidden="true"></i> Chain
     </button>
     <button class="copy-eq kitchen-btn" id="btnDownloadImg" hidden>
-      <i class="fa-solid fa-download" aria-hidden="true"></i> Download
+      <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i> Download
     </button>
     <button class="copy-eq kitchen-btn" id="btnBrowseCombos" hidden>
       <i class="fa-solid fa-utensils" aria-hidden="true"></i> Browse combos
@@ -1095,13 +1441,13 @@ footer .source-links a:hover{
 
   <div class="action-bar">
     <button class="btn primary" id="btnFuse">
-      <i class="fa-solid fa-bolt" aria-hidden="true"></i> <span class="lbl">Fuse</span>
+      <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> <span class="lbl">Fuse</span>
     </button>
     <button class="btn" id="btnRandom">
-      <i class="fa-solid fa-dice" aria-hidden="true"></i> <span class="lbl">Random</span>
+      <i class="fa-solid fa-shuffle" aria-hidden="true"></i> <span class="lbl">Random</span>
     </button>
     <button class="btn" id="btnClear">
-      <i class="fa-solid fa-broom" aria-hidden="true"></i> <span class="lbl">Clear</span>
+      <i class="fa-solid fa-eraser" aria-hidden="true"></i> <span class="lbl">Clear</span>
     </button>
   </div>
 
@@ -1135,7 +1481,7 @@ footer .source-links a:hover{
       <i class="fa-solid fa-utensils" aria-hidden="true"></i>
       HEX Emoji Combos
       <span class="badge kitchen" id="kitchenBrowseBadge">0</span>
-      <button class="mini-btn" id="btnCloseBrowse">Close</button>
+      <button class="mini-btn" id="btnCloseBrowse"><i class="fa-solid fa-xmark"></i> Close</button>
     </h2>
     <p id="kitchenBrowseTitle" style="color:var(--muted);font-size:13px;margin-bottom:12px;">
       Pick an emoji in slot A, then click Browse.
@@ -1162,12 +1508,121 @@ footer .source-links a:hover{
     </div>
   </section>
 
+  <!-- IMAGE → TRANSPARENT EMOJI CONVERTER  +  AI BACKGROUND REMOVER -->
+  <section class="panel" id="imgConvertPanel" aria-label="Image to emoji converter">
+    <h2>
+      <i class="fa-solid fa-wand-sparkles" aria-hidden="true"></i>
+      Image → Transparent Emoji Converter
+      <span class="badge purple">upload · AI cutout · convert</span>
+    </h2>
+
+    <div class="img-conv-drop" id="imgDrop" tabindex="0" role="button"
+         aria-label="Choose, drop, or paste an image">
+      <i class="fa-solid fa-file-image" aria-hidden="true"></i>
+      <p>Tap / drop / paste an image</p>
+      <small>Any format supported by your browser · processed locally</small>
+    </div>
+    <input type="file" id="imgFile" accept="image/*" hidden />
+
+    <div class="img-conv-controls">
+      <label for="imgRes">
+        <span><i class="fa-solid fa-grip-lines"></i> Resolution</span>
+        <span class="range-val" id="imgResLabel">40 emoji wide</span>
+        <input type="range" id="imgRes" min="12" max="96" step="2" value="40" />
+      </label>
+      <label for="imgMode">
+        <span><i class="fa-solid fa-swatchbook"></i> Emoji palette</span>
+        <select id="imgMode">
+          <option value="color" selected>🎨 Color match</option>
+          <option value="discovered">⭐ Discovered results</option>
+          <option value="kitchen">🍳 Kitchen emoji</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- AI BACKGROUND REMOVER -->
+    <div class="bg-remover" id="bgRemover">
+      <div class="bg-remover-head">
+        <div class="bg-remover-title">
+          <i class="fa-solid fa-brain" aria-hidden="true"></i>
+          AI Background Remover
+        </div>
+        <span class="bg-remover-badge" id="bgBadge">free · no API key</span>
+      </div>
+
+      <div class="bg-remover-actions">
+        <button class="bg-btn" id="btnRemoveBg" type="button" disabled>
+          <i class="fa-solid fa-wand-sparkles" aria-hidden="true"></i>
+          Remove Background
+        </button>
+        <button class="bg-btn secondary" id="btnResetBg" type="button" hidden>
+          <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+          Restore Original
+        </button>
+      </div>
+
+      <div class="bg-progress" id="bgProgress" hidden>
+        <div class="bg-progress-row">
+          <div class="bg-progress-label">
+            <i class="fa-solid fa-gear fa-spin" id="bgProgressIcon" aria-hidden="true"></i>
+            <span id="bgProgressText">Preparing…</span>
+          </div>
+          <div class="bg-progress-pct" id="bgProgressPct">0%</div>
+        </div>
+        <div class="bg-progress-bar">
+          <div class="bg-progress-fill" id="bgProgressFill"></div>
+        </div>
+      </div>
+
+      <div class="bg-compare" id="bgCompare" hidden>
+        <button type="button" data-mode="original">
+          <i class="fa-solid fa-image"></i> Original
+        </button>
+        <button type="button" data-mode="processed" class="active">
+          <i class="fa-solid fa-wand-sparkles"></i> Cutout
+        </button>
+      </div>
+
+      <p class="bg-info">
+        Tries AI model <code>@imgly/background-removal</code> first (downloaded once from
+        jsDelivr, cached by the browser). If the model can't load, falls back to a
+        contour flood-fill chroma key — still produces a transparent PNG.
+        No account, no API key, all processing on-device.
+      </p>
+    </div>
+
+    <div class="img-conv-output-wrap">
+      <div class="img-conv-output" id="imgOutput">
+        <div class="img-conv-empty">Upload an image to see the emoji mosaic ✨</div>
+      </div>
+    </div>
+
+    <div class="img-conv-actions">
+      <button class="copy-eq" id="btnCopyMosaic" type="button" disabled>
+        <i class="fa-solid fa-copy" aria-hidden="true"></i> Copy mosaic
+      </button>
+      <button class="copy-eq kitchen-btn" id="btnDownloadMosaic" type="button" disabled>
+        <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i> Download PNG
+      </button>
+      <button class="copy-eq chain" id="btnResetMosaic" type="button" disabled>
+        <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset
+      </button>
+    </div>
+
+    <p class="img-conv-info">
+      Each pixel becomes the closest color-matching emoji. Transparent pixels
+      from the cutout stay <b>transparent</b> in the mosaic and in the PNG — the
+      checkerboard shows what will be see-through. <b>Tip:</b> lower resolution
+      for a chunkier look, higher for detail.
+    </p>
+  </section>
+
   <section class="panel" aria-label="Discoveries">
     <h2>
       Discoveries
       <span class="badge" id="dexBadge">0 / 120</span>
-      <button class="mini-btn" id="btnHint">💡 Hint</button>
-      <button class="mini-btn danger" id="btnResetDex">Reset</button>
+      <button class="mini-btn" id="btnHint"><i class="fa-solid fa-lightbulb"></i> Hint</button>
+      <button class="mini-btn danger" id="btnResetDex"><i class="fa-solid fa-trash-can"></i> Reset</button>
     </h2>
     <div class="dex-tools">
       <input id="dexSearch" class="dex-search" type="search"
@@ -1221,16 +1676,6 @@ footer .source-links a:hover{
 
   /* ============================================================
      1. MULTI-SOURCE EMOJI PROVIDERS
-     ------------------------------------------------------------
-     Sources (all publicly hotlinkable / CDN-backed):
-       - Noto Animated      → googlefonts.github.io/noto-emoji-animation
-                              (animated WebP/GIF via fonts.gstatic.com)
-       - Emojiall platform  → emojiall.com platform-animation
-                              (skype / facebook / whatsapp / telegram GIFs)
-       - Twemoji            → jsDelivr CDN (flat SVG, same as emojiterra)
-       - OpenMoji           → jsDelivr CDN (outline/color SVG)
-       - JoyPixels          → jsDelivr CDN (WhatsApp-inspired PNG)
-       - System             → OS emoji font (built-in)
      ============================================================ */
   var PX_SMALL = 72;
   var PX_LARGE = 512;
@@ -1348,7 +1793,7 @@ footer .source-links a:hover{
       }
 
       case "system":
-        return []; // text fallback only
+        return [];
 
       case "auto":
       default: {
@@ -1357,14 +1802,14 @@ footer .source-links a:hover{
         var om2 = openmojiCode(emoji);
         var jp2 = notoCodes(emoji)[0];
         return dedupe([]
-          .concat(notoBase("webp", px))       // Noto animated (primary)
-          .concat(notoBase("gif", px))        // Noto animated gif
-          .concat([                            // Emojiall platform animations
+          .concat(notoBase("webp", px))
+          .concat(notoBase("gif", px))
+          .concat([
             "https://www.emojiall.com/images/animations/skype/" + emCode + ".gif",
             "https://www.emojiall.com/images/animations/facebook/" + emCode + ".gif"
           ])
-          .concat(notoBase("png", staticPx))  // Noto static
-          .concat([                            // Twemoji / OpenMoji / JoyPixels
+          .concat(notoBase("png", staticPx))
+          .concat([
             "https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/" + tw2 + ".svg",
             "https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@latest/color/svg/" + om2 + ".svg",
             "https://cdn.jsdelivr.net/joypixels/assets/png/unicode/64/" + jp2 + ".png"
@@ -1374,7 +1819,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     2. EMOJI LOADER — multi-source, memoized, throttled
+     2. EMOJI LOADER
      ============================================================ */
   var memo     = Object.create(null);
   var inflight = Object.create(null);
@@ -1543,7 +1988,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     3. EMOJI NAME MAP (for search)
+     3. EMOJI NAME MAP
      ============================================================ */
   var EMOJI_NAMES = {
     "1f525":"fire","2764-fe0f":"heart","2b50":"star","1f31f":"star2","1f4a5":"boom","1f4a2":"anger",
@@ -2255,7 +2700,7 @@ footer .source-links a:hover{
   }
 
   /* ============================================================
-     10. DOWNLOAD — same-origin blob
+     10. DOWNLOAD
      ============================================================ */
   async function downloadImage(url, filename) {
     if (!url) { toast("Nothing to download"); return; }
@@ -2576,7 +3021,6 @@ footer .source-links a:hover{
 
     try { localStorage.setItem(STORE_KEY + ":source", id); } catch (e) {}
 
-    // Invalidate memo so every visible emoji re-loads from new source
     memo = Object.create(null);
     inflight = Object.create(null);
 
@@ -2585,7 +3029,6 @@ footer .source-links a:hover{
     if (state.pickerOpen) buildPickerGrid();
     renderSlots();
 
-    // Re-render result cell if it exists
     if (state.resultIsKitchen && state.kitchenCombo) {
       cellR.innerHTML = "";
       cellR.classList.add("filled", "kitchen-result");
@@ -2683,7 +3126,6 @@ footer .source-links a:hover{
       nodes = paletteItems().map(createIngredientButton);
       paletteCache[catId] = nodes;
     } else {
-      // Rebuild emoji content so the new source is reflected
       nodes.forEach(function (b) {
         b.dataset.mounted = "0";
         b.textContent = b.dataset.emoji;
@@ -2798,7 +3240,6 @@ footer .source-links a:hover{
       return;
     }
 
-    // Refresh any already-mounted nodes so the new source is reflected
     nodes.forEach(function (b) {
       if (b.dataset.mounted === "1") {
         b.dataset.mounted = "0";
@@ -4218,6 +4659,866 @@ document.onkeydown = function(e) {
   if (e.ctrlKey && kc === 85) return false;
   return true;
 };
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     IMAGE → TRANSPARENT EMOJI MOSAIC  +  AI BG REMOVER (FIXED)
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  "use strict";
+
+  var panel = document.getElementById("imgConvertPanel");
+  if (!panel) return;
+
+  var dropEl       = document.getElementById("imgDrop");
+  var fileEl       = document.getElementById("imgFile");
+  var resEl        = document.getElementById("imgRes");
+  var resLabel     = document.getElementById("imgResLabel");
+  var modeEl       = document.getElementById("imgMode");
+  var outputEl     = document.getElementById("imgOutput");
+  var btnCopy      = document.getElementById("btnCopyMosaic");
+  var btnDownload  = document.getElementById("btnDownloadMosaic");
+  var btnReset     = document.getElementById("btnResetMosaic");
+
+  // BG remover UI
+  var btnRemoveBg  = document.getElementById("btnRemoveBg");
+  var btnResetBg   = document.getElementById("btnResetBg");
+  var bgBadge      = document.getElementById("bgBadge");
+  var bgProgress   = document.getElementById("bgProgress");
+  var bgProgressIcon = document.getElementById("bgProgressIcon");
+  var bgProgressText = document.getElementById("bgProgressText");
+  var bgProgressPct  = document.getElementById("bgProgressPct");
+  var bgProgressFill = document.getElementById("bgProgressFill");
+  var bgCompare    = document.getElementById("bgCompare");
+
+  /* ---- Emoji color palette ---- */
+  var EMOJI_PALETTE = [
+    { e: "⚫", c: [ 25,  25,  30] },
+    { e: "🌑", c: [ 60,  60,  70] },
+    { e: "⚪", c: [245, 245, 245] },
+    { e: "☁️", c: [230, 235, 240] },
+    { e: "🐘", c: [150, 150, 160] },
+    { e: "🪨", c: [140, 140, 140] },
+    { e: "🔴", c: [220,  30,  40] },
+    { e: "🍎", c: [210,  50,  50] },
+    { e: "🍅", c: [230,  50,  40] },
+    { e: "❤️", c: [230,  30,  60] },
+    { e: "🌹", c: [190,  30,  60] },
+    { e: "🍓", c: [220,  30,  70] },
+    { e: "🍒", c: [180,  20,  40] },
+    { e: "🟠", c: [245, 145,  30] },
+    { e: "🍊", c: [245, 150,  30] },
+    { e: "🥕", c: [240, 130,  50] },
+    { e: "🍑", c: [250, 180, 140] },
+    { e: "🐪", c: [200, 160, 100] },
+    { e: "🟡", c: [250, 220,  40] },
+    { e: "🌟", c: [255, 220,  60] },
+    { e: "🌻", c: [250, 200,  40] },
+    { e: "🍋", c: [250, 230,  50] },
+    { e: "🌽", c: [245, 210,  60] },
+    { e: "🍌", c: [250, 220,  80] },
+    { e: "🌞", c: [255, 200,  70] },
+    { e: "🟢", c: [ 60, 180,  75] },
+    { e: "🥦", c: [ 70, 140,  60] },
+    { e: "🌿", c: [ 90, 160,  70] },
+    { e: "🍀", c: [ 80, 170,  60] },
+    { e: "🌱", c: [120, 190,  80] },
+    { e: "🥝", c: [140, 180,  60] },
+    { e: "🥒", c: [100, 160,  80] },
+    { e: "🍏", c: [140, 200,  60] },
+    { e: "🔵", c: [ 30, 100, 220] },
+    { e: "💧", c: [ 90, 180, 240] },
+    { e: "🌊", c: [ 50, 130, 200] },
+    { e: "🧊", c: [180, 220, 240] },
+    { e: "🫐", c: [ 60,  70, 150] },
+    { e: "❄️", c: [200, 230, 250] },
+    { e: "🌐", c: [ 60, 130, 220] },
+    { e: "🟣", c: [145,  60, 200] },
+    { e: "🍇", c: [110,  60, 150] },
+    { e: "💜", c: [160,  80, 200] },
+    { e: "🌂", c: [140,  60, 180] },
+    { e: "🌸", c: [250, 200, 220] },
+    { e: "🐷", c: [250, 180, 190] },
+    { e: "💖", c: [255, 130, 180] },
+    { e: "🌷", c: [230, 100, 160] },
+    { e: "🍥", c: [250, 190, 200] },
+    { e: "🟤", c: [125,  80,  40] },
+    { e: "🐻", c: [130,  85,  50] },
+    { e: "☕", c: [ 90,  60,  40] },
+    { e: "🍫", c: [ 90,  55,  35] },
+    { e: "🪵", c: [140, 100,  70] },
+    { e: "🥔", c: [190, 160, 110] },
+    { e: "🍞", c: [220, 180, 130] }
+  ];
+
+  /* ---- State ---- */
+  var currentImage   = null;
+  var originalImage  = null;
+  var currentGrid    = null;
+  var rafPending     = false;
+  var bgRemoverFn    = null;   // resolved removeBackground function
+  var bgRemoverLoad  = null;   // in-flight loader promise
+  var bgRemoverName  = null;   // which CDN strategy succeeded
+  var lastBgBlob     = null;
+  var lastBgEngine   = null;   // "ai" | "flood"
+  var currentViewMode = "processed";
+
+  /* ---- Local toast ---- */
+  var _toastEl = null, _toastTimer = null;
+  function toast(msg) {
+    if (!_toastEl) {
+      _toastEl = document.createElement("div");
+      _toastEl.className = "toast";
+      _toastEl.id = "imgConvToast";
+      document.body.appendChild(_toastEl);
+    }
+    _toastEl.textContent = msg;
+    void _toastEl.offsetWidth;
+    _toastEl.classList.add("show");
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(function () {
+      _toastEl.classList.remove("show");
+    }, 2400);
+  }
+
+  /* ---- Color distance ---- */
+  function distSq(r1, g1, b1, r2, g2, b2) {
+    var dr = r1 - r2, dg = g1 - g2, db = b1 - b2;
+    return dr * dr + dg * dg + db * db;
+  }
+
+  function nearestEmoji(r, g, b) {
+    var best = EMOJI_PALETTE[0];
+    var bestD = Infinity;
+    for (var i = 0; i < EMOJI_PALETTE.length; i++) {
+      var p = EMOJI_PALETTE[i];
+      var d = distSq(r, g, b, p.c[0], p.c[1], p.c[2]);
+      if (d < bestD) { bestD = d; best = p; }
+    }
+    return best.e;
+  }
+
+  /* ---- File handling ---- */
+  function handleFile(file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type)) {
+      toast("Not an image file");
+      return;
+    }
+
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function () {
+      URL.revokeObjectURL(url);
+      originalImage = img;
+      currentImage = img;
+      lastBgBlob = null;
+      lastBgEngine = null;
+      currentViewMode = "processed";
+      showPreview(img);
+      convert();
+      btnReset.disabled = false;
+      btnRemoveBg.disabled = false;
+      btnResetBg.hidden = true;
+      bgCompare.hidden = true;
+      setBgBadge("ready", "free · no API key");
+    };
+    img.onerror = function () {
+      URL.revokeObjectURL(url);
+      toast("Could not read that image");
+    };
+    img.src = url;
+  }
+
+  function showPreview(img) {
+    dropEl.innerHTML = "";
+    var preview = document.createElement("img");
+    preview.src = img.src;
+    preview.alt = "Uploaded image preview";
+    dropEl.appendChild(preview);
+
+    var hint = document.createElement("div");
+    hint.className = "change-hint";
+    hint.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Tap to change image';
+    dropEl.appendChild(hint);
+  }
+
+  /* ---- Conversion ---- */
+  function convert() {
+    if (!currentImage) return;
+
+    var cols = parseInt(resEl.value, 10) || 40;
+    var w = currentImage.naturalWidth || currentImage.width;
+    var h = currentImage.naturalHeight || currentImage.height;
+    if (!w || !h) return;
+
+    var ratio = h / w;
+    var rows = Math.max(1, Math.round(cols * ratio));
+    if (rows > 200) rows = 200;
+
+    var canvas = document.createElement("canvas");
+    canvas.width = cols;
+    canvas.height = rows;
+    var ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(currentImage, 0, 0, cols, rows);
+
+    var data;
+    try {
+      data = ctx.getImageData(0, 0, cols, rows).data;
+    } catch (e) {
+      toast("Canvas blocked — try a local file");
+      return;
+    }
+
+    var grid = [];
+    for (var y = 0; y < rows; y++) {
+      var row = new Array(cols);
+      for (var x = 0; x < cols; x++) {
+        var i = (y * cols + x) * 4;
+        var a = data[i + 3];
+        if (a < 40) {
+          row[x] = null;
+        } else {
+          row[x] = nearestEmoji(data[i], data[i + 1], data[i + 2]);
+        }
+      }
+      grid.push(row);
+    }
+
+    currentGrid = grid;
+    render();
+    btnCopy.disabled = false;
+    btnDownload.disabled = false;
+  }
+
+  /* ---- Render mosaic ---- */
+  function render() {
+    if (!currentGrid) return;
+
+    var cols = currentGrid[0].length;
+    var wrap = outputEl.parentElement;
+    var avail = (wrap.clientWidth || 300) - 20;
+    var cell = Math.max(6, Math.floor(avail / cols));
+
+    outputEl.style.fontSize = cell + "px";
+    outputEl.style.lineHeight = cell + "px";
+
+    var parts = [];
+    for (var y = 0; y < currentGrid.length; y++) {
+      for (var x = 0; x < cols; x++) {
+        var em = currentGrid[y][x];
+        if (em === null) {
+          parts.push('<span class="cell-emoji" style="width:' + cell + 'px;height:' + cell + 'px"></span>');
+        } else {
+          parts.push('<span class="cell-emoji" style="width:' + cell + 'px;height:' + cell + 'px;font-size:' + (cell * 1.15) + 'px;line-height:' + cell + 'px">' + em + '</span>');
+        }
+      }
+      if (y < currentGrid.length - 1) parts.push("<br/>");
+    }
+    outputEl.innerHTML = parts.join("");
+  }
+
+  function adjustSize() {
+    if (rafPending || !currentGrid) return;
+    rafPending = true;
+    requestAnimationFrame(function () {
+      rafPending = false;
+      render();
+    });
+  }
+
+  /* ---- Copy ---- */
+  function copyMosaic() {
+    if (!currentGrid) return;
+    var lines = currentGrid.map(function (row) {
+      return row.map(function (c) { return c === null ? " " : c; }).join("");
+    });
+    var text = lines.join("\n");
+
+    function fallback() {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.cssText = "position:fixed;top:-9999px;opacity:0";
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        toast(ok ? "✓ Mosaic copied" : "Copy unavailable");
+      } catch (e) { toast("Copy unavailable"); }
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () {
+        toast("✓ Mosaic copied (" + currentGrid.length + " rows)");
+      }).catch(fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  /* ---- Download transparent PNG ---- */
+  function downloadMosaic() {
+    if (!currentGrid) return;
+
+    var cols = currentGrid[0].length;
+    var rows = currentGrid.length;
+    var cellW = 32;
+    var cellH = 32;
+
+    var canvas = document.createElement("canvas");
+    canvas.width = cols * cellW;
+    canvas.height = rows * cellH;
+    var ctx = canvas.getContext("2d");
+
+    // Leave background transparent — transparency survives.
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font =
+      Math.floor(cellH * 0.9) +
+      "px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','EmojiOne Color','Android Emoji',sans-serif";
+
+    for (var y = 0; y < rows; y++) {
+      for (var x = 0; x < cols; x++) {
+        var em = currentGrid[y][x];
+        if (em === null) continue;
+        ctx.fillText(
+          em,
+          x * cellW + cellW / 2,
+          y * cellH + cellH / 2
+        );
+      }
+    }
+
+    canvas.toBlob(function (blob) {
+      if (!blob) { toast("Could not render PNG"); return; }
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "emoji-mosaic-" + cols + "x" + rows + ".png";
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 8000);
+      toast("⤓ Transparent PNG download started");
+    }, "image/png");
+  }
+
+  /* ---- Reset ---- */
+  function resetMosaic() {
+    currentImage = null;
+    originalImage = null;
+    currentGrid = null;
+    lastBgBlob = null;
+    lastBgEngine = null;
+    currentViewMode = "processed";
+    dropEl.innerHTML =
+      '<i class="fa-solid fa-file-image" aria-hidden="true"></i>' +
+      "<p>Tap / drop / paste an image</p>" +
+      "<small>Any format supported by your browser · processed locally</small>";
+    outputEl.innerHTML =
+      '<div class="img-conv-empty">Upload an image to see the emoji mosaic ✨</div>';
+    btnCopy.disabled = true;
+    btnDownload.disabled = true;
+    btnReset.disabled = true;
+    btnRemoveBg.disabled = true;
+    btnResetBg.hidden = true;
+    bgCompare.hidden = true;
+    bgProgress.hidden = true;
+    setBgBadge("pending", "free · no API key");
+    fileEl.value = "";
+  }
+
+  /* ============================================================
+     AI BACKGROUND REMOVER  (FIXED)
+     ============================================================ */
+
+  function setBgBadge(kind, text) {
+    if (!bgBadge) return;
+    bgBadge.className = "bg-remover-badge" +
+      (kind === "pending" ? " pending" : "") +
+      (kind === "error" ? " error" : "") +
+      (kind === "working" ? " working" : "");
+    bgBadge.textContent = text;
+  }
+
+  function bgShowProgress(show) {
+    bgProgress.hidden = !show;
+  }
+
+  function bgSetProgress(pct, label, iconClass) {
+    var clamped = Math.max(0, Math.min(100, pct));
+    bgProgressPct.textContent = Math.round(clamped) + "%";
+    bgProgressFill.style.width = clamped + "%";
+    if (label) bgProgressText.textContent = label;
+    if (iconClass) bgProgressIcon.className = iconClass;
+  }
+
+  /**
+   * Load @imgly/background-removal with 3 CDN strategies.
+   *  #1 jsDelivr +esm  — deps are bundled by jsDelivr so bare imports resolve
+   *  #2 esm.sh         — alternate ESM CDN that bundles aggressively
+   *  #3 jsDelivr raw   — last resort; needs explicit publicPath
+   *
+   * The MODEL files live in a separate package (@imgly/background-removal-data),
+   * so the function must be configured with a `publicPath` pointing there.
+   */
+  var CDN_ATTEMPTS = [
+    {
+      name: "jsDelivr +esm",
+      loader: function () {
+        return import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm");
+      },
+      publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal-data@1.5.5/dist/"
+    },
+    {
+      name: "esm.sh",
+      loader: function () {
+        return import("https://esm.sh/@imgly/background-removal@1.5.5");
+      },
+      publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal-data@1.5.5/dist/"
+    },
+    {
+      name: "jsDelivr raw",
+      loader: function () {
+        return import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/dist/index.mjs");
+      },
+      publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal-data@1.5.5/dist/"
+    }
+  ];
+
+  function tryLoadOne(attempt) {
+    return attempt.loader().then(function (mod) {
+      var fn = mod.removeBackground || mod.default || mod;
+      if (typeof fn !== "function") {
+        throw new Error("module did not export a callable removeBackground");
+      }
+      return { fn: fn, publicPath: attempt.publicPath, name: attempt.name };
+    });
+  }
+
+  function loadBgRemover() {
+    if (bgRemoverFn) return Promise.resolve(bgRemoverFn);
+    if (bgRemoverLoad) return bgRemoverLoad;
+
+    bgRemoverLoad = (async function () {
+      var lastErr = null;
+      for (var i = 0; i < CDN_ATTEMPTS.length; i++) {
+        var attempt = CDN_ATTEMPTS[i];
+        console.log("[BG Remover] Attempt " + (i + 1) + "/" + CDN_ATTEMPTS.length + ": " + attempt.name);
+        try {
+          var r = await tryLoadOne(attempt);
+          console.log("[BG Remover] Loaded via", attempt.name);
+          bgRemoverFn = r.fn;
+          bgRemoverName = r.name;
+          return { fn: r.fn, publicPath: r.publicPath, name: r.name };
+        } catch (err) {
+          console.warn("[BG Remover] " + attempt.name + " failed:", err && err.message ? err.message : err);
+          if (err && err.stack) console.warn(err.stack);
+          lastErr = err;
+        }
+      }
+      bgRemoverLoad = null;
+      throw lastErr || new Error("All CDN attempts failed");
+    })();
+
+    return bgRemoverLoad;
+  }
+
+  /**
+   * Fallback flood-fill chroma key — safe for images with a fairly uniform
+   * background (product shots, logos, stickers, etc.). Runs from all border
+   * pixels inward and clears connected regions matching any of the four
+   * sampled corner colors.
+   */
+  function fallbackFloodFill(image) {
+    return new Promise(function (resolve, reject) {
+      try {
+        var w = image.naturalWidth || image.width;
+        var h = image.naturalHeight || image.height;
+        if (!w || !h) { reject(new Error("image has no dimensions")); return; }
+
+        var canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(image, 0, 0);
+
+        var imgData = ctx.getImageData(0, 0, w, h);
+        var data = imgData.data;
+
+        // Sample the four corners (avg of a 5×5 block around each corner)
+        function sample(x, y) {
+          var x0 = Math.max(0, x - 2), x1 = Math.min(w - 1, x + 2);
+          var y0 = Math.max(0, y - 2), y1 = Math.min(h - 1, y + 2);
+          var r = 0, g = 0, b = 0, n = 0;
+          for (var yy = y0; yy <= y1; yy++) {
+            for (var xx = x0; xx <= x1; xx++) {
+              var i = (yy * w + xx) * 4;
+              if (data[i + 3] < 30) continue;
+              r += data[i]; g += data[i + 1]; b += data[i + 2]; n++;
+            }
+          }
+          if (!n) return null;
+          return [r / n, g / n, b / n];
+        }
+
+        var cornerColors = [
+          sample(0, 0),
+          sample(w - 1, 0),
+          sample(0, h - 1),
+          sample(w - 1, h - 1)
+        ].filter(Boolean);
+
+        if (!cornerColors.length) {
+          reject(new Error("could not sample corner colors"));
+          return;
+        }
+
+        var TOL = 65 * 65; // squared color distance threshold
+        function matches(r, g, b) {
+          for (var c = 0; c < cornerColors.length; c++) {
+            var cc = cornerColors[c];
+            var dr = r - cc[0], dg = g - cc[1], db = b - cc[2];
+            if (dr * dr + dg * dg + db * db < TOL) return true;
+          }
+          return false;
+        }
+
+        var visited = new Uint8Array(w * h);
+        // BFS queue: seed with all border pixels
+        var qx = new Int32Array(w * h);
+        var qy = new Int32Array(w * h);
+        var head = 0, tail = 0;
+
+        function seed(x, y) {
+          var idx = y * w + x;
+          if (visited[idx]) return;
+          visited[idx] = 1;
+          qx[tail] = x; qy[tail] = y; tail++;
+        }
+        for (var x = 0; x < w; x++) { seed(x, 0); seed(x, h - 1); }
+        for (var y = 1; y < h - 1; y++) { seed(0, y); seed(w - 1, y); }
+
+        while (head < tail) {
+          var cx = qx[head], cy = qy[head];
+          head++;
+          var idx = cy * w + cx;
+          var i = idx * 4;
+          if (data[i + 3] < 30) continue; // already transparent
+          if (!matches(data[i], data[i + 1], data[i + 2])) continue;
+          data[i + 3] = 0; // clear alpha
+
+          // 4-neighbors
+          function push(nx, ny) {
+            if (nx < 0 || nx >= w || ny < 0 || ny >= h) return;
+            var nidx = ny * w + nx;
+            if (visited[nidx]) return;
+            visited[nidx] = 1;
+            qx[tail] = nx; qy[tail] = ny; tail++;
+          }
+          push(cx + 1, cy);
+          push(cx - 1, cy);
+          push(cx, cy + 1);
+          push(cx, cy - 1);
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+
+        canvas.toBlob(function (blob) {
+          if (blob) resolve(blob);
+          else reject(new Error("canvas toBlob returned null"));
+        }, "image/png");
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  /**
+   * Run the AI background-removal pipeline, with graceful fallback to the
+   * flood-fill chroma key if any step fails.
+   */
+  async function removeBackgroundNow() {
+    if (!originalImage) {
+      toast("Upload an image first");
+      return;
+    }
+
+    btnRemoveBg.disabled = true;
+    btnResetBg.hidden = true;
+    bgCompare.hidden = true;
+    bgShowProgress(true);
+    bgSetProgress(2, "Loading AI model…", "fa-solid fa-gear fa-spin");
+    setBgBadge("working", "loading model…");
+
+    var inferencePulse = null;
+    var aiSucceeded = false;
+    var outBlob = null;
+    var engineUsed = null;
+
+    function startPulse() {
+      if (inferencePulse) return;
+      var p = 45;
+      inferencePulse = setInterval(function () {
+        p = Math.min(92, p + Math.random() * 3);
+        bgSetProgress(p, "Removing background…", "fa-solid fa-wand-magic-sparkles");
+      }, 220);
+    }
+    function stopPulse() {
+      if (inferencePulse) { clearInterval(inferencePulse); inferencePulse = null; }
+    }
+
+    try {
+      // ---- Prepare input blob ----
+      var inputBlob;
+      try {
+        var srcBlob = await fetch(originalImage.src).then(function (r) { return r.blob(); });
+        inputBlob = srcBlob;
+      } catch (e) {
+        // fallback: draw to canvas
+        var c0 = document.createElement("canvas");
+        c0.width = originalImage.naturalWidth || originalImage.width;
+        c0.height = originalImage.naturalHeight || originalImage.height;
+        c0.getContext("2d").drawImage(originalImage, 0, 0);
+        inputBlob = await new Promise(function (res, rej) {
+          c0.toBlob(function (b) { b ? res(b) : rej(new Error("toBlob failed")); }, "image/png");
+        });
+      }
+
+      // ---- Attempt AI removal ----
+      try {
+        var mod = await loadBgRemover();
+        bgSetProgress(35, "Downloading model…", "fa-solid fa-cloud-arrow-down fa-bounce");
+
+        var config = {
+          publicPath: mod.publicPath,
+          model: "isnet_quint8",
+          output: { format: "image/png" },
+          progress: function (key, current, total) {
+            if (!total) return;
+            var pct = 35 + (current / total) * 40; // 35 → 75 %
+            bgSetProgress(pct, "Downloading model…", "fa-solid fa-cloud-arrow-down fa-bounce");
+            if (current / total >= 0.999) {
+              startPulse();
+            }
+          }
+        };
+
+        startPulse();
+        outBlob = await mod.fn(inputBlob, config);
+        stopPulse();
+
+        if (!outBlob || !outBlob.size) {
+          throw new Error("AI returned empty blob");
+        }
+
+        aiSucceeded = true;
+        engineUsed = "ai";
+        bgSetProgress(100, "Done (AI)!", "fa-solid fa-circle-check");
+        setBgBadge("ready", "AI · " + (bgRemoverName || "imgly"));
+      } catch (aiErr) {
+        stopPulse();
+        console.error("[BG Remover] AI failed:", aiErr);
+        if (aiErr && aiErr.stack) console.error(aiErr.stack);
+
+        // ---- Fallback ----
+        bgSetProgress(60, "AI unavailable — using fallback…", "fa-solid fa-triangle-exclamation");
+        setBgBadge("pending", "AI failed · using fallback");
+
+        outBlob = await fallbackFloodFill(originalImage);
+        engineUsed = "flood";
+        bgSetProgress(100, "Done (fallback)!", "fa-solid fa-circle-check");
+        setBgBadge("pending", "fallback · flood-fill");
+      }
+
+      // ---- Apply result ----
+      lastBgBlob = outBlob;
+      lastBgEngine = engineUsed;
+
+      var objectUrl = URL.createObjectURL(outBlob);
+      var resultImg = new Image();
+      resultImg.onload = function () {
+        currentImage = resultImg;
+        currentViewMode = "processed";
+        showPreview(resultImg);
+        convert();
+
+        btnResetBg.hidden = false;
+        bgCompare.hidden = false;
+        btnRemoveBg.disabled = false;
+        updateCompareActive();
+
+        setTimeout(function () {
+          bgShowProgress(false);
+          bgSetProgress(0, "Preparing…", "fa-solid fa-gear fa-spin");
+        }, 1100);
+
+        if (aiSucceeded) {
+          toast("✨ Background removed (AI · transparent PNG ready)");
+        } else {
+          toast("✨ Background removed (fallback flood-fill)");
+        }
+      };
+      resultImg.onerror = function () {
+        URL.revokeObjectURL(objectUrl);
+        stopPulse();
+        bgShowProgress(false);
+        setBgBadge("error", "render failed");
+        btnRemoveBg.disabled = false;
+        toast("Result image failed to load");
+      };
+      resultImg.src = objectUrl;
+    } catch (err) {
+      stopPulse();
+      console.error("[BG Remover] total failure:", err);
+      if (err && err.stack) console.error(err.stack);
+      bgShowProgress(false);
+      setBgBadge("error", "failed");
+      btnRemoveBg.disabled = false;
+      toast("Background removal failed — see console");
+    }
+  }
+
+  /* ---- Compare toggle ---- */
+  function updateCompareActive() {
+    var btns = bgCompare.querySelectorAll("button");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.toggle("active", btns[i].dataset.mode === currentViewMode);
+    }
+  }
+
+  bgCompare.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-mode]");
+    if (!btn) return;
+    var mode = btn.dataset.mode;
+    if (mode === currentViewMode) return;
+    currentViewMode = mode;
+
+    if (mode === "original" && originalImage) {
+      currentImage = originalImage;
+      showPreview(currentImage);
+      convert();
+    } else if (mode === "processed" && lastBgBlob) {
+      var u = URL.createObjectURL(lastBgBlob);
+      var im = new Image();
+      im.onload = function () {
+        currentImage = im;
+        showPreview(im);
+        convert();
+      };
+      im.src = u;
+    }
+    updateCompareActive();
+  });
+
+  function restoreOriginal() {
+    if (!originalImage) return;
+    currentImage = originalImage;
+    currentViewMode = "processed";
+    lastBgBlob = null;
+    lastBgEngine = null;
+    showPreview(originalImage);
+    convert();
+    btnResetBg.hidden = true;
+    bgCompare.hidden = true;
+    setBgBadge("ready", "free · no API key");
+    toast("Restored original");
+  }
+
+  /* ---- UI wiring ---- */
+  dropEl.addEventListener("click", function () {
+    fileEl.click();
+  });
+  dropEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      fileEl.click();
+    }
+  });
+
+  dropEl.addEventListener("dragover", function (e) {
+    e.preventDefault();
+    dropEl.classList.add("drag");
+  });
+  dropEl.addEventListener("dragleave", function () {
+    dropEl.classList.remove("drag");
+  });
+  dropEl.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropEl.classList.remove("drag");
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) handleFile(f);
+  });
+
+  fileEl.addEventListener("change", function () {
+    var f = fileEl.files && fileEl.files[0];
+    if (f) handleFile(f);
+  });
+
+  resEl.addEventListener("input", function () {
+    resLabel.textContent = resEl.value + " emoji wide";
+    if (currentImage) convert();
+  });
+  resLabel.textContent = resEl.value + " emoji wide";
+
+  modeEl.addEventListener("change", function () {
+    if (modeEl.value !== "color") {
+      toast("That palette is coming soon — using color match");
+      modeEl.value = "color";
+    }
+    if (currentImage) convert();
+  });
+
+  // Paste support
+  document.addEventListener("paste", function (e) {
+    var el = e.target;
+    if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
+    var items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type && items[i].type.indexOf("image") === 0) {
+        var f = items[i].getAsFile();
+        if (f) {
+          handleFile(f);
+          e.preventDefault();
+          break;
+        }
+      }
+    }
+  });
+
+  btnCopy.addEventListener("click", copyMosaic);
+  btnDownload.addEventListener("click", downloadMosaic);
+  btnReset.addEventListener("click", resetMosaic);
+  btnRemoveBg.addEventListener("click", removeBackgroundNow);
+  btnResetBg.addEventListener("click", restoreOriginal);
+
+  window.addEventListener("resize", adjustSize);
+  if (window.ResizeObserver) {
+    new ResizeObserver(adjustSize).observe(outputEl.parentElement);
+  }
+
+  window.EmojiImageConverter = {
+    palette: EMOJI_PALETTE,
+    convert: convert,
+    copy: copyMosaic,
+    download: downloadMosaic,
+    reset: resetMosaic,
+    removeBackground: removeBackgroundNow,
+    restoreOriginal: restoreOriginal,
+    getGrid: function () { return currentGrid; },
+    getImage: function () { return currentImage; },
+    getOriginal: function () { return originalImage; },
+    getBgEngine: function () { return lastBgEngine; }
+  };
+})();
 </script>
 
 </body>
