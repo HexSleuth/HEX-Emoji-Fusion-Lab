@@ -4664,6 +4664,9 @@ document.onkeydown = function(e) {
 <!-- ═══════════════════════════════════════════════════════════════
      IMAGE → TRANSPARENT EMOJI MOSAIC  +  AI BG REMOVER (FIXED)
      ═══════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════
+     IMAGE → TRANSPARENT EMOJI MOSAIC  +  AI BG REMOVER (FIXED)
+     ═══════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
   "use strict";
@@ -4682,17 +4685,19 @@ document.onkeydown = function(e) {
   var btnReset     = document.getElementById("btnResetMosaic");
 
   // BG remover UI
-  var btnRemoveBg  = document.getElementById("btnRemoveBg");
-  var btnResetBg   = document.getElementById("btnResetBg");
-  var bgBadge      = document.getElementById("bgBadge");
-  var bgProgress   = document.getElementById("bgProgress");
+  var btnRemoveBg    = document.getElementById("btnRemoveBg");
+  var btnResetBg     = document.getElementById("btnResetBg");
+  var bgBadge        = document.getElementById("bgBadge");
+  var bgProgress     = document.getElementById("bgProgress");
   var bgProgressIcon = document.getElementById("bgProgressIcon");
   var bgProgressText = document.getElementById("bgProgressText");
   var bgProgressPct  = document.getElementById("bgProgressPct");
   var bgProgressFill = document.getElementById("bgProgressFill");
-  var bgCompare    = document.getElementById("bgCompare");
+  var bgCompare      = document.getElementById("bgCompare");
 
-  /* ---- Emoji color palette ---- */
+  /* ============================================================
+     PALETTE — base color-matched emoji (+ extended coverage)
+     ============================================================ */
   var EMOJI_PALETTE = [
     { e: "⚫", c: [ 25,  25,  30] },
     { e: "🌑", c: [ 60,  60,  70] },
@@ -4749,22 +4754,324 @@ document.onkeydown = function(e) {
     { e: "🍫", c: [ 90,  55,  35] },
     { e: "🪵", c: [140, 100,  70] },
     { e: "🥔", c: [190, 160, 110] },
-    { e: "🍞", c: [220, 180, 130] }
+    { e: "🍞", c: [220, 180, 130] },
+
+    /* ---- Extended coverage (added) ---- */
+    { e: "🤍", c: [240, 240, 245] },
+    { e: "🖤", c: [ 30,  30,  35] },
+    { e: "🤎", c: [130,  85,  55] },
+    { e: "🧡", c: [245, 130,  50] },
+    { e: "💚", c: [ 60, 200, 110] },
+    { e: "💙", c: [ 60, 130, 240] },
+    { e: "🩷", c: [255, 150, 200] },
+    { e: "🩵", c: [130, 200, 240] },
+    { e: "🩶", c: [160, 165, 175] },
+    { e: "🍯", c: [240, 180,  60] },
+    { e: "🐤", c: [250, 220,  80] },
+    { e: "🦩", c: [255, 130, 150] },
+    { e: "🍆", c: [100,  60, 140] },
+    { e: "🫒", c: [130, 140,  70] },
+    { e: "🫑", c: [ 80, 180, 100] },
+    { e: "🥥", c: [120,  90,  70] },
+    { e: "🧋", c: [200, 170, 140] },
+    { e: "🪻", c: [160, 130, 220] },
+    { e: "🪷", c: [250, 200, 220] },
+    { e: "🌫️", c: [180, 185, 195] },
+    { e: "🐚", c: [240, 220, 200] },
+    { e: "🍄", c: [200,  60,  50] },
+    { e: "🥩", c: [200,  70,  70] },
+    { e: "🍷", c: [140,  40,  70] },
+    { e: "🥭", c: [250, 180,  60] },
+    { e: "🔶", c: [250, 160,  60] }
   ];
 
-  /* ---- State ---- */
+  // Dedupe base palette
+  (function dedupeBase() {
+    var seen = Object.create(null), out = [];
+    for (var i = 0; i < EMOJI_PALETTE.length; i++) {
+      var p = EMOJI_PALETTE[i];
+      if (p && p.e && !seen[p.e]) { seen[p.e] = 1; out.push(p); }
+    }
+    EMOJI_PALETTE = out;
+  })();
+
+  /* ============================================================
+     EMOJI COLOR EXTRACTION (cached)
+     ============================================================ */
+  var emojiColorCache = new Map();
+  var probeCanvas = null;
+  var probeCtx = null;
+
+  function getProbeCtx() {
+    if (!probeCtx) {
+      probeCanvas = document.createElement("canvas");
+      probeCanvas.width = 32;
+      probeCanvas.height = 32;
+      probeCtx = probeCanvas.getContext("2d", { willReadFrequently: true });
+    }
+    return probeCtx;
+  }
+
+  function hslToRgb(h, s, l) {
+    var r, g, b;
+    if (s === 0) { r = g = b = l; }
+    else {
+      var hue2rgb = function (p, q, t) {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+      };
+      var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      var p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1 / 3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1 / 3);
+    }
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+  }
+
+  function hashEmojiColor(emoji) {
+    var hash = 0;
+    for (var i = 0; i < emoji.length; i++) {
+      hash = ((hash << 5) - hash + emoji.charCodeAt(i)) | 0;
+    }
+    var h = (Math.abs(hash) % 360) / 360;
+    return hslToRgb(h, 0.55, 0.55);
+  }
+
+  function getEmojiColor(emoji) {
+    if (emojiColorCache.has(emoji)) {
+      return Promise.resolve(emojiColorCache.get(emoji));
+    }
+    return new Promise(function (resolve) {
+      var color = null;
+      try {
+        var ctx = getProbeCtx();
+        var size = probeCanvas.width;
+        ctx.clearRect(0, 0, size, size);
+        ctx.font = Math.floor(size * 0.85) +
+          'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Android Emoji",sans-serif';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#000";
+        ctx.fillText(emoji, size / 2, size / 2 + 1);
+
+        var data = ctx.getImageData(0, 0, size, size).data;
+        var r = 0, g = 0, b = 0, wsum = 0;
+        for (var i = 0; i < data.length; i += 4) {
+          var a = data[i + 3];
+          if (a > 80) {
+            r += data[i] * a;
+            g += data[i + 1] * a;
+            b += data[i + 2] * a;
+            wsum += a;
+          }
+        }
+        if (wsum > 0) {
+          color = [r / wsum, g / wsum, b / wsum];
+        }
+      } catch (e) { /* taint / unsupported */ }
+
+      if (!color) color = hashEmojiColor(emoji);
+      emojiColorCache.set(emoji, color);
+      resolve(color);
+    });
+  }
+
+  /* ============================================================
+     DYNAMIC PALETTE BUILDERS
+     ============================================================ */
+  var dynamicPalettes = {
+    discovered: null,   // Promise<Array<{e,c}>>
+    kitchen:    null,
+    hybrid:     null
+  };
+
+  var lastDiscoveredCount = -1;
+  var lastKitchenLoaded   = false;
+
+  function dedupePalette(list) {
+    var seen = Object.create(null), out = [];
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i];
+      if (p && p.e && !seen[p.e]) { seen[p.e] = 1; out.push(p); }
+    }
+    return out;
+  }
+
+  function buildPaletteFromEmojis(emojis, maxCount) {
+    if (!emojis.length) return Promise.resolve([]);
+
+    var list = emojis;
+    if (maxCount && list.length > maxCount) {
+      var step = list.length / maxCount;
+      var sampled = [];
+      for (var i = 0; i < maxCount; i++) {
+        sampled.push(list[Math.floor(i * step)]);
+      }
+      list = sampled;
+    }
+
+    var promises = list.map(function (e) {
+      return getEmojiColor(e).then(function (c) { return { e: e, c: c }; });
+    });
+    return Promise.all(promises).then(dedupePalette);
+  }
+
+  function getDiscoveredPalette() {
+    if (dynamicPalettes.discovered) return dynamicPalettes.discovered;
+
+    var emojis = [];
+    try {
+      var N = window.NotoFusion;
+      if (N && N.state && N.state.discovered) {
+        var d = N.state.discovered;
+        emojis = Object.keys(d).filter(function (k) { return d[k]; });
+      }
+    } catch (e) {}
+
+    dynamicPalettes.discovered = buildPaletteFromEmojis(emojis, 400);
+    return dynamicPalettes.discovered;
+  }
+
+  function getKitchenPalette() {
+    if (dynamicPalettes.kitchen) return dynamicPalettes.kitchen;
+
+    var emojis = [];
+    try {
+      var N = window.NotoFusion;
+      if (N && typeof N.meta === "function") {
+        var meta = N.meta();
+        if (meta && meta.data) {
+          var seen = Object.create(null);
+          Object.keys(meta.data).forEach(function (cp) {
+            var entry = meta.data[cp];
+            if (entry && entry.emoji && !seen[entry.emoji]) {
+              seen[entry.emoji] = 1;
+              emojis.push(entry.emoji);
+            }
+          });
+        }
+      }
+    } catch (e) {}
+
+    dynamicPalettes.kitchen = buildPaletteFromEmojis(emojis, 500);
+    return dynamicPalettes.kitchen;
+  }
+
+  function getHybridPalette() {
+    if (dynamicPalettes.hybrid) return dynamicPalettes.hybrid;
+
+    var all = [];
+    var seen = Object.create(null);
+
+    EMOJI_PALETTE.forEach(function (p) {
+      if (!seen[p.e]) { seen[p.e] = 1; all.push(p.e); }
+    });
+
+    try {
+      var N = window.NotoFusion;
+      if (N && N.state && N.state.discovered) {
+        Object.keys(N.state.discovered).forEach(function (k) {
+          if (N.state.discovered[k] && !seen[k]) { seen[k] = 1; all.push(k); }
+        });
+      }
+      if (N && typeof N.meta === "function") {
+        var meta = N.meta();
+        if (meta && meta.data) {
+          Object.keys(meta.data).forEach(function (cp) {
+            var entry = meta.data[cp];
+            if (entry && entry.emoji && !seen[entry.emoji]) {
+              seen[entry.emoji] = 1;
+              all.push(entry.emoji);
+            }
+          });
+        }
+      }
+    } catch (e) {}
+
+    dynamicPalettes.hybrid = buildPaletteFromEmojis(all, 600);
+    return dynamicPalettes.hybrid;
+  }
+
+  function getActivePalette(mode) {
+    if (mode === "discovered") return getDiscoveredPalette();
+    if (mode === "kitchen")    return getKitchenPalette();
+    if (mode === "hybrid")     return getHybridPalette();
+    return Promise.resolve(EMOJI_PALETTE);
+  }
+
+  function invalidateDynamicPalette(mode) {
+    if (!mode) {
+      dynamicPalettes.discovered = null;
+      dynamicPalettes.kitchen = null;
+      dynamicPalettes.hybrid = null;
+    } else if (mode in dynamicPalettes) {
+      dynamicPalettes[mode] = null;
+    }
+  }
+
+  function checkPaletteFreshness() {
+    try {
+      var N = window.NotoFusion;
+      if (N && N.state) {
+        var dc = Object.keys(N.state.discovered || {}).length;
+        if (dc !== lastDiscoveredCount) {
+          lastDiscoveredCount = dc;
+          invalidateDynamicPalette("discovered");
+          invalidateDynamicPalette("hybrid");
+        }
+        var kl = !!N.state.kitchenLoaded;
+        if (kl !== lastKitchenLoaded) {
+          lastKitchenLoaded = kl;
+          invalidateDynamicPalette("kitchen");
+          invalidateDynamicPalette("hybrid");
+        }
+      }
+    } catch (e) {}
+  }
+
+  /* ============================================================
+     COLOR MATCHING — weighted (red-mean) distance
+     ============================================================ */
+  function weightedDistSq(r1, g1, b1, r2, g2, b2) {
+    var rmean = (r1 + r2) * 0.5;
+    var dr = r1 - r2, dg = g1 - g2, db = b1 - b2;
+    return (2 + rmean / 256) * dr * dr + 4 * dg * dg + (2 + (255 - rmean) / 256) * db * db;
+  }
+
+  function nearestEmoji(r, g, b, palette) {
+    if (!palette || !palette.length) return null;
+    var best = palette[0];
+    var bestD = Infinity;
+    for (var i = 0; i < palette.length; i++) {
+      var p = palette[i];
+      var d = weightedDistSq(r, g, b, p.c[0], p.c[1], p.c[2]);
+      if (d < bestD) { bestD = d; best = p; }
+    }
+    return best.e;
+  }
+
+  /* ============================================================
+     STATE
+     ============================================================ */
   var currentImage   = null;
   var originalImage  = null;
   var currentGrid    = null;
   var rafPending     = false;
-  var bgRemoverFn    = null;   // resolved removeBackground function
-  var bgRemoverLoad  = null;   // in-flight loader promise
-  var bgRemoverName  = null;   // which CDN strategy succeeded
+  var bgRemoverFn    = null;
+  var bgRemoverLoad  = null;
+  var bgRemoverName  = null;
   var lastBgBlob     = null;
-  var lastBgEngine   = null;   // "ai" | "flood"
+  var lastBgEngine   = null;
   var currentViewMode = "processed";
 
-  /* ---- Local toast ---- */
+  /* ============================================================
+     TOAST (local, shared with game for consistency)
+     ============================================================ */
   var _toastEl = null, _toastTimer = null;
   function toast(msg) {
     if (!_toastEl) {
@@ -4777,35 +5084,80 @@ document.onkeydown = function(e) {
     void _toastEl.offsetWidth;
     _toastEl.classList.add("show");
     clearTimeout(_toastTimer);
-    _toastTimer = setTimeout(function () {
-      _toastEl.classList.remove("show");
-    }, 2400);
+    _toastTimer = setTimeout(function () { _toastEl.classList.remove("show"); }, 2400);
   }
 
-  /* ---- Color distance ---- */
-  function distSq(r1, g1, b1, r2, g2, b2) {
-    var dr = r1 - r2, dg = g1 - g2, db = b1 - b2;
-    return dr * dr + dg * dg + db * db;
+  /* ============================================================
+     PALETTE INFO BADGE (injected — no HTML changes needed)
+     ============================================================ */
+  var paletteInfoEl = null;
+
+  function ensurePaletteInfo() {
+    if (paletteInfoEl) return;
+    var modeLabel = modeEl.closest("label");
+    if (!modeLabel) return;
+
+    paletteInfoEl = document.createElement("div");
+    paletteInfoEl.id = "imgPaletteInfo";
+    paletteInfoEl.style.cssText =
+      "display:flex;align-items:center;gap:8px;flex-wrap:wrap;" +
+      "font-size:11px;color:var(--muted);font-weight:600;" +
+      "text-transform:none;letter-spacing:0;margin-top:2px;" +
+      "min-height:18px;line-height:1.4;overflow:hidden;";
+    modeLabel.appendChild(paletteInfoEl);
   }
 
-  function nearestEmoji(r, g, b) {
-    var best = EMOJI_PALETTE[0];
-    var bestD = Infinity;
-    for (var i = 0; i < EMOJI_PALETTE.length; i++) {
-      var p = EMOJI_PALETTE[i];
-      var d = distSq(r, g, b, p.c[0], p.c[1], p.c[2]);
-      if (d < bestD) { bestD = d; best = p; }
+  function showPaletteLoading(mode) {
+    ensurePaletteInfo();
+    if (!paletteInfoEl) return;
+    var label = { discovered: "⭐ Discovered", kitchen: "🍳 Kitchen", hybrid: "🌈 Hybrid" }[mode] || mode;
+    paletteInfoEl.innerHTML =
+      '<span style="color:var(--warn);font-weight:800">⏳ Building ' + label + " palette…</span>";
+  }
+
+  function updatePaletteInfo(palette, mode) {
+    ensurePaletteInfo();
+    if (!paletteInfoEl) return;
+
+    var labels = {
+      color:      "🎨 Color match",
+      discovered: "⭐ Discovered",
+      kitchen:    "🍳 Kitchen",
+      hybrid:     "🌈 Hybrid"
+    };
+    var sourceLabel = labels[mode] || "🎨 Color match";
+
+    var sample = palette.slice(0, 12).map(function (p) { return p.e; }).join(" ");
+    if (palette.length > 12) sample += " …";
+
+    paletteInfoEl.innerHTML =
+      '<span style="color:var(--txt-2);font-weight:800">' +
+      palette.length + " emoji</span>" +
+      '<span style="opacity:.55">·</span>' +
+      "<span>" + sourceLabel + "</span>" +
+      '<span style="opacity:.9;font-size:13px;letter-spacing:.5px">' +
+      sample + "</span>";
+  }
+
+  /* ============================================================
+     HYBRID OPTION (injected if missing)
+     ============================================================ */
+  function ensureHybridOption() {
+    for (var i = 0; i < modeEl.options.length; i++) {
+      if (modeEl.options[i].value === "hybrid") return;
     }
-    return best.e;
+    var opt = document.createElement("option");
+    opt.value = "hybrid";
+    opt.textContent = "🌈 Hybrid (all emoji)";
+    modeEl.appendChild(opt);
   }
 
-  /* ---- File handling ---- */
+  /* ============================================================
+     FILE HANDLING
+     ============================================================ */
   function handleFile(file) {
     if (!file) return;
-    if (!/^image\//.test(file.type)) {
-      toast("Not an image file");
-      return;
-    }
+    if (!/^image\//.test(file.type)) { toast("Not an image file"); return; }
 
     var url = URL.createObjectURL(file);
     var img = new Image();
@@ -4837,19 +5189,54 @@ document.onkeydown = function(e) {
     preview.src = img.src;
     preview.alt = "Uploaded image preview";
     dropEl.appendChild(preview);
-
     var hint = document.createElement("div");
     hint.className = "change-hint";
     hint.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Tap to change image';
     dropEl.appendChild(hint);
   }
 
-  /* ---- Conversion ---- */
-  function convert() {
+  /* ============================================================
+     CONVERT — async, palette-aware
+     ============================================================ */
+  var convertToken = 0;
+
+  async function convert() {
     if (!currentImage) return;
 
+    checkPaletteFreshness();
+    var myToken = ++convertToken;
+    var mode = modeEl.value || "color";
+
+    if (mode !== "color" && !dynamicPalettes[mode]) {
+      showPaletteLoading(mode);
+    }
+
+    var palette;
+    try {
+      palette = await getActivePalette(mode);
+    } catch (e) {
+      palette = EMOJI_PALETTE;
+    }
+
+    if (myToken !== convertToken) return;
+
+    if (!palette || !palette.length) {
+      palette = EMOJI_PALETTE;
+      if (mode !== "color") {
+        toast(
+          mode === "discovered"
+            ? "No discoveries yet — using color palette"
+            : mode === "kitchen"
+              ? "Kitchen data not ready — using color palette"
+              : "Empty palette — using color palette"
+        );
+      }
+    }
+
+    updatePaletteInfo(palette, mode);
+
     var cols = parseInt(resEl.value, 10) || 40;
-    var w = currentImage.naturalWidth || currentImage.width;
+    var w = currentImage.naturalWidth  || currentImage.width;
     var h = currentImage.naturalHeight || currentImage.height;
     if (!w || !h) return;
 
@@ -4872,6 +5259,8 @@ document.onkeydown = function(e) {
       return;
     }
 
+    if (myToken !== convertToken) return;
+
     var grid = [];
     for (var y = 0; y < rows; y++) {
       var row = new Array(cols);
@@ -4881,7 +5270,7 @@ document.onkeydown = function(e) {
         if (a < 40) {
           row[x] = null;
         } else {
-          row[x] = nearestEmoji(data[i], data[i + 1], data[i + 2]);
+          row[x] = nearestEmoji(data[i], data[i + 1], data[i + 2], palette);
         }
       }
       grid.push(row);
@@ -4893,7 +5282,9 @@ document.onkeydown = function(e) {
     btnDownload.disabled = false;
   }
 
-  /* ---- Render mosaic ---- */
+  /* ============================================================
+     RENDER MOSAIC
+     ============================================================ */
   function render() {
     if (!currentGrid) return;
 
@@ -4910,9 +5301,13 @@ document.onkeydown = function(e) {
       for (var x = 0; x < cols; x++) {
         var em = currentGrid[y][x];
         if (em === null) {
-          parts.push('<span class="cell-emoji" style="width:' + cell + 'px;height:' + cell + 'px"></span>');
+          parts.push('<span class="cell-emoji" style="width:' + cell + "px;height:" + cell + 'px"></span>');
         } else {
-          parts.push('<span class="cell-emoji" style="width:' + cell + 'px;height:' + cell + 'px;font-size:' + (cell * 1.15) + 'px;line-height:' + cell + 'px">' + em + '</span>');
+          parts.push(
+            '<span class="cell-emoji" style="width:' + cell + "px;height:" + cell +
+            "px;font-size:" + (cell * 1.15) + "px;line-height:" + cell + 'px">' +
+            em + "</span>"
+          );
         }
       }
       if (y < currentGrid.length - 1) parts.push("<br/>");
@@ -4923,13 +5318,12 @@ document.onkeydown = function(e) {
   function adjustSize() {
     if (rafPending || !currentGrid) return;
     rafPending = true;
-    requestAnimationFrame(function () {
-      rafPending = false;
-      render();
-    });
+    requestAnimationFrame(function () { rafPending = false; render(); });
   }
 
-  /* ---- Copy ---- */
+  /* ============================================================
+     COPY / DOWNLOAD / RESET
+     ============================================================ */
   function copyMosaic() {
     if (!currentGrid) return;
     var lines = currentGrid.map(function (row) {
@@ -4961,37 +5355,28 @@ document.onkeydown = function(e) {
     }
   }
 
-  /* ---- Download transparent PNG ---- */
   function downloadMosaic() {
     if (!currentGrid) return;
 
     var cols = currentGrid[0].length;
     var rows = currentGrid.length;
-    var cellW = 32;
-    var cellH = 32;
+    var cellW = 32, cellH = 32;
 
     var canvas = document.createElement("canvas");
     canvas.width = cols * cellW;
     canvas.height = rows * cellH;
     var ctx = canvas.getContext("2d");
 
-    // Leave background transparent — transparency survives.
-
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font =
-      Math.floor(cellH * 0.9) +
-      "px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','EmojiOne Color','Android Emoji',sans-serif";
+    ctx.font = Math.floor(cellH * 0.9) +
+      'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","EmojiOne Color","Android Emoji",sans-serif';
 
     for (var y = 0; y < rows; y++) {
       for (var x = 0; x < cols; x++) {
         var em = currentGrid[y][x];
         if (em === null) continue;
-        ctx.fillText(
-          em,
-          x * cellW + cellW / 2,
-          y * cellH + cellH / 2
-        );
+        ctx.fillText(em, x * cellW + cellW / 2, y * cellH + cellH / 2);
       }
     }
 
@@ -5010,7 +5395,6 @@ document.onkeydown = function(e) {
     }, "image/png");
   }
 
-  /* ---- Reset ---- */
   function resetMosaic() {
     currentImage = null;
     originalImage = null;
@@ -5033,62 +5417,47 @@ document.onkeydown = function(e) {
     bgProgress.hidden = true;
     setBgBadge("pending", "free · no API key");
     fileEl.value = "";
+    if (paletteInfoEl) {
+      paletteInfoEl.innerHTML = "";
+    }
   }
 
   /* ============================================================
-     AI BACKGROUND REMOVER  (FIXED)
+     AI BACKGROUND REMOVER  (unchanged core, kept intact)
      ============================================================ */
-
   function setBgBadge(kind, text) {
     if (!bgBadge) return;
     bgBadge.className = "bg-remover-badge" +
       (kind === "pending" ? " pending" : "") +
-      (kind === "error" ? " error" : "") +
+      (kind === "error"   ? " error"   : "") +
       (kind === "working" ? " working" : "");
     bgBadge.textContent = text;
   }
 
-  function bgShowProgress(show) {
-    bgProgress.hidden = !show;
-  }
+  function bgShowProgress(show) { bgProgress.hidden = !show; }
 
   function bgSetProgress(pct, label, iconClass) {
     var clamped = Math.max(0, Math.min(100, pct));
     bgProgressPct.textContent = Math.round(clamped) + "%";
     bgProgressFill.style.width = clamped + "%";
-    if (label) bgProgressText.textContent = label;
-    if (iconClass) bgProgressIcon.className = iconClass;
+    if (label)     bgProgressText.textContent = label;
+    if (iconClass) bgProgressIcon.className   = iconClass;
   }
 
-  /**
-   * Load @imgly/background-removal with 3 CDN strategies.
-   *  #1 jsDelivr +esm  — deps are bundled by jsDelivr so bare imports resolve
-   *  #2 esm.sh         — alternate ESM CDN that bundles aggressively
-   *  #3 jsDelivr raw   — last resort; needs explicit publicPath
-   *
-   * The MODEL files live in a separate package (@imgly/background-removal-data),
-   * so the function must be configured with a `publicPath` pointing there.
-   */
   var CDN_ATTEMPTS = [
     {
       name: "jsDelivr +esm",
-      loader: function () {
-        return import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm");
-      },
+      loader: function () { return import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm"); },
       publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal-data@1.5.5/dist/"
     },
     {
       name: "esm.sh",
-      loader: function () {
-        return import("https://esm.sh/@imgly/background-removal@1.5.5");
-      },
+      loader: function () { return import("https://esm.sh/@imgly/background-removal@1.5.5"); },
       publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal-data@1.5.5/dist/"
     },
     {
       name: "jsDelivr raw",
-      loader: function () {
-        return import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/dist/index.mjs");
-      },
+      loader: function () { return import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/dist/index.mjs"); },
       publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal-data@1.5.5/dist/"
     }
   ];
@@ -5096,9 +5465,7 @@ document.onkeydown = function(e) {
   function tryLoadOne(attempt) {
     return attempt.loader().then(function (mod) {
       var fn = mod.removeBackground || mod.default || mod;
-      if (typeof fn !== "function") {
-        throw new Error("module did not export a callable removeBackground");
-      }
+      if (typeof fn !== "function") throw new Error("module did not export removeBackground");
       return { fn: fn, publicPath: attempt.publicPath, name: attempt.name };
     });
   }
@@ -5111,16 +5478,12 @@ document.onkeydown = function(e) {
       var lastErr = null;
       for (var i = 0; i < CDN_ATTEMPTS.length; i++) {
         var attempt = CDN_ATTEMPTS[i];
-        console.log("[BG Remover] Attempt " + (i + 1) + "/" + CDN_ATTEMPTS.length + ": " + attempt.name);
         try {
           var r = await tryLoadOne(attempt);
-          console.log("[BG Remover] Loaded via", attempt.name);
           bgRemoverFn = r.fn;
           bgRemoverName = r.name;
           return { fn: r.fn, publicPath: r.publicPath, name: r.name };
         } catch (err) {
-          console.warn("[BG Remover] " + attempt.name + " failed:", err && err.message ? err.message : err);
-          if (err && err.stack) console.warn(err.stack);
           lastErr = err;
         }
       }
@@ -5131,12 +5494,6 @@ document.onkeydown = function(e) {
     return bgRemoverLoad;
   }
 
-  /**
-   * Fallback flood-fill chroma key — safe for images with a fairly uniform
-   * background (product shots, logos, stickers, etc.). Runs from all border
-   * pixels inward and clears connected regions matching any of the four
-   * sampled corner colors.
-   */
   function fallbackFloodFill(image) {
     return new Promise(function (resolve, reject) {
       try {
@@ -5145,15 +5502,13 @@ document.onkeydown = function(e) {
         if (!w || !h) { reject(new Error("image has no dimensions")); return; }
 
         var canvas = document.createElement("canvas");
-        canvas.width = w;
-        canvas.height = h;
+        canvas.width = w; canvas.height = h;
         var ctx = canvas.getContext("2d", { willReadFrequently: true });
         ctx.drawImage(image, 0, 0);
 
         var imgData = ctx.getImageData(0, 0, w, h);
         var data = imgData.data;
 
-        // Sample the four corners (avg of a 5×5 block around each corner)
         function sample(x, y) {
           var x0 = Math.max(0, x - 2), x1 = Math.min(w - 1, x + 2);
           var y0 = Math.max(0, y - 2), y1 = Math.min(h - 1, y + 2);
@@ -5169,22 +5524,14 @@ document.onkeydown = function(e) {
           return [r / n, g / n, b / n];
         }
 
-        var cornerColors = [
-          sample(0, 0),
-          sample(w - 1, 0),
-          sample(0, h - 1),
-          sample(w - 1, h - 1)
-        ].filter(Boolean);
+        var corners = [sample(0, 0), sample(w - 1, 0), sample(0, h - 1), sample(w - 1, h - 1)]
+          .filter(Boolean);
+        if (!corners.length) { reject(new Error("no corner samples")); return; }
 
-        if (!cornerColors.length) {
-          reject(new Error("could not sample corner colors"));
-          return;
-        }
-
-        var TOL = 65 * 65; // squared color distance threshold
+        var TOL = 65 * 65;
         function matches(r, g, b) {
-          for (var c = 0; c < cornerColors.length; c++) {
-            var cc = cornerColors[c];
+          for (var c = 0; c < corners.length; c++) {
+            var cc = corners[c];
             var dr = r - cc[0], dg = g - cc[1], db = b - cc[2];
             if (dr * dr + dg * dg + db * db < TOL) return true;
           }
@@ -5192,7 +5539,6 @@ document.onkeydown = function(e) {
         }
 
         var visited = new Uint8Array(w * h);
-        // BFS queue: seed with all border pixels
         var qx = new Int32Array(w * h);
         var qy = new Int32Array(w * h);
         var head = 0, tail = 0;
@@ -5211,45 +5557,51 @@ document.onkeydown = function(e) {
           head++;
           var idx = cy * w + cx;
           var i = idx * 4;
-          if (data[i + 3] < 30) continue; // already transparent
+          if (data[i + 3] < 30) continue;
           if (!matches(data[i], data[i + 1], data[i + 2])) continue;
-          data[i + 3] = 0; // clear alpha
+          data[i + 3] = 0;
 
-          // 4-neighbors
-          function push(nx, ny) {
+          (function push(nx, ny) {
             if (nx < 0 || nx >= w || ny < 0 || ny >= h) return;
             var nidx = ny * w + nx;
             if (visited[nidx]) return;
             visited[nidx] = 1;
             qx[tail] = nx; qy[tail] = ny; tail++;
-          }
-          push(cx + 1, cy);
-          push(cx - 1, cy);
-          push(cx, cy + 1);
-          push(cx, cy - 1);
+          })(cx + 1, cy);
+          (function push(nx, ny) {
+            if (nx < 0 || nx >= w || ny < 0 || ny >= h) return;
+            var nidx = ny * w + nx;
+            if (visited[nidx]) return;
+            visited[nidx] = 1;
+            qx[tail] = nx; qy[tail] = ny; tail++;
+          })(cx - 1, cy);
+          (function push(nx, ny) {
+            if (nx < 0 || nx >= w || ny < 0 || ny >= h) return;
+            var nidx = ny * w + nx;
+            if (visited[nidx]) return;
+            visited[nidx] = 1;
+            qx[tail] = nx; qy[tail] = ny; tail++;
+          })(cx, cy + 1);
+          (function push(nx, ny) {
+            if (nx < 0 || nx >= w || ny < 0 || ny >= h) return;
+            var nidx = ny * w + nx;
+            if (visited[nidx]) return;
+            visited[nidx] = 1;
+            qx[tail] = nx; qy[tail] = ny; tail++;
+          })(cx, cy - 1);
         }
 
         ctx.putImageData(imgData, 0, 0);
-
         canvas.toBlob(function (blob) {
           if (blob) resolve(blob);
-          else reject(new Error("canvas toBlob returned null"));
+          else reject(new Error("toBlob null"));
         }, "image/png");
-      } catch (e) {
-        reject(e);
-      }
+      } catch (e) { reject(e); }
     });
   }
 
-  /**
-   * Run the AI background-removal pipeline, with graceful fallback to the
-   * flood-fill chroma key if any step fails.
-   */
   async function removeBackgroundNow() {
-    if (!originalImage) {
-      toast("Upload an image first");
-      return;
-    }
+    if (!originalImage) { toast("Upload an image first"); return; }
 
     btnRemoveBg.disabled = true;
     btnResetBg.hidden = true;
@@ -5258,31 +5610,26 @@ document.onkeydown = function(e) {
     bgSetProgress(2, "Loading AI model…", "fa-solid fa-gear fa-spin");
     setBgBadge("working", "loading model…");
 
-    var inferencePulse = null;
-    var aiSucceeded = false;
+    var pulse = null;
+    var aiOk = false;
     var outBlob = null;
     var engineUsed = null;
 
     function startPulse() {
-      if (inferencePulse) return;
+      if (pulse) return;
       var p = 45;
-      inferencePulse = setInterval(function () {
+      pulse = setInterval(function () {
         p = Math.min(92, p + Math.random() * 3);
         bgSetProgress(p, "Removing background…", "fa-solid fa-wand-magic-sparkles");
       }, 220);
     }
-    function stopPulse() {
-      if (inferencePulse) { clearInterval(inferencePulse); inferencePulse = null; }
-    }
+    function stopPulse() { if (pulse) { clearInterval(pulse); pulse = null; } }
 
     try {
-      // ---- Prepare input blob ----
       var inputBlob;
       try {
-        var srcBlob = await fetch(originalImage.src).then(function (r) { return r.blob(); });
-        inputBlob = srcBlob;
+        inputBlob = await fetch(originalImage.src).then(function (r) { return r.blob(); });
       } catch (e) {
-        // fallback: draw to canvas
         var c0 = document.createElement("canvas");
         c0.width = originalImage.naturalWidth || originalImage.width;
         c0.height = originalImage.naturalHeight || originalImage.height;
@@ -5292,53 +5639,36 @@ document.onkeydown = function(e) {
         });
       }
 
-      // ---- Attempt AI removal ----
       try {
         var mod = await loadBgRemover();
         bgSetProgress(35, "Downloading model…", "fa-solid fa-cloud-arrow-down fa-bounce");
-
-        var config = {
+        startPulse();
+        outBlob = await mod.fn(inputBlob, {
           publicPath: mod.publicPath,
           model: "isnet_quint8",
           output: { format: "image/png" },
-          progress: function (key, current, total) {
-            if (!total) return;
-            var pct = 35 + (current / total) * 40; // 35 → 75 %
-            bgSetProgress(pct, "Downloading model…", "fa-solid fa-cloud-arrow-down fa-bounce");
-            if (current / total >= 0.999) {
-              startPulse();
-            }
+          progress: function (k, cur, tot) {
+            if (!tot) return;
+            bgSetProgress(35 + (cur / tot) * 40, "Downloading model…", "fa-solid fa-cloud-arrow-down fa-bounce");
+            if (cur / tot >= 0.999) startPulse();
           }
-        };
-
-        startPulse();
-        outBlob = await mod.fn(inputBlob, config);
+        });
         stopPulse();
-
-        if (!outBlob || !outBlob.size) {
-          throw new Error("AI returned empty blob");
-        }
-
-        aiSucceeded = true;
+        if (!outBlob || !outBlob.size) throw new Error("AI returned empty blob");
+        aiOk = true;
         engineUsed = "ai";
         bgSetProgress(100, "Done (AI)!", "fa-solid fa-circle-check");
         setBgBadge("ready", "AI · " + (bgRemoverName || "imgly"));
       } catch (aiErr) {
         stopPulse();
-        console.error("[BG Remover] AI failed:", aiErr);
-        if (aiErr && aiErr.stack) console.error(aiErr.stack);
-
-        // ---- Fallback ----
         bgSetProgress(60, "AI unavailable — using fallback…", "fa-solid fa-triangle-exclamation");
         setBgBadge("pending", "AI failed · using fallback");
-
         outBlob = await fallbackFloodFill(originalImage);
         engineUsed = "flood";
         bgSetProgress(100, "Done (fallback)!", "fa-solid fa-circle-check");
         setBgBadge("pending", "fallback · flood-fill");
       }
 
-      // ---- Apply result ----
       lastBgBlob = outBlob;
       lastBgEngine = engineUsed;
 
@@ -5360,11 +5690,7 @@ document.onkeydown = function(e) {
           bgSetProgress(0, "Preparing…", "fa-solid fa-gear fa-spin");
         }, 1100);
 
-        if (aiSucceeded) {
-          toast("✨ Background removed (AI · transparent PNG ready)");
-        } else {
-          toast("✨ Background removed (fallback flood-fill)");
-        }
+        toast(aiOk ? "✨ Background removed (AI · transparent PNG ready)" : "✨ Background removed (fallback flood-fill)");
       };
       resultImg.onerror = function () {
         URL.revokeObjectURL(objectUrl);
@@ -5377,8 +5703,6 @@ document.onkeydown = function(e) {
       resultImg.src = objectUrl;
     } catch (err) {
       stopPulse();
-      console.error("[BG Remover] total failure:", err);
-      if (err && err.stack) console.error(err.stack);
       bgShowProgress(false);
       setBgBadge("error", "failed");
       btnRemoveBg.disabled = false;
@@ -5386,7 +5710,6 @@ document.onkeydown = function(e) {
     }
   }
 
-  /* ---- Compare toggle ---- */
   function updateCompareActive() {
     var btns = bgCompare.querySelectorAll("button");
     for (var i = 0; i < btns.length; i++) {
@@ -5432,24 +5755,18 @@ document.onkeydown = function(e) {
     toast("Restored original");
   }
 
-  /* ---- UI wiring ---- */
-  dropEl.addEventListener("click", function () {
-    fileEl.click();
-  });
+  /* ============================================================
+     UI WIRING
+     ============================================================ */
+  dropEl.addEventListener("click", function () { fileEl.click(); });
   dropEl.addEventListener("keydown", function (e) {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      fileEl.click();
-    }
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileEl.click(); }
   });
 
   dropEl.addEventListener("dragover", function (e) {
-    e.preventDefault();
-    dropEl.classList.add("drag");
+    e.preventDefault(); dropEl.classList.add("drag");
   });
-  dropEl.addEventListener("dragleave", function () {
-    dropEl.classList.remove("drag");
-  });
+  dropEl.addEventListener("dragleave", function () { dropEl.classList.remove("drag"); });
   dropEl.addEventListener("drop", function (e) {
     e.preventDefault();
     dropEl.classList.remove("drag");
@@ -5468,15 +5785,28 @@ document.onkeydown = function(e) {
   });
   resLabel.textContent = resEl.value + " emoji wide";
 
+  /* ---- FIXED: mode change handler ---- */
   modeEl.addEventListener("change", function () {
-    if (modeEl.value !== "color") {
-      toast("That palette is coming soon — using color match");
-      modeEl.value = "color";
+    var mode = modeEl.value;
+    if (mode === "discovered" || mode === "kitchen" || mode === "hybrid") {
+      invalidateDynamicPalette(mode);
     }
-    if (currentImage) convert();
+    if (currentImage) {
+      var msg =
+        mode === "color"      ? "🎨 Color palette" :
+        mode === "discovered" ? "⭐ Discovered palette" :
+        mode === "kitchen"    ? "🍳 Kitchen palette" :
+                                "🌈 Hybrid palette";
+      toast(msg);
+      convert();
+    } else {
+      showPaletteLoading(mode);
+      getActivePalette(mode).then(function (p) {
+        updatePaletteInfo(p, mode);
+      });
+    }
   });
 
-  // Paste support
   document.addEventListener("paste", function (e) {
     var el = e.target;
     if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
@@ -5485,11 +5815,7 @@ document.onkeydown = function(e) {
     for (var i = 0; i < items.length; i++) {
       if (items[i].type && items[i].type.indexOf("image") === 0) {
         var f = items[i].getAsFile();
-        if (f) {
-          handleFile(f);
-          e.preventDefault();
-          break;
-        }
+        if (f) { handleFile(f); e.preventDefault(); break; }
       }
     }
   });
@@ -5505,6 +5831,17 @@ document.onkeydown = function(e) {
     new ResizeObserver(adjustSize).observe(outputEl.parentElement);
   }
 
+  /* ============================================================
+     INIT — inject hybrid option + prime palette info
+     ============================================================ */
+  ensureHybridOption();
+  ensurePaletteInfo();
+  updatePaletteInfo(EMOJI_PALETTE, "color");
+  checkPaletteFreshness();
+
+  /* ============================================================
+     EXPORTS
+     ============================================================ */
   window.EmojiImageConverter = {
     palette: EMOJI_PALETTE,
     convert: convert,
@@ -5516,9 +5853,124 @@ document.onkeydown = function(e) {
     getGrid: function () { return currentGrid; },
     getImage: function () { return currentImage; },
     getOriginal: function () { return originalImage; },
-    getBgEngine: function () { return lastBgEngine; }
+    getBgEngine: function () { return lastBgEngine; },
+    /* Palette API */
+    palettes: {
+      color:      function () { return Promise.resolve(EMOJI_PALETTE); },
+      discovered: getDiscoveredPalette,
+      kitchen:    getKitchenPalette,
+      hybrid:     getHybridPalette
+    },
+    setPaletteMode: function (m) {
+      modeEl.value = m;
+      modeEl.dispatchEvent(new Event("change"));
+    },
+    invalidatePalette: invalidateDynamicPalette,
+    getEmojiColor: getEmojiColor,
+    getPaletteInfo: function () {
+      return { mode: modeEl.value, count: (currentGrid && currentGrid.length) ? currentGrid[0].length : 0 };
+    }
   };
 })();
+</script>
+<script>
+// Disable right-click
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+function ctrlShiftKey(e, keyCode) {
+  return e.ctrlKey && e.shiftKey && e.keyCode === keyCode.charCodeAt(0);
+}
+
+document.onkeydown = (e) => {
+  // Disable F12, Ctrl + Shift + I, Ctrl + Shift + J, Ctrl + U
+  if (
+    event.keyCode === 123 ||
+    ctrlShiftKey(e, 'I') ||
+    ctrlShiftKey(e, 'J') ||
+    ctrlShiftKey(e, 'C') ||
+    (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0))
+  )
+    return false;
+};
+</script>
+<script>
+ if (typeof document.onselectstart!="undefined" ) {
+  document.onselectstart=new Function ("return false" );
+ }
+ else {
+  document.onmousedown=new Function ("return false" );
+  document.onmouseup=new Function ("return true" );
+ }
+</script>
+<script>
+   document.onkeydown = function(e) {
+if(event.keyCode == 123) {
+    return false;
+}
+if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'C'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'X'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'Y'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'Z'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'V'.charCodeAt(0)){
+    return false;
+}
+if (e.keyCode == 67 && e.shiftKey && (e.ctrlKey || e.metaKey)){
+    return false;
+}
+if (e.keyCode == 'J'.charCodeAt(0) && e.altKey && (e.ctrlKey || e.metaKey)){
+    return false;
+}
+if (e.keyCode == 'I'.charCodeAt(0) && e.altKey && (e.ctrlKey || e.metaKey)){
+    return false;
+}
+if ((e.keyCode == 'V'.charCodeAt(0) && e.metaKey) || (e.metaKey && e.altKey)){
+    return false;
+}
+if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'H'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'A'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'F'.charCodeAt(0)){
+    return false;
+}
+if(e.ctrlKey && e.keyCode == 'E'.charCodeAt(0)){
+    return false;
+}
+}
+if (document.addEventListener) {
+    document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    }, false);
+}else{
+    document.attachEvent('oncontextmenu', function() {
+    window.event.returnValue = false;
+    });
+}
 </script>
 
 </body>
