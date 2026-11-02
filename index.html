@@ -4664,9 +4664,6 @@ document.onkeydown = function(e) {
 <!-- ═══════════════════════════════════════════════════════════════
      IMAGE → TRANSPARENT EMOJI MOSAIC  +  AI BG REMOVER (FIXED)
      ═══════════════════════════════════════════════════════════════ -->
-<!-- ═══════════════════════════════════════════════════════════════
-     IMAGE → TRANSPARENT EMOJI MOSAIC  +  AI BG REMOVER (FIXED)
-     ═══════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
   "use strict";
@@ -4684,7 +4681,6 @@ document.onkeydown = function(e) {
   var btnDownload  = document.getElementById("btnDownloadMosaic");
   var btnReset     = document.getElementById("btnResetMosaic");
 
-  // BG remover UI
   var btnRemoveBg    = document.getElementById("btnRemoveBg");
   var btnResetBg     = document.getElementById("btnResetBg");
   var bgBadge        = document.getElementById("bgBadge");
@@ -4696,96 +4692,52 @@ document.onkeydown = function(e) {
   var bgCompare      = document.getElementById("bgCompare");
 
   /* ============================================================
-     PALETTE — base color-matched emoji (+ extended coverage)
+     BASE COLOR PALETTE
      ============================================================ */
   var EMOJI_PALETTE = [
-    { e: "⚫", c: [ 25,  25,  30] },
-    { e: "🌑", c: [ 60,  60,  70] },
-    { e: "⚪", c: [245, 245, 245] },
-    { e: "☁️", c: [230, 235, 240] },
-    { e: "🐘", c: [150, 150, 160] },
-    { e: "🪨", c: [140, 140, 140] },
-    { e: "🔴", c: [220,  30,  40] },
-    { e: "🍎", c: [210,  50,  50] },
-    { e: "🍅", c: [230,  50,  40] },
-    { e: "❤️", c: [230,  30,  60] },
-    { e: "🌹", c: [190,  30,  60] },
-    { e: "🍓", c: [220,  30,  70] },
-    { e: "🍒", c: [180,  20,  40] },
-    { e: "🟠", c: [245, 145,  30] },
-    { e: "🍊", c: [245, 150,  30] },
-    { e: "🥕", c: [240, 130,  50] },
-    { e: "🍑", c: [250, 180, 140] },
-    { e: "🐪", c: [200, 160, 100] },
-    { e: "🟡", c: [250, 220,  40] },
-    { e: "🌟", c: [255, 220,  60] },
-    { e: "🌻", c: [250, 200,  40] },
-    { e: "🍋", c: [250, 230,  50] },
-    { e: "🌽", c: [245, 210,  60] },
-    { e: "🍌", c: [250, 220,  80] },
-    { e: "🌞", c: [255, 200,  70] },
-    { e: "🟢", c: [ 60, 180,  75] },
-    { e: "🥦", c: [ 70, 140,  60] },
-    { e: "🌿", c: [ 90, 160,  70] },
-    { e: "🍀", c: [ 80, 170,  60] },
-    { e: "🌱", c: [120, 190,  80] },
-    { e: "🥝", c: [140, 180,  60] },
-    { e: "🥒", c: [100, 160,  80] },
-    { e: "🍏", c: [140, 200,  60] },
-    { e: "🔵", c: [ 30, 100, 220] },
-    { e: "💧", c: [ 90, 180, 240] },
-    { e: "🌊", c: [ 50, 130, 200] },
-    { e: "🧊", c: [180, 220, 240] },
-    { e: "🫐", c: [ 60,  70, 150] },
-    { e: "❄️", c: [200, 230, 250] },
-    { e: "🌐", c: [ 60, 130, 220] },
-    { e: "🟣", c: [145,  60, 200] },
-    { e: "🍇", c: [110,  60, 150] },
-    { e: "💜", c: [160,  80, 200] },
-    { e: "🌂", c: [140,  60, 180] },
-    { e: "🌸", c: [250, 200, 220] },
-    { e: "🐷", c: [250, 180, 190] },
-    { e: "💖", c: [255, 130, 180] },
-    { e: "🌷", c: [230, 100, 160] },
-    { e: "🍥", c: [250, 190, 200] },
-    { e: "🟤", c: [125,  80,  40] },
-    { e: "🐻", c: [130,  85,  50] },
-    { e: "☕", c: [ 90,  60,  40] },
-    { e: "🍫", c: [ 90,  55,  35] },
-    { e: "🪵", c: [140, 100,  70] },
-    { e: "🥔", c: [190, 160, 110] },
-    { e: "🍞", c: [220, 180, 130] },
-
-    /* ---- Extended coverage (added) ---- */
-    { e: "🤍", c: [240, 240, 245] },
-    { e: "🖤", c: [ 30,  30,  35] },
-    { e: "🤎", c: [130,  85,  55] },
-    { e: "🧡", c: [245, 130,  50] },
-    { e: "💚", c: [ 60, 200, 110] },
-    { e: "💙", c: [ 60, 130, 240] },
-    { e: "🩷", c: [255, 150, 200] },
-    { e: "🩵", c: [130, 200, 240] },
-    { e: "🩶", c: [160, 165, 175] },
-    { e: "🍯", c: [240, 180,  60] },
-    { e: "🐤", c: [250, 220,  80] },
-    { e: "🦩", c: [255, 130, 150] },
-    { e: "🍆", c: [100,  60, 140] },
-    { e: "🫒", c: [130, 140,  70] },
-    { e: "🫑", c: [ 80, 180, 100] },
-    { e: "🥥", c: [120,  90,  70] },
-    { e: "🧋", c: [200, 170, 140] },
-    { e: "🪻", c: [160, 130, 220] },
-    { e: "🪷", c: [250, 200, 220] },
-    { e: "🌫️", c: [180, 185, 195] },
-    { e: "🐚", c: [240, 220, 200] },
-    { e: "🍄", c: [200,  60,  50] },
-    { e: "🥩", c: [200,  70,  70] },
-    { e: "🍷", c: [140,  40,  70] },
-    { e: "🥭", c: [250, 180,  60] },
-    { e: "🔶", c: [250, 160,  60] }
+    { e: "⚫", c: [ 25,  25,  30] }, { e: "🌑", c: [ 60,  60,  70] },
+    { e: "⚪", c: [245, 245, 245] }, { e: "☁️", c: [230, 235, 240] },
+    { e: "🐘", c: [150, 150, 160] }, { e: "🪨", c: [140, 140, 140] },
+    { e: "🔴", c: [220,  30,  40] }, { e: "🍎", c: [210,  50,  50] },
+    { e: "🍅", c: [230,  50,  40] }, { e: "❤️", c: [230,  30,  60] },
+    { e: "🌹", c: [190,  30,  60] }, { e: "🍓", c: [220,  30,  70] },
+    { e: "🍒", c: [180,  20,  40] }, { e: "🟠", c: [245, 145,  30] },
+    { e: "🍊", c: [245, 150,  30] }, { e: "🥕", c: [240, 130,  50] },
+    { e: "🍑", c: [250, 180, 140] }, { e: "🐪", c: [200, 160, 100] },
+    { e: "🟡", c: [250, 220,  40] }, { e: "🌟", c: [255, 220,  60] },
+    { e: "🌻", c: [250, 200,  40] }, { e: "🍋", c: [250, 230,  50] },
+    { e: "🌽", c: [245, 210,  60] }, { e: "🍌", c: [250, 220,  80] },
+    { e: "🌞", c: [255, 200,  70] }, { e: "🟢", c: [ 60, 180,  75] },
+    { e: "🥦", c: [ 70, 140,  60] }, { e: "🌿", c: [ 90, 160,  70] },
+    { e: "🍀", c: [ 80, 170,  60] }, { e: "🌱", c: [120, 190,  80] },
+    { e: "🥝", c: [140, 180,  60] }, { e: "🥒", c: [100, 160,  80] },
+    { e: "🍏", c: [140, 200,  60] }, { e: "🔵", c: [ 30, 100, 220] },
+    { e: "💧", c: [ 90, 180, 240] }, { e: "🌊", c: [ 50, 130, 200] },
+    { e: "🧊", c: [180, 220, 240] }, { e: "🫐", c: [ 60,  70, 150] },
+    { e: "❄️", c: [200, 230, 250] }, { e: "🌐", c: [ 60, 130, 220] },
+    { e: "🟣", c: [145,  60, 200] }, { e: "🍇", c: [110,  60, 150] },
+    { e: "💜", c: [160,  80, 200] }, { e: "🌂", c: [140,  60, 180] },
+    { e: "🌸", c: [250, 200, 220] }, { e: "🐷", c: [250, 180, 190] },
+    { e: "💖", c: [255, 130, 180] }, { e: "🌷", c: [230, 100, 160] },
+    { e: "🍥", c: [250, 190, 200] }, { e: "🟤", c: [125,  80,  40] },
+    { e: "🐻", c: [130,  85,  50] }, { e: "☕", c: [ 90,  60,  40] },
+    { e: "🍫", c: [ 90,  55,  35] }, { e: "🪵", c: [140, 100,  70] },
+    { e: "🥔", c: [190, 160, 110] }, { e: "🍞", c: [220, 180, 130] },
+    { e: "🤍", c: [240, 240, 245] }, { e: "🖤", c: [ 30,  30,  35] },
+    { e: "🤎", c: [130,  85,  55] }, { e: "🧡", c: [245, 130,  50] },
+    { e: "💚", c: [ 60, 200, 110] }, { e: "💙", c: [ 60, 130, 240] },
+    { e: "🩷", c: [255, 150, 200] }, { e: "🩵", c: [130, 200, 240] },
+    { e: "🩶", c: [160, 165, 175] }, { e: "🍯", c: [240, 180,  60] },
+    { e: "🐤", c: [250, 220,  80] }, { e: "🦩", c: [255, 130, 150] },
+    { e: "🍆", c: [100,  60, 140] }, { e: "🫒", c: [130, 140,  70] },
+    { e: "🫑", c: [ 80, 180, 100] }, { e: "🥥", c: [120,  90,  70] },
+    { e: "🧋", c: [200, 170, 140] }, { e: "🪻", c: [160, 130, 220] },
+    { e: "🪷", c: [250, 200, 220] }, { e: "🌫️", c: [180, 185, 195] },
+    { e: "🐚", c: [240, 220, 200] }, { e: "🍄", c: [200,  60,  50] },
+    { e: "🥩", c: [200,  70,  70] }, { e: "🍷", c: [140,  40,  70] },
+    { e: "🥭", c: [250, 180,  60] }, { e: "🔶", c: [250, 160,  60] }
   ];
 
-  // Dedupe base palette
   (function dedupeBase() {
     var seen = Object.create(null), out = [];
     for (var i = 0; i < EMOJI_PALETTE.length; i++) {
@@ -4796,11 +4748,11 @@ document.onkeydown = function(e) {
   })();
 
   /* ============================================================
-     EMOJI COLOR EXTRACTION (cached)
+     COLOR EXTRACTION (vivid — saturation-weighted)
      ============================================================ */
-  var emojiColorCache = new Map();
   var probeCanvas = null;
-  var probeCtx = null;
+  var probeCtx    = null;
+  var emojiColorCache = new Map();
 
   function getProbeCtx() {
     if (!probeCtx) {
@@ -4839,107 +4791,117 @@ document.onkeydown = function(e) {
       hash = ((hash << 5) - hash + emoji.charCodeAt(i)) | 0;
     }
     var h = (Math.abs(hash) % 360) / 360;
-    return hslToRgb(h, 0.55, 0.55);
+    return hslToRgb(h, 0.65, 0.55);
+  }
+
+  function extractEmojiColor(emoji) {
+    try {
+      var ctx = getProbeCtx();
+      var size = probeCanvas.width;
+      ctx.clearRect(0, 0, size, size);
+      ctx.font = Math.floor(size * 0.85) +
+        'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Android Emoji",sans-serif';
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(emoji, size / 2, size / 2 + 1);
+
+      var data = ctx.getImageData(0, 0, size, size).data;
+
+      var satR = 0, satG = 0, satB = 0, satW = 0;
+      var allR = 0, allG = 0, allB = 0, allW = 0;
+      var count = 0;
+
+      for (var i = 0; i < data.length; i += 4) {
+        var r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+        if (a < 60) continue;
+        count++;
+
+        var max = Math.max(r, g, b);
+        var min = Math.min(r, g, b);
+        var l = (max + min) / 2;
+        var sat = (max === min) ? 0 :
+          (l > 127.5 ? (max - min) / (510 - max - min) : (max - min) / (max + min));
+
+        // Saturate weight → vivid, distinctive colors (fixes muddy averages)
+        var sw = a * (sat * sat * 5 + sat * 2 + 0.3);
+        satR += r * sw; satG += g * sw; satB += b * sw; satW += sw;
+
+        allR += r * a; allG += g * a; allB += b * a; allW += a;
+      }
+
+      if (count < 5) return hashEmojiColor(emoji);
+
+      if (satW > 0) return [satR / satW, satG / satW, satB / satW];
+      if (allW > 0) return [allR / allW, allG / allW, allB / allW];
+    } catch (e) { /* tainted canvas or unsupported */ }
+
+    return hashEmojiColor(emoji);
   }
 
   function getEmojiColor(emoji) {
-    if (emojiColorCache.has(emoji)) {
-      return Promise.resolve(emojiColorCache.get(emoji));
-    }
-    return new Promise(function (resolve) {
-      var color = null;
-      try {
-        var ctx = getProbeCtx();
-        var size = probeCanvas.width;
-        ctx.clearRect(0, 0, size, size);
-        ctx.font = Math.floor(size * 0.85) +
-          'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Android Emoji",sans-serif';
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "#000";
-        ctx.fillText(emoji, size / 2, size / 2 + 1);
-
-        var data = ctx.getImageData(0, 0, size, size).data;
-        var r = 0, g = 0, b = 0, wsum = 0;
-        for (var i = 0; i < data.length; i += 4) {
-          var a = data[i + 3];
-          if (a > 80) {
-            r += data[i] * a;
-            g += data[i + 1] * a;
-            b += data[i + 2] * a;
-            wsum += a;
-          }
-        }
-        if (wsum > 0) {
-          color = [r / wsum, g / wsum, b / wsum];
-        }
-      } catch (e) { /* taint / unsupported */ }
-
-      if (!color) color = hashEmojiColor(emoji);
-      emojiColorCache.set(emoji, color);
-      resolve(color);
-    });
+    if (emojiColorCache.has(emoji)) return emojiColorCache.get(emoji);
+    var color = extractEmojiColor(emoji);
+    emojiColorCache.set(emoji, color);
+    return color;
   }
 
   /* ============================================================
-     DYNAMIC PALETTE BUILDERS
+     DYNAMIC PALETTES (yielding builder — non-blocking)
      ============================================================ */
-  var dynamicPalettes = {
-    discovered: null,   // Promise<Array<{e,c}>>
-    kitchen:    null,
-    hybrid:     null
-  };
-
+  var dynamicPalettes = { discovered: null, kitchen: null, hybrid: null };
   var lastDiscoveredCount = -1;
-  var lastKitchenLoaded   = false;
-
-  function dedupePalette(list) {
-    var seen = Object.create(null), out = [];
-    for (var i = 0; i < list.length; i++) {
-      var p = list[i];
-      if (p && p.e && !seen[p.e]) { seen[p.e] = 1; out.push(p); }
-    }
-    return out;
-  }
+  var lastKitchenLoaded = false;
 
   function buildPaletteFromEmojis(emojis, maxCount) {
-    if (!emojis.length) return Promise.resolve([]);
+    if (!emojis || !emojis.length) return Promise.resolve([]);
 
     var list = emojis;
     if (maxCount && list.length > maxCount) {
       var step = list.length / maxCount;
       var sampled = [];
-      for (var i = 0; i < maxCount; i++) {
-        sampled.push(list[Math.floor(i * step)]);
-      }
+      for (var i = 0; i < maxCount; i++) sampled.push(list[Math.floor(i * step)]);
       list = sampled;
     }
 
-    var promises = list.map(function (e) {
-      return getEmojiColor(e).then(function (c) { return { e: e, c: c }; });
+    return new Promise(function (resolve) {
+      var palette = [];
+      var seen = Object.create(null);
+      var idx = 0;
+      var BATCH = 40;
+
+      function processBatch() {
+        var end = Math.min(list.length, idx + BATCH);
+        for (; idx < end; idx++) {
+          var e = list[idx];
+          if (!e || seen[e]) continue;
+          seen[e] = 1;
+          palette.push({ e: e, c: getEmojiColor(e) });
+        }
+        if (idx < list.length) setTimeout(processBatch, 0);
+        else resolve(palette);
+      }
+      processBatch();
     });
-    return Promise.all(promises).then(dedupePalette);
   }
 
   function getDiscoveredPalette() {
     if (dynamicPalettes.discovered) return dynamicPalettes.discovered;
-
     var emojis = [];
     try {
       var N = window.NotoFusion;
       if (N && N.state && N.state.discovered) {
         var d = N.state.discovered;
-        emojis = Object.keys(d).filter(function (k) { return d[k]; });
+        emojis = Object.keys(d).filter(function (k) {
+          return d[k] && typeof k === "string" && k.length > 0 && k.length < 40;
+        });
       }
     } catch (e) {}
-
     dynamicPalettes.discovered = buildPaletteFromEmojis(emojis, 400);
     return dynamicPalettes.discovered;
   }
 
   function getKitchenPalette() {
     if (dynamicPalettes.kitchen) return dynamicPalettes.kitchen;
-
     var emojis = [];
     try {
       var N = window.NotoFusion;
@@ -4957,21 +4919,17 @@ document.onkeydown = function(e) {
         }
       }
     } catch (e) {}
-
     dynamicPalettes.kitchen = buildPaletteFromEmojis(emojis, 500);
     return dynamicPalettes.kitchen;
   }
 
   function getHybridPalette() {
     if (dynamicPalettes.hybrid) return dynamicPalettes.hybrid;
-
     var all = [];
     var seen = Object.create(null);
-
     EMOJI_PALETTE.forEach(function (p) {
       if (!seen[p.e]) { seen[p.e] = 1; all.push(p.e); }
     });
-
     try {
       var N = window.NotoFusion;
       if (N && N.state && N.state.discovered) {
@@ -4992,7 +4950,6 @@ document.onkeydown = function(e) {
         }
       }
     } catch (e) {}
-
     dynamicPalettes.hybrid = buildPaletteFromEmojis(all, 600);
     return dynamicPalettes.hybrid;
   }
@@ -5035,7 +4992,7 @@ document.onkeydown = function(e) {
   }
 
   /* ============================================================
-     COLOR MATCHING — weighted (red-mean) distance
+     COLOR MATCHING (weighted — red mean formula)
      ============================================================ */
   function weightedDistSq(r1, g1, b1, r2, g2, b2) {
     var rmean = (r1 + r2) * 0.5;
@@ -5056,6 +5013,37 @@ document.onkeydown = function(e) {
   }
 
   /* ============================================================
+     AUTO-DETECT — pick best palette on image load
+     ============================================================ */
+  var userChoseMode = false;
+
+  function detectBestMode() {
+    var hasDiscovered = false;
+    var hasKitchen = false;
+    try {
+      var N = window.NotoFusion;
+      if (N && N.state) {
+        hasDiscovered = Object.keys(N.state.discovered || {}).length > 0;
+        hasKitchen = !!N.state.kitchenLoaded;
+      }
+    } catch (e) {}
+    if (hasDiscovered && hasKitchen) return "hybrid";
+    if (hasDiscovered) return "discovered";
+    if (hasKitchen) return "kitchen";
+    return "color";
+  }
+
+  function tryAutoDetect() {
+    if (userChoseMode) return false;
+    var best = detectBestMode();
+    if (modeEl.value !== best) {
+      modeEl.value = best;
+      return true;
+    }
+    return false;
+  }
+
+  /* ============================================================
      STATE
      ============================================================ */
   var currentImage   = null;
@@ -5070,7 +5058,7 @@ document.onkeydown = function(e) {
   var currentViewMode = "processed";
 
   /* ============================================================
-     TOAST (local, shared with game for consistency)
+     TOAST (shared style with game)
      ============================================================ */
   var _toastEl = null, _toastTimer = null;
   function toast(msg) {
@@ -5088,61 +5076,10 @@ document.onkeydown = function(e) {
   }
 
   /* ============================================================
-     PALETTE INFO BADGE (injected — no HTML changes needed)
-     ============================================================ */
-  var paletteInfoEl = null;
-
-  function ensurePaletteInfo() {
-    if (paletteInfoEl) return;
-    var modeLabel = modeEl.closest("label");
-    if (!modeLabel) return;
-
-    paletteInfoEl = document.createElement("div");
-    paletteInfoEl.id = "imgPaletteInfo";
-    paletteInfoEl.style.cssText =
-      "display:flex;align-items:center;gap:8px;flex-wrap:wrap;" +
-      "font-size:11px;color:var(--muted);font-weight:600;" +
-      "text-transform:none;letter-spacing:0;margin-top:2px;" +
-      "min-height:18px;line-height:1.4;overflow:hidden;";
-    modeLabel.appendChild(paletteInfoEl);
-  }
-
-  function showPaletteLoading(mode) {
-    ensurePaletteInfo();
-    if (!paletteInfoEl) return;
-    var label = { discovered: "⭐ Discovered", kitchen: "🍳 Kitchen", hybrid: "🌈 Hybrid" }[mode] || mode;
-    paletteInfoEl.innerHTML =
-      '<span style="color:var(--warn);font-weight:800">⏳ Building ' + label + " palette…</span>";
-  }
-
-  function updatePaletteInfo(palette, mode) {
-    ensurePaletteInfo();
-    if (!paletteInfoEl) return;
-
-    var labels = {
-      color:      "🎨 Color match",
-      discovered: "⭐ Discovered",
-      kitchen:    "🍳 Kitchen",
-      hybrid:     "🌈 Hybrid"
-    };
-    var sourceLabel = labels[mode] || "🎨 Color match";
-
-    var sample = palette.slice(0, 12).map(function (p) { return p.e; }).join(" ");
-    if (palette.length > 12) sample += " …";
-
-    paletteInfoEl.innerHTML =
-      '<span style="color:var(--txt-2);font-weight:800">' +
-      palette.length + " emoji</span>" +
-      '<span style="opacity:.55">·</span>' +
-      "<span>" + sourceLabel + "</span>" +
-      '<span style="opacity:.9;font-size:13px;letter-spacing:.5px">' +
-      sample + "</span>";
-  }
-
-  /* ============================================================
-     HYBRID OPTION (injected if missing)
+     HYBRID OPTION
      ============================================================ */
   function ensureHybridOption() {
+    if (!modeEl) return;
     for (var i = 0; i < modeEl.options.length; i++) {
       if (modeEl.options[i].value === "hybrid") return;
     }
@@ -5169,6 +5106,10 @@ document.onkeydown = function(e) {
       lastBgEngine = null;
       currentViewMode = "processed";
       showPreview(img);
+
+      // Auto-detect palette (unless user manually chose)
+      tryAutoDetect();
+
       convert();
       btnReset.disabled = false;
       btnRemoveBg.disabled = false;
@@ -5196,7 +5137,7 @@ document.onkeydown = function(e) {
   }
 
   /* ============================================================
-     CONVERT — async, palette-aware
+     CONVERT (async, palette-aware, race-safe)
      ============================================================ */
   var convertToken = 0;
 
@@ -5205,11 +5146,7 @@ document.onkeydown = function(e) {
 
     checkPaletteFreshness();
     var myToken = ++convertToken;
-    var mode = modeEl.value || "color";
-
-    if (mode !== "color" && !dynamicPalettes[mode]) {
-      showPaletteLoading(mode);
-    }
+    var mode = (modeEl && modeEl.value) || "color";
 
     var palette;
     try {
@@ -5219,21 +5156,7 @@ document.onkeydown = function(e) {
     }
 
     if (myToken !== convertToken) return;
-
-    if (!palette || !palette.length) {
-      palette = EMOJI_PALETTE;
-      if (mode !== "color") {
-        toast(
-          mode === "discovered"
-            ? "No discoveries yet — using color palette"
-            : mode === "kitchen"
-              ? "Kitchen data not ready — using color palette"
-              : "Empty palette — using color palette"
-        );
-      }
-    }
-
-    updatePaletteInfo(palette, mode);
+    if (!palette || !palette.length) palette = EMOJI_PALETTE;
 
     var cols = parseInt(resEl.value, 10) || 40;
     var w = currentImage.naturalWidth  || currentImage.width;
@@ -5283,11 +5206,10 @@ document.onkeydown = function(e) {
   }
 
   /* ============================================================
-     RENDER MOSAIC
+     RENDER
      ============================================================ */
   function render() {
     if (!currentGrid) return;
-
     var cols = currentGrid[0].length;
     var wrap = outputEl.parentElement;
     var avail = (wrap.clientWidth || 300) - 20;
@@ -5350,14 +5272,11 @@ document.onkeydown = function(e) {
       navigator.clipboard.writeText(text).then(function () {
         toast("✓ Mosaic copied (" + currentGrid.length + " rows)");
       }).catch(fallback);
-    } else {
-      fallback();
-    }
+    } else fallback();
   }
 
   function downloadMosaic() {
     if (!currentGrid) return;
-
     var cols = currentGrid[0].length;
     var rows = currentGrid.length;
     var cellW = 32, cellH = 32;
@@ -5366,7 +5285,6 @@ document.onkeydown = function(e) {
     canvas.width = cols * cellW;
     canvas.height = rows * cellH;
     var ctx = canvas.getContext("2d");
-
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = Math.floor(cellH * 0.9) +
@@ -5417,13 +5335,10 @@ document.onkeydown = function(e) {
     bgProgress.hidden = true;
     setBgBadge("pending", "free · no API key");
     fileEl.value = "";
-    if (paletteInfoEl) {
-      paletteInfoEl.innerHTML = "";
-    }
   }
 
   /* ============================================================
-     AI BACKGROUND REMOVER  (unchanged core, kept intact)
+     AI BACKGROUND REMOVER (unchanged core)
      ============================================================ */
   function setBgBadge(kind, text) {
     if (!bgBadge) return;
@@ -5477,15 +5392,12 @@ document.onkeydown = function(e) {
     bgRemoverLoad = (async function () {
       var lastErr = null;
       for (var i = 0; i < CDN_ATTEMPTS.length; i++) {
-        var attempt = CDN_ATTEMPTS[i];
         try {
-          var r = await tryLoadOne(attempt);
+          var r = await tryLoadOne(CDN_ATTEMPTS[i]);
           bgRemoverFn = r.fn;
           bgRemoverName = r.name;
           return { fn: r.fn, publicPath: r.publicPath, name: r.name };
-        } catch (err) {
-          lastErr = err;
-        }
+        } catch (err) { lastErr = err; }
       }
       bgRemoverLoad = null;
       throw lastErr || new Error("All CDN attempts failed");
@@ -5561,34 +5473,15 @@ document.onkeydown = function(e) {
           if (!matches(data[i], data[i + 1], data[i + 2])) continue;
           data[i + 3] = 0;
 
-          (function push(nx, ny) {
+          function push(nx, ny) {
             if (nx < 0 || nx >= w || ny < 0 || ny >= h) return;
             var nidx = ny * w + nx;
             if (visited[nidx]) return;
             visited[nidx] = 1;
             qx[tail] = nx; qy[tail] = ny; tail++;
-          })(cx + 1, cy);
-          (function push(nx, ny) {
-            if (nx < 0 || nx >= w || ny < 0 || ny >= h) return;
-            var nidx = ny * w + nx;
-            if (visited[nidx]) return;
-            visited[nidx] = 1;
-            qx[tail] = nx; qy[tail] = ny; tail++;
-          })(cx - 1, cy);
-          (function push(nx, ny) {
-            if (nx < 0 || nx >= w || ny < 0 || ny >= h) return;
-            var nidx = ny * w + nx;
-            if (visited[nidx]) return;
-            visited[nidx] = 1;
-            qx[tail] = nx; qy[tail] = ny; tail++;
-          })(cx, cy + 1);
-          (function push(nx, ny) {
-            if (nx < 0 || nx >= w || ny < 0 || ny >= h) return;
-            var nidx = ny * w + nx;
-            if (visited[nidx]) return;
-            visited[nidx] = 1;
-            qx[tail] = nx; qy[tail] = ny; tail++;
-          })(cx, cy - 1);
+          }
+          push(cx + 1, cy); push(cx - 1, cy);
+          push(cx, cy + 1); push(cx, cy - 1);
         }
 
         ctx.putImageData(imgData, 0, 0);
@@ -5690,7 +5583,8 @@ document.onkeydown = function(e) {
           bgSetProgress(0, "Preparing…", "fa-solid fa-gear fa-spin");
         }, 1100);
 
-        toast(aiOk ? "✨ Background removed (AI · transparent PNG ready)" : "✨ Background removed (fallback flood-fill)");
+        toast(aiOk ? "✨ Background removed (AI · transparent PNG ready)"
+                   : "✨ Background removed (fallback flood-fill)");
       };
       resultImg.onerror = function () {
         URL.revokeObjectURL(objectUrl);
@@ -5762,7 +5656,6 @@ document.onkeydown = function(e) {
   dropEl.addEventListener("keydown", function (e) {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileEl.click(); }
   });
-
   dropEl.addEventListener("dragover", function (e) {
     e.preventDefault(); dropEl.classList.add("drag");
   });
@@ -5785,26 +5678,10 @@ document.onkeydown = function(e) {
   });
   resLabel.textContent = resEl.value + " emoji wide";
 
-  /* ---- FIXED: mode change handler ---- */
+  /* Mode change — remember user's choice, no info badge shown */
   modeEl.addEventListener("change", function () {
-    var mode = modeEl.value;
-    if (mode === "discovered" || mode === "kitchen" || mode === "hybrid") {
-      invalidateDynamicPalette(mode);
-    }
-    if (currentImage) {
-      var msg =
-        mode === "color"      ? "🎨 Color palette" :
-        mode === "discovered" ? "⭐ Discovered palette" :
-        mode === "kitchen"    ? "🍳 Kitchen palette" :
-                                "🌈 Hybrid palette";
-      toast(msg);
-      convert();
-    } else {
-      showPaletteLoading(mode);
-      getActivePalette(mode).then(function (p) {
-        updatePaletteInfo(p, mode);
-      });
-    }
+    userChoseMode = true;
+    if (currentImage) convert();
   });
 
   document.addEventListener("paste", function (e) {
@@ -5832,11 +5709,9 @@ document.onkeydown = function(e) {
   }
 
   /* ============================================================
-     INIT — inject hybrid option + prime palette info
+     INIT
      ============================================================ */
   ensureHybridOption();
-  ensurePaletteInfo();
-  updatePaletteInfo(EMOJI_PALETTE, "color");
   checkPaletteFreshness();
 
   /* ============================================================
@@ -5854,7 +5729,6 @@ document.onkeydown = function(e) {
     getImage: function () { return currentImage; },
     getOriginal: function () { return originalImage; },
     getBgEngine: function () { return lastBgEngine; },
-    /* Palette API */
     palettes: {
       color:      function () { return Promise.resolve(EMOJI_PALETTE); },
       discovered: getDiscoveredPalette,
@@ -5863,13 +5737,15 @@ document.onkeydown = function(e) {
     },
     setPaletteMode: function (m) {
       modeEl.value = m;
-      modeEl.dispatchEvent(new Event("change"));
+      userChoseMode = true;
+      if (currentImage) convert();
+    },
+    autoDetect: function () {
+      userChoseMode = false;
+      return tryAutoDetect();
     },
     invalidatePalette: invalidateDynamicPalette,
-    getEmojiColor: getEmojiColor,
-    getPaletteInfo: function () {
-      return { mode: modeEl.value, count: (currentGrid && currentGrid.length) ? currentGrid[0].length : 0 };
-    }
+    getEmojiColor: getEmojiColor
   };
 })();
 </script>
